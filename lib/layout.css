@@ -1,0 +1,111 @@
+/* 
+================================================================================
+ ////////        ///////                                                        
+    /////          /////                                                        
+    ////           ////                                                         
+   /////           ////                                                         
+   /////           ////                                                         
+   /////          /////                                                         
+   ////           /////                                                         
+  /////           ////                                                          
+  /////           ////                             ///                          
+  ///// ////     /////     ///// ////     //////   //////////    ////     ///// 
+  //// /   ///   /////   ////  / ////    ///   //// //  ////    /////   //   ///
+ //////    ///   ////   ////    ////    ////   ////     ////    ////   ///   ///
+ /////     ////  ////   ////    ////   /////   ////    /////    ////   ////  ///
+ ////      //// /////  ////     ////   ////    ////    /////    ////   //////   
+ ////     ///// ///// /////     ////   ////   /////    ////    /////   ///////  
+/////     ///// ////  /////     ///    ////   ////     ////    ////     /////// 
+/////     ////  ////  /////    ////    ////   ///      ////    ////       ///// 
+////      //// /////  ////     ////  //   /////       /////   /////  ////  //// 
+////     ////  /////  ////    /////  //               ////    /////  ////   /// 
+////     ///   /////  ////    ////  /////////////     ////   ////// /////   /// 
+ ///    ///    ////  / ///   / /// / /////////////    ////  /  /// /  //   ///  
+  ///////       /////   /////   ///   ////////////     /////   ////    /////    
+                                      ////////////                              
+                                     //         //                              
+                                    //          //                              
+                                    //          /                               
+                                    //         /                                
+                                     //      //                                 
+                                      ///////                                   
+================================================================================
+Quiki layout definition
+================================================================================
+*/
+
+
+/* =============================================================================
+   Overwrite default styles
+============================================================================= */
+h1, h2, h3, h4, h5, h6 { text-transform:uppercase; }
+
+h1{ margin-top:0;   font-size:1.6em; color:hsl(0,0%,30%); }
+h2{ margin-top:2em; font-size:1.5em; color:hsl(0,0%,35%); }
+h3{ margin-top:2em; font-size:1.4em; color:hsl(0,0%,40%); }
+h4{ margin-top:2em; font-size:1.3em; color:hsl(0,0%,45%); }
+h5{ margin-top:2em; font-size:1.2em; color:hsl(0,0%,50%); }
+h6{ margin-top:2em; font-size:1.1em; color:hsl(0,0%,55%); }
+
+.clear{ clear:both; }
+
+/* =============================================================================
+   Debug
+============================================================================= */
+body.debug header{ background-color:hsla(0,100%,50%,0.05); }
+body.debug header h1{ background-color:hsla(0,100%,50%,0.05); }
+body.debug header nav{ background-color:hsla(0,100%,50%,0.05); }
+
+/* =============================================================================
+   Layout
+============================================================================= */
+html{ min-height:100%; }
+	body{ background-color:hsla(0,0%,90%,1); }
+	/* -----------------------------------------------------------------------------
+	   Header
+	----------------------------------------------------------------------------- */
+		header{ display:block; background-color:hsla(0,0%,20%,1); margin:0 0 0 0; padding:0.25em 0 0 0; text-align:justify; }
+			header *{ color:hsla(0,0%,100%,1); }
+			header a[href], header a[href]:link, header a[href]:visited{ color:hsl(240,100%,85%); }
+			header a[href]:active, header a[href]:hover{ color:hsl(240,100%,100%); }
+			
+			header h1{ display:inline; margin:0; padding:0; white-space:nowrap; font-size:2.0em; font-weight:100; }
+				header h1 .title{ text-transform:uppercase; padding:0 0 0 0.25ex;}
+				header h1 .page{ text-transform:none; }
+				header h1 .action{ font-size:0.66em; color:hsl(0,100%,100%); text-transform:uppercase; }
+			/* -----------------------------------------------------------------------------
+			   Navigation
+			----------------------------------------------------------------------------- */
+			header nav{ display:inline; float:right; margin:0.725em 0 0 0;  padding:0; }
+			header nav ul{ list-style-type:none; margin:0; padding:0; display:inline-block; white-space:nowrap; }
+				header nav ul li{ display:inline; margin:0 1em 0 0; font-size:0.75em; font-weight:100; }
+				header nav ul li.alt{ color:hsl(45,100%,50%); }
+					header nav ul li a{ text-transform:uppercase; }
+			/* -----------------------------------------------------------------------------
+			   Messages
+			----------------------------------------------------------------------------- */
+			header div.messages{ display:block; margin:0;  padding:0.25em; background-color:hsla(0,66%,33%,1); font-size:0.8em; color:hsl(90,100%,80%); font-weight:100; }
+				header div.messages a.close[href]{ float:right; margin-right:1em; font-size:0.6em; font-weight:100; text-transform:uppercase; }
+				header div.messages a.close[href], header div.messages a.close[href]:link, header div.messages a.close[href]:visited{ color:hsl(45,100%,50%); }
+				header div.messages a.close[href]:active, header div.messages a.close[href]:hover{ color:hsl(45,100%,90%); }
+		/* -----------------------------------------------------------------------------
+		   Main contents
+		----------------------------------------------------------------------------- */
+		main{ display:block; clear:both; }
+		/* -----------------------------------------------------------------------------
+		   Edit, history and index
+		----------------------------------------------------------------------------- */
+		section{ display:block; }
+			section form{ display:block; min-height:100%; }
+				section form textarea{ display:block; width:100%; border-style:none; font-family:"Lucida Console", Monaco, monospace; white-space: pre; font-size:75%; overflow:visible; height:100%; background-color:hsla(0,0%,90%,1);}
+				section form textarea:active{ border-style:none; }
+			section.index table{ width:100%; font-family:"Lucida Console", Monaco, monospace; white-space: pre; border-spacing: 0px; }
+				section.index table tbody tr td{ padding:0.25ex 1.5em 0.25em 0.5ex; }
+				section.index table tbody tr td.minWidth{ width:1em; }
+				section.index table tbody tr td.maxWidth{  }
+				section.index table tbody tr.file td{  }
+				section.index table tbody tr.folder td{ font-weight:bold; }
+				section.index table tbody tr:nth-child(even) td:nth-child(even){ background-color:hsla(0,0%,0%,0.000); }
+				section.index table tbody tr:nth-child(even) td:nth-child(odd) { background-color:hsla(0,0%,0%,0.000); }
+				section.index table tbody tr:nth-child(odd)  td:nth-child(even){ background-color:hsla(0,0%,0%,0.050); }
+				section.index table tbody tr:nth-child(odd)  td:nth-child(odd) { background-color:hsla(0,0%,0%,0.050); }

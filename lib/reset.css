@@ -1,0 +1,229 @@
+@charset "utf-8";
+/*
+================================================================================
+ ////////        ///////                                                        
+    /////          /////                                                        
+    ////           ////                                                         
+   /////           ////                                                         
+   /////           ////                                                         
+   /////          /////                                                         
+   ////           /////                                                         
+  /////           ////                                                          
+  /////           ////                             ///                          
+  ///// ////     /////     ///// ////     //////   //////////    ////     ///// 
+  //// /   ///   /////   ////  / ////    ///   //// //  ////    /////   //   ///
+ //////    ///   ////   ////    ////    ////   ////     ////    ////   ///   ///
+ /////     ////  ////   ////    ////   /////   ////    /////    ////   ////  ///
+ ////      //// /////  ////     ////   ////    ////    /////    ////   //////   
+ ////     ///// ///// /////     ////   ////   /////    ////    /////   ///////  
+/////     ///// ////  /////     ///    ////   ////     ////    ////     /////// 
+/////     ////  ////  /////    ////    ////   ///      ////    ////       ///// 
+////      //// /////  ////     ////  //   /////       /////   /////  ////  //// 
+////     ////  /////  ////    /////  //               ////    /////  ////   /// 
+////     ///   /////  ////    ////  /////////////     ////   ////// /////   /// 
+ ///    ///    ////  / ///   / /// / /////////////    ////  /  /// /  //   ///  
+  ///////       /////   /////   ///   ////////////     /////   ////    /////    
+                                      ////////////                              
+                                     //         //                              
+                                    //          //                              
+                                    //          /                               
+                                    //         /                                
+                                     //      //                                 
+                                      ///////                                   
+================================================================================
+                              Lex Blagus, web systems architect <http://blag.us>
+================================================================================
+R  e  s  e  t  i  n  g         b  r  o  w  s  e  r        d  e  f  a  u  l  t  s
+                                                                    version 3.02
+================================================================================
+*/
+
+
+/* =============================================================================
+Default
+============================================================================= */
+html, body{ /* height:100%; */ }
+
+html, body, iframe, img, figure, figcaption{
+	margin: 0;
+	padding: 0;
+}
+
+html, body, iframe {
+	background-color:hsla(0,0%,90%,1);
+	/* background-image:url('...'); */
+}
+
+body, table, textarea, input, select, button{ /* base typography */
+	font-family:sans-serif;
+	font-weight:400; /* normal */
+	font-size:100%;
+	line-height:120%;
+	color:#000;
+}
+
+img, iframe { border:0 none rgba(0,0,0,0); }
+
+*{ box-sizing:border-box; /* inset borders for all elements */ }
+
+/* =============================================================================
+Texts
+============================================================================= */
+p { margin: 1.75em 0 1em 0; }
+b, strong{ font-weight:600; }
+i, em{ font-style: italic; }
+blockquote{ margin:0; font-style: italic; }
+	blockquote::before{ content: "\201C"; } /* “ */
+	blockquote::after{ content: "\201D"; } /* ” */
+	blockquote span.signature::before{ content: " — "; }
+address{ font-style: normal; }
+del{ color:#f00; }
+ins{ color:#0f0; text-decoration:none;  }
+small{ font-size:75% }
+sup{  }
+sub{  }
+cite{ font-style: normal; }
+	cite::before{ content: "\00AB"; } /* « */
+	cite::after{ content: "\00BB"; } /* » */
+acronym{  }
+abbr{  }
+bdo{  }
+kbd{ font-style: normal; }
+code , code * , .code, pre, kbd {
+	font-family:"Lucida Console", Monaco, monospace;
+	white-space: pre;
+}
+
+
+/* =============================================================================
+Links
+============================================================================= */
+a[href], a[href]:link, a[href]:visited, a[href]:active, a[href]:hover {}
+a[href]{         color:hsla(240, 50%,50%,1); text-decoration: none; }
+a[href]:link{    color:hsla(240, 50%,50%,1); text-decoration: none; }
+a[href]:hover {  color:hsla(240, 75%,50%,1); text-decoration: underline; }
+a[href]:active{  color:hsla(240,100%,50%,1); text-decoration: underline; }
+a[href]:visited{ color:hsla(240, 25%,50%,1); text-decoration: none; }
+
+
+/* =============================================================================
+Headers
+============================================================================= */
+h1, h2, h3, h4, h5, h6 { margin:2em 0 0.5em 0; padding: 0; font-weight:700; line-height:1em; }
+
+h1{ margin-top:0;   font-size:3.25em; color:hsl(0,0%,30%); }
+h2{ margin-top:2em; font-size:   3em; color:hsl(0,0%,35%); }
+h3{ margin-top:2em; font-size:2.75em; color:hsl(0,0%,40%); }
+h4{ margin-top:2em; font-size: 2.5em; color:hsl(0,0%,45%); }
+h5{ margin-top:2em; font-size:2.25em; color:hsl(0,0%,50%); }
+h6{ margin-top:2em; font-size:   2em; color:hsl(0,0%,55%); }
+
+/* header links */
+h1 a, h1 a:link, h1 a:visited{ color:hsl(240, 75%,50%); } h1 a:active, h1 a:hover{ color:hsl(240,100%,20%); }
+h2 a, h2 a:link, h2 a:visited{ color:hsl(240, 70%,55%); } h2 a:active, h2 a:hover{ color:hsl(240, 90%,25%); }
+h3 a, h3 a:link, h3 a:visited{ color:hsl(240, 65%,60%); } h3 a:active, h3 a:hover{ color:hsl(240, 80%,30%); }
+h4 a, h4 a:link, h4 a:visited{ color:hsl(240, 60%,65%); } h4 a:active, h4 a:hover{ color:hsl(240, 70%,35%); }
+h5 a, h5 a:link, h5 a:visited{ color:hsl(240, 55%,70%); } h5 a:active, h5 a:hover{ color:hsl(240, 60%,40%); }
+h6 a, h6 a:link, h6 a:visited{ color:hsl(240, 50%,75%); } h6 a:active, h6 a:hover{ color:hsl(240, 50%,45%); }
+
+
+/* =============================================================================
+Table
+============================================================================= */
+table{                         margin:0; padding:0; border-spacing:2px; empty-cells:hide; border-collapse:separate; caption-side:bottom; }
+/* simple table */             
+	table tr{                   }
+	table tr th{               margin:0; padding:0.5ex; background-color:hsl(0,0%,70%); color:hsl(0,0%,20%); font-weight:400; }
+	table tr td{               margin:0; padding:0.5ex; background-color:hsl(0,0%,90%); }
+/* complex table */            
+	table>caption{             margin:0 2px; padding:0.5ex; background-color:hsl(0,0%,90%); }
+	table>thead{                }
+		table>thead>tr{         }
+			table>thead>tr>th{  }
+	table>tfoot{                }
+		table>tfoot>tr{         }
+		table>tfoot>tr>th{      }
+	table>tbody{                }
+		table>tbody>tr{         }
+			tbody>tr>th{        }
+			tbody>tr>td{        }
+
+table[border]{             border:solid 1px hsl(0,0%,50%); border-spacing:0; border-collapse:collapse; }
+	table[border] tr th{   border:solid 1px hsl(0,0%,50%); }
+	table[border] tr td{   border:solid 1px hsl(0,0%,50%);  }
+	table[border]>caption{ border:solid 1px hsl(0,0%,50%); border-top-style:none; margin:0; }
+
+div.table { display:table; padding:0; margin:0; }
+div.tr { display:table-row; padding:0; margin:0; }
+div.trg { display:table-row-group; padding:0; margin:0; }
+div.td { display:table-cell; padding:0; margin:0; }
+
+
+/* =============================================================================
+Forms
+============================================================================= */
+form                    { margin:0; padding:0; }
+fieldset                { margin:0; padding:0 5px; border: 1px solid #000000; background-color:hsl(0,0%,90%); }
+legend                  { margin:0; padding:0 5px; border-style: none; font-weight:600; }
+input[type="text"]      {  }
+input[type="password"]  {  }
+textarea                {  }
+
+input, select, button   {  }
+                           
+input[type="hidden"]    {  }
+input[type="file"]      {  }
+input[type="image"]     {  }
+                           
+input[type="checkbox"]  {  }
+input[type="radio"]     {  }
+                           
+select                  {  }
+select option           {  }
+select optgroup         {  }
+select optgroup option  {  }
+select[multiple]        {  }
+select[multiple] option {  }
+                           
+input[type="button"]    {  }
+input[type="reset"]     {  }
+input[type="submit"]    {  }
+
+button                  {  }
+button[type=button]     {  }
+button[type=reset]      {  }
+button[type=submit]     {  }
+
+
+/* =============================================================================
+Lists
+============================================================================= */
+ul, ol{ margin: 0 0 0 0; padding: 0 0 0 0; list-style-position: inside; }
+ul{ /*list-style-type:none;*/ }
+ol{ /*list-style-type:decimal;*/ }
+	ol li{ margin:0 0 0 0; padding: 0 0 0 0; }
+		ol li li{ margin:0 0 0 1.2em; padding: 0 0 0 0; }
+	ul li{ margin:0 0 0 0; padding: 0 0 0 0; }
+		ul li li{ margin:0 0 0 1.1em; padding: 0 0 0 0; }
+dl{ margin: 0 0 0 0; padding: 0 0 0 0; }
+	dt{ font-weight:600; margin: 0 0 0 0; padding: 0 0 0 0; }
+	dd{ margin: 0 0 0 1em; padding: 0 0 0 0; list-style-position: inside; }
+
+
+/* =============================================================================
+Etc
+============================================================================= */
+hr {
+	margin:1em 0;
+	border-style: none;
+	height: 1px;
+	background: #000;
+}
+
+
+/* =============================================================================
+Misc
+============================================================================= */
+.right{ text-align:right }
+.hidden{ display:none !important; }
+

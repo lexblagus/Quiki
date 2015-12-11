@@ -1,0 +1,17 @@
+# -----------------------------------------------------------------------------
+# F    r    o    n    t          c    o    n    t    r    o    l    l    e    r
+# -----------------------------------------------------------------------------
+<IfModule mod_rewrite.c>
+RewriteEngine On
+
+# Comment the line bellow if you don't want to deliver existent files
+RewriteCond %{REQUEST_FILENAME} !-f
+
+# Comment the line bellow if you don't want to deliver existent folders
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Redirect all requests to the given file
+RewriteCond %{REQUEST_URI} !\index\.php
+RewriteRule .* ./index.php [L]
+
+</IfModule>
