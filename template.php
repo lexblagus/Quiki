@@ -72,74 +72,13 @@
 		</h1>
 		<nav>
 			<ul>
-				<?php
-					if(
-						in_array('index' , $frontController['actions']) || 
-						in_array('history' , $frontController['actions']) || 
-						in_array('save' , $frontController['actions']) || 
-						in_array('restore' , $frontController['actions']) || 
-						in_array('edit' , $frontController['actions']) || 
-						in_array('preview' , $frontController['actions']) || 
-						(!$frontController['isHome'] && in_array('view' , $frontController['actions']))  
-					){
-				?>
-				<li><a href="<?php echo( $frontController['virtualHome'] ); ?>">home</a></li>
-				<?php } ?>
-				<?php
-					if(
-						in_array('save' , $frontController['actions']) ||
-						in_array('restore' , $frontController['actions']) ||
-						in_array('edit' , $frontController['actions']) ||
-						in_array('preview' , $frontController['actions']) ||
-						in_array('view' , $frontController['actions']) ||
-						in_array("history" , $frontController['actions'])
-					){
-				?>
-				<li><a href="<?php echo($frontController['virtualPath']); ?>?index">index</a></li>
-				<?php } ?>
-				<?php
-					if(
-						$frontController['localFileExists'] &&
-						(
-							in_array('save' , $frontController['actions']) ||
-							in_array('restore' , $frontController['actions']) ||
-							in_array('edit' , $frontController['actions']) ||
-							in_array('preview' , $frontController['actions']) ||
-							in_array('view' , $frontController['actions'])
-						)
-					){
-				?>
-				<li><a href="?history">history</a></li>
-				<?php } ?>
-				<?php
-					if(
-						$frontController['localFileExists'] && 
-						(
-							in_array('save' , $frontController['actions']) ||
-							in_array('restore' , $frontController['actions']) ||
-							in_array('edit' , $frontController['actions']) ||
-							in_array('preview' , $frontController['actions']) ||
-							in_array('view' , $frontController['actions'])
-						)
-					){
-				?>
-				<li><a href="?raw">raw</a></li>
-				<?php } ?>
-				<?php
-					if(
-						in_array('save' , $frontController['actions']) ||
-						in_array('restore' , $frontController['actions']) ||
-						in_array('view' , $frontController['actions'])
-					){
-				?>
-				<li><a href="?edit">edit</a></li>
-				<?php } ?>
-				<?php if(  in_array('edit' , $frontController['actions'])  ){ ?>
-				<li><a href="<?php echo($frontController['virtualPath']); ?>">cancel</a></li>
-				<?php } ?>
-				<?php if(  in_array('edit' , $frontController['actions'])  ){ ?>
-				<li><a href="?save">save</a></li>
-				<?php } ?>
+				<?php if($frontController['showActionHome']){    ?><li><a href="<?php echo( $frontController['virtualHome'] ); ?>">home</a></li><?php } ?>
+				<?php if($frontController['showActionIndex']){   ?><li><a href="<?php echo($frontController['virtualPath']); ?>?index">index</a></li><?php } ?>
+				<?php if($frontController['showActionHistory']){ ?><li><a href="?history">history</a></li><?php } ?>
+				<?php if($frontController['showActionRaw']){     ?><li><a href="?raw">raw</a></li><?php } ?>
+				<?php if($frontController['showActionEdit']){    ?><li><a href="?edit">edit</a></li><?php } ?>
+				<?php if($frontController['showActionCancel']){  ?><li><a href="<?php echo($frontController['virtualPath']); ?>">cancel</a></li><?php } ?>
+				<?php if($frontController['showActionSave']){    ?><li><a href="?save">save</a></li><?php } ?>
 			</ul>
 		</nav>
 		<div class="clear"></div>
@@ -150,26 +89,19 @@
 		</div>
 		<?php } ?>
 	</header>
-	<?php
-		if(
-			in_array('save' , $frontController['actions']) ||
-			in_array('restore' , $frontController['actions']) ||
-			in_array('preview' , $frontController['actions']) ||
-			in_array('view' , $frontController['actions'])
-		){
-	?>
+	<?php if($frontController['showSectionMain']){ ?>
 	<main>
 		contents goes here…
 	</main>
 	<?php } ?>
-	<?php if(  in_array("edit" , $frontController['actions'])  ){ ?>
+	<?php if($frontController['showSectionEdit']){ ?>
 	<section class="edit">
 		<form>
 			<textarea>contents goes here…</textarea>
 		</form>
 	</section>
 	<?php } ?>
-	<?php if(  in_array("history" , $frontController['actions'])  ){ ?>
+	<?php if($frontController['showSectionHistory']){ ?>
 	<section class="history">
 		<table>
 			<tbody>
@@ -184,7 +116,7 @@
 		</table>
 	</section>
 	<?php } ?>
-	<?php if(  in_array("index" , $frontController['actions'])  ){ ?>
+	<?php if($frontController['showSectionIndex']){ ?>
 	<section class="index">
 		<?php if( $frontController['localIndexDirExists'] ){ ?>
 		<table>

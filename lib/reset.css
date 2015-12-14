@@ -90,7 +90,7 @@ abbr{  }
 bdo{  }
 kbd{ font-style: normal; }
 code , code * , .code, pre, kbd {
-	font-family:"Lucida Console", Monaco, monospace;
+	font-family:monospace;
 	white-space: pre;
 }
 

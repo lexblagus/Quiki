@@ -154,6 +154,21 @@ $virtualAbsIndex = '/' . implode('/', array_merge($arrAppFolders,$arrVirtualFold
 $isHome = count($arrVirtualFolders)==0 && $strVirtualPage==$arrOptions['home'];
 
 
+// Local file
+$localFile = 
+	$arrOptions['pagesDir'] . 
+	'/' .
+	implode('/', array_merge($arrVirtualFolders,array($strVirtualPage))) .
+	$arrOptions['pagesSuffix']
+;
+$localFileExists = file_exists( $localFile );
+$localHistoryDir = 
+	$arrOptions['historyDir'] . 
+	'/' .
+	implode('/', array_merge($arrVirtualFolders,array($strVirtualPage)))
+;
+
+
 // Actions (querystrings)
 $arrActions = array();
 if( count( $arrRequest ) >= 2 ){
@@ -175,22 +190,6 @@ if( count( $arrRequest ) >= 2 ){
 	}
 }
 
-
-// Local file
-$localFile = 
-	$arrOptions['pagesDir'] . 
-	'/' .
-	implode('/', array_merge($arrVirtualFolders,array($strVirtualPage))) .
-	$arrOptions['pagesSuffix']
-;
-$localFileExists = file_exists( $localFile );
-$localHistoryDir = 
-	$arrOptions['historyDir'] . 
-	'/' .
-	implode('/', array_merge($arrVirtualFolders,array($strVirtualPage)))
-;
-
-
 // Front controller declaration, to be used at template
 $frontController = array(
 	'appBaseFolder'            => $strAppBaseFolder,
@@ -204,13 +203,24 @@ $frontController = array(
 	'virtualAbsIndex'          => $virtualAbsIndex, 
 	'virtualTitle'             => $virtualTitle,
 	'isHome'                   => $isHome,
-	'actions'                  => $arrActions,
 	'localFile'                => $localFile,
 	'localFileExists'          => $localFileExists,
 	'localHistoryDir'          => $localHistoryDir,
 	'localIndexDir'            => false,
 	'localIndexDirExists'      => false,
 	'localIndexDirContents'    => array(),
+	'actions'                  => $arrActions,
+	'showActionHome'           => $showActionHome,
+	'showActionIndex'          => $showActionIndex,
+	'showActionHistory'        => $showActionHistory,
+	'showActionRaw'            => $showActionRaw,
+	'showActionEdit'           => $showActionEdit,
+	'showActionCancel'         => $showActionCancel,
+	'showActionSave'           => $showActionSave,
+	'showSectionMain'          => $showSectionMain,
+	'showSectionEdit'          => $showSectionEdit,
+	'showSectionHistory'       => $showSectionHistory,
+	'showSectionIndex'         => $showSectionIndex,
 	//...
 	'messages'                 => array()
 );
@@ -293,6 +303,76 @@ if(  in_array("index" , $frontController['actions'])  ){
 		}
 	}
 }
+
+
+// Template control
+// =============================================================================
+$showActionHome = 
+		in_array('index' , $arrActions) || 
+		in_array('history' , $arrActions) || 
+		in_array('save' , $arrActions) || 
+		in_array('restore' , $arrActions) || 
+		in_array('edit' , $arrActions) || 
+		in_array('preview' , $arrActions) || 
+		(!$isHome && in_array('view' , $arrActions)) 
+;
+$showActionIndex = 
+		in_array('save' , $arrActions) ||
+		in_array('restore' , $arrActions) ||
+		in_array('edit' , $arrActions) ||
+		in_array('preview' , $arrActions) ||
+		in_array('view' , $arrActions) ||
+		in_array("history" , $arrActions)
+;
+$showActionHistory= 
+		$localFileExists &&
+		(
+			in_array('save' , $arrActions) ||
+			in_array('restore' , $arrActions) ||
+			in_array('edit' , $arrActions) ||
+			in_array('preview' , $arrActions) ||
+			in_array('view' , $arrActions)
+		)
+;
+$showActionRaw = 
+		$localFileExists && 
+		(
+			in_array('save' , $arrActions) ||
+			in_array('restore' , $arrActions) ||
+			in_array('edit' , $arrActions) ||
+			in_array('preview' , $arrActions) ||
+			in_array('view' , $arrActions)
+		)
+;
+$showActionEdit = 
+	in_array('save' , $arrActions) ||
+	in_array('restore' , $arrActions) ||
+	in_array('view' , $arrActions)
+;
+$showActionCancel = in_array('edit' , $arrActions);
+$showActionSave = in_array('edit' , $arrActions);
+$showSectionMain    = 
+	in_array('save' , $arrActions) ||
+	in_array('restore' , $arrActions) ||
+	in_array('preview' , $arrActions) ||
+	in_array('view' , $arrActions)
+;
+$showSectionEdit    = in_array('edit' , $arrActions);
+$showSectionHistory = in_array('history' , $arrActions);
+$showSectionIndex   = in_array('index' , $arrActions);
+
+
+'showActionHome'           => $showActionHome,
+'showActionIndex'          => $showActionIndex,
+'showActionHistory'        => $showActionHistory,
+'showActionRaw'            => $showActionRaw,
+'showActionEdit'           => $showActionEdit,
+'showActionCancel'         => $showActionCancel,
+'showActionSave'           => $showActionSave,
+'showSectionMain'          => $showSectionMain,
+'showSectionEdit'          => $showSectionEdit,
+'showSectionHistory'       => $showSectionHistory,
+'showSectionIndex'         => $showSectionIndex,
 
 
 // =============================================================================
