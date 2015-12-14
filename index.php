@@ -39,22 +39,26 @@ error_reporting(E_ALL|E_STRICT); // all kinds of error
 // =============================================================================
 // Define options
 $arrOptions = array(
-	'title'       => 'Quiki',         // Title of the page to be shown in header and tab
-	'template'    => 'template.php',  // Rendering file
-	'pagesDir'    => 'pages',         // Directory where the wiki page lives
-	'pagesSuffix' => '.html',         // File extension. May be empty if you want to use different page extensions, e.g.: http://quiki.local/myfile.txt
-	'historyDir'  => 'history',       // Backup folder
-	'home'        => 'home',          // Homepage file (without extension if pagesSuffix is not empty)
-	'debugDomains'=> array(           // Virtual domains to dump debug data
+	'title'           => 'Quiki',         // Title of the page to be shown in header and tab
+	'template'        => 'template.php',  // Rendering file
+	'pagesDir'        => 'pages',         // Directory where the wiki page lives
+	'pagesSuffix'     => '.html',         // File extension. May be empty if you want to use different page extensions, e.g.: http://quiki.local/myfile.txt
+	'historyDir'      => 'history',       // Backup folder
+	'home'            => 'Home',          // Homepage file (without extension if pagesSuffix is not empty)
+	'debugDomains'    => array(           // Virtual domains to dump debug data
 		'debug.tars',
-		'debug.quiki.tars'
-	)
+		'debug.quiki.tars',
+		'debug.quiki.quirks',
+		'debug.quiki-v3.quirks'
+	),
+	'defaultTimezone' => 'America/Sao_Paulo'
 );
 
 
 // =============================================================================
 // Working variables
 $loadTemplate = false;
+date_default_timezone_set( $arrOptions['defaultTimezone'] );
 // ...
 
 
@@ -106,7 +110,7 @@ if($strAppFolder==''){
 $arrRequest = 
 	preg_split(
 		"/\?/", // split by ? (querystring)
-		$_SERVER['REQUEST_URI']
+		urldecode($_SERVER['REQUEST_URI'])
 	)
 ;
 $strTrimmedPath = 
@@ -133,42 +137,6 @@ for ($i=0; $i < count($arrAppFolders); $i++) {
 }
 
 
-// Virtual page
-if( $strAppFolder . '/' == $arrRequest[0] ){ // is application root
-	$isFolder = true;
-	$strVirtualPage = $arrOptions['home'];
-}elseif( preg_match('/\/$/', $arrRequest[0]) ){ // is a folder, trim page from last index
-	$isFolder = true;
-	$strVirtualPage = $arrOptions['home'];
-}else{
-	$isFolder = false;
-	$strVirtualPage = array_pop($arrVirtualFolders);
-}
-
-
-// Virtual references
-$virtualTitle = implode(' / ', array_merge($arrVirtualFolders,array($strVirtualPage)));
-$virtualHome = $strAppFolder=='' ? '/' : '/' . $strAppFolder . '/';
-$virtualPath = '/' . implode('/', array_merge($arrAppFolders,$arrVirtualFolders,array($strVirtualPage)));
-$virtualAbsIndex = '/' . implode('/', array_merge($arrAppFolders,$arrVirtualFolders)) . '/';
-$isHome = count($arrVirtualFolders)==0 && $strVirtualPage==$arrOptions['home'];
-
-
-// Local file
-$localFile = 
-	$arrOptions['pagesDir'] . 
-	'/' .
-	implode('/', array_merge($arrVirtualFolders,array($strVirtualPage))) .
-	$arrOptions['pagesSuffix']
-;
-$localFileExists = file_exists( $localFile );
-$localHistoryDir = 
-	$arrOptions['historyDir'] . 
-	'/' .
-	implode('/', array_merge($arrVirtualFolders,array($strVirtualPage)))
-;
-
-
 // Actions (querystrings)
 $arrActions = array();
 if( count( $arrRequest ) >= 2 ){
@@ -190,6 +158,59 @@ if( count( $arrRequest ) >= 2 ){
 	}
 }
 
+
+// Virtual page
+if( in_array("index" , $arrActions) ){ // is index
+	$isFolder = true;
+	$virtualPage = '';
+}elseif( $strAppFolder . '/' == $arrRequest[0] ){ // is application root
+	$isFolder = true;
+	$virtualPage = $arrOptions['home'];
+}elseif( preg_match('/\/$/', $arrRequest[0]) ){ // is a folder, trim page from last index
+	$isFolder = true;
+	$virtualPage = $arrOptions['home'];
+}else{
+	$isFolder = false;
+	$virtualPage = array_pop($arrVirtualFolders);
+}
+
+
+// Virtual references
+if( in_array("index" , $arrActions) ){ // is index
+	$virtualTitle = implode(' / ', $arrVirtualFolders);
+}else{
+	$virtualTitle = implode(' / ', array_merge($arrVirtualFolders,array($virtualPage)));
+}
+$virtualHome = $strAppFolder=='' ? '/' : '/' . $strAppFolder . '/';
+$virtualPath = '/' . implode('/', array_merge($arrAppFolders,$arrVirtualFolders,array($virtualPage)));
+if( count($arrAppFolders)==0 && count($arrVirtualFolders)==0 ){
+	$virtualAbsIndex = '/';
+}else{
+	$virtualAbsIndex = '/' . implode('/', array_merge($arrAppFolders,$arrVirtualFolders)) . '/';
+}
+$isHome = count($arrVirtualFolders)==0 && ($virtualPage==$arrOptions['home'] || $virtualPage=='');
+
+
+// Local file
+$localFile = 
+	implode(
+		'/',
+		array_merge(
+			array($arrOptions['pagesDir']),
+			$arrVirtualFolders,
+			array( $virtualPage != '' ? $virtualPage : $arrOptions['home'])
+		)
+	) .
+	$arrOptions['pagesSuffix']
+;
+$localFileExists = file_exists( $localFile );
+$localHistoryDir = 
+	$arrOptions['historyDir'] . 
+	'/' .
+	implode('/', array_merge($arrVirtualFolders,array($virtualPage)))
+;
+
+
 // Front controller declaration, to be used at template
 $frontController = array(
 	'appBaseFolder'            => $strAppBaseFolder,
@@ -197,7 +218,7 @@ $frontController = array(
 	'appFolders'               => $arrAppFolders,
 	'virtualFolder'            => implode('/', $arrVirtualFolders), 
 	'virtualFolders'           => $arrVirtualFolders, 
-	'virtualPage'              => $strVirtualPage, 
+	'virtualPage'              => $virtualPage, 
 	'virtualHome'              => $virtualHome,
 	'virtualPath'              => $virtualPath,
 	'virtualAbsIndex'          => $virtualAbsIndex, 
@@ -210,18 +231,19 @@ $frontController = array(
 	'localIndexDirExists'      => false,
 	'localIndexDirContents'    => array(),
 	'actions'                  => $arrActions,
-	'showActionHome'           => $showActionHome,
-	'showActionIndex'          => $showActionIndex,
-	'showActionHistory'        => $showActionHistory,
-	'showActionRaw'            => $showActionRaw,
-	'showActionEdit'           => $showActionEdit,
-	'showActionCancel'         => $showActionCancel,
-	'showActionSave'           => $showActionSave,
-	'showSectionMain'          => $showSectionMain,
-	'showSectionEdit'          => $showSectionEdit,
-	'showSectionHistory'       => $showSectionHistory,
-	'showSectionIndex'         => $showSectionIndex,
+	'showActionHome'           => false,
+	'showActionIndex'          => false,
+	'showActionHistory'        => false,
+	'showActionRaw'            => false,
+	'showActionEdit'           => false,
+	'showActionCancel'         => false,
+	'showActionSave'           => false,
+	'showSectionMain'          => false,
+	'showSectionEdit'          => false,
+	'showSectionHistory'       => false,
+	'showSectionIndex'         => false,
 	//...
+	'contents'                 => '',
 	'messages'                 => array()
 );
 
@@ -230,27 +252,76 @@ $frontController = array(
 // Execute actions
 if(  in_array("index" , $frontController['actions'])  ){
 	// Retrieve directory listing
-	$frontController['localIndexDir'] = __DIR__ . '\\' . $arrOptions['pagesDir'] . '\\' . implode('\\', $frontController['virtualFolders']);
+	$frontController['localIndexDir'] = 
+		preg_replace(
+			'/\/\/$/', 
+			'/', 
+			str_replace(
+				'\\',
+				'/',
+				__DIR__ . '\\' . $arrOptions['pagesDir'] . '\\' . implode('\\', $frontController['virtualFolders'])
+			) . '/'
+		)
+	;
 	$frontController['localIndexDirExists'] = file_exists( $frontController['localIndexDir'] );
 	if( $frontController['localIndexDirExists'] ){
-		$arrDirList = scandir( $frontController['localIndexDir'] );
-		$arrDirList = array_slice($arrDirList,2); // remove . and ..
-		foreach($arrDirList as $item){
-			array_push(
-				$frontController['localIndexDirContents'] , 
-				array(
-					'name'        => 	preg_replace(
-						'/' . $arrOptions['pagesSuffix'] . '$/',
-						'', 
-						$item
-					),
-					'kind'      => is_file( $frontController['localIndexDir'] . $item ) ? 'file' : 'folder',
-					'virtualPage' => 'javascript:;',
-					'lastChange'  => '31/12/9999',
-					'sizeInBytes' => '99999'
-				)
-			);
+		$arrDirList = scandir( $frontController['localIndexDir'] , SCANDIR_SORT_ASCENDING);
+		if( $isHome ){
+			$arrDirList = array_diff( $arrDirList , array('.','..') ); // remove . and ..
+		}else{
+			$arrDirList = array_diff( $arrDirList , array('.') ); // remove .
 		}
+		$arrFiles = array();
+		$arrFolders = array();
+		foreach($arrDirList as $item){
+			$itemName = preg_replace(
+				'/' . $arrOptions['pagesSuffix'] . '$/',
+				'', 
+				$item
+			);
+			
+			$itemLocal = $frontController['localIndexDir'] . $item;
+			
+			if(is_dir($itemLocal)){
+				$itemKind =  'folder';
+			}elseif(is_file($itemLocal)){
+				$itemKind =  'file';
+			}else{
+				$itemKind =  'unknown';
+			}
+			
+			if($itemKind == 'folder'){
+				$itemVirtualPage = $frontController['virtualAbsIndex'] . $itemName . '/?index';
+				$itemSize = -1;
+			}elseif($itemKind == 'file'){
+				$itemVirtualPage = $frontController['virtualAbsIndex'] . $itemName;
+				$itemSize = filesize($itemLocal);
+			}else{
+				$itemVirtualPage = 'javascript:;';
+				$itemSize = -1;
+			}
+			
+			$arrItem = array(
+				'name'        => $itemName,
+				'kind'        => $itemKind,
+				'virtualPage' => $itemVirtualPage,
+				'lastChange'  => filemtime($itemLocal),
+				'sizeInBytes' => $itemSize,
+			);
+
+			if($itemKind == 'folder'){
+				array_push(
+					$arrFolders , 
+					$arrItem
+				);
+			}elseif($itemKind == 'file'){
+				array_push(
+					$arrFiles , 
+					$arrItem
+				);
+			}
+		}
+		$frontController['localIndexDirContents'] = array_merge($arrFolders,$arrFiles);
 	}else{
 		array_push($frontController['messages'], "Folder does not exist");
 	}
@@ -264,7 +335,7 @@ if(  in_array("index" , $frontController['actions'])  ){
 }elseif(  in_array("save" , $frontController['actions'])  ){
 	// Save contents
 	//...
-	header('Location:' . $frontController['virtualAbsolute']) ;
+	header('Location:' . $frontController['virtualPath']) ;
 
 }elseif(  in_array("restore" , $frontController['actions'])  ){
 	// Restore contents from history
@@ -299,7 +370,7 @@ if(  in_array("index" , $frontController['actions'])  ){
 		if( count($frontController['actions'])>0 ){
 			header('Location:' . $frontController['_SERVER_REQUEST_URI'] . '&edit') ;
 		}else{
-			header('Location:' . $frontController['virtualAbsolute'] . '?edit') ;
+			header('Location:' . $frontController['virtualPath'] . '?edit') ;
 		}
 	}
 }
@@ -308,71 +379,73 @@ if(  in_array("index" , $frontController['actions'])  ){
 // Template control
 // =============================================================================
 $showActionHome = 
-		in_array('index' , $arrActions) || 
-		in_array('history' , $arrActions) || 
-		in_array('save' , $arrActions) || 
-		in_array('restore' , $arrActions) || 
-		in_array('edit' , $arrActions) || 
-		in_array('preview' , $arrActions) || 
-		(!$isHome && in_array('view' , $arrActions)) 
+		in_array('index'   , $frontController['actions']) || 
+		in_array('history' , $frontController['actions']) || 
+		in_array('save'    , $frontController['actions']) || 
+		in_array('restore' , $frontController['actions']) || 
+		in_array('edit'    , $frontController['actions']) || 
+		in_array('preview' , $frontController['actions']) || 
+		(!$isHome && in_array('view' , $frontController['actions'])) 
 ;
 $showActionIndex = 
-		in_array('save' , $arrActions) ||
-		in_array('restore' , $arrActions) ||
-		in_array('edit' , $arrActions) ||
-		in_array('preview' , $arrActions) ||
-		in_array('view' , $arrActions) ||
-		in_array("history" , $arrActions)
+		in_array('save'    ,  $frontController['actions']) ||
+		in_array('restore' ,  $frontController['actions']) ||
+		in_array('edit'    ,  $frontController['actions']) ||
+		in_array('preview' ,  $frontController['actions']) ||
+		in_array('view'    ,  $frontController['actions']) ||
+		in_array("history" ,  $frontController['actions'])
 ;
 $showActionHistory= 
 		$localFileExists &&
 		(
-			in_array('save' , $arrActions) ||
-			in_array('restore' , $arrActions) ||
-			in_array('edit' , $arrActions) ||
-			in_array('preview' , $arrActions) ||
-			in_array('view' , $arrActions)
+			in_array('save'    , $frontController['actions']) ||
+			in_array('restore' , $frontController['actions']) ||
+			in_array('edit'    , $frontController['actions']) ||
+			in_array('preview' , $frontController['actions']) ||
+			in_array('view'    , $frontController['actions'])
 		)
 ;
 $showActionRaw = 
 		$localFileExists && 
 		(
-			in_array('save' , $arrActions) ||
-			in_array('restore' , $arrActions) ||
-			in_array('edit' , $arrActions) ||
-			in_array('preview' , $arrActions) ||
-			in_array('view' , $arrActions)
+			in_array('save'    , $frontController['actions']) ||
+			in_array('restore' , $frontController['actions']) ||
+			in_array('edit'    , $frontController['actions']) ||
+			in_array('preview' , $frontController['actions']) ||
+			in_array('view'    , $frontController['actions'])
 		)
 ;
 $showActionEdit = 
-	in_array('save' , $arrActions) ||
-	in_array('restore' , $arrActions) ||
-	in_array('view' , $arrActions)
+	in_array('save'    , $frontController['actions']) ||
+	in_array('restore' , $frontController['actions']) ||
+	in_array('view'    , $frontController['actions'])
 ;
-$showActionCancel = in_array('edit' , $arrActions);
-$showActionSave = in_array('edit' , $arrActions);
+$showActionCancel = in_array('edit' , $frontController['actions']);
+$showActionSave   = in_array('edit' , $frontController['actions']);
+
+
 $showSectionMain    = 
-	in_array('save' , $arrActions) ||
-	in_array('restore' , $arrActions) ||
-	in_array('preview' , $arrActions) ||
-	in_array('view' , $arrActions)
+	in_array('save'    , $frontController['actions']) ||
+	in_array('restore' , $frontController['actions']) ||
+	in_array('preview' , $frontController['actions']) ||
+	in_array('view'    , $frontController['actions'])
 ;
-$showSectionEdit    = in_array('edit' , $arrActions);
-$showSectionHistory = in_array('history' , $arrActions);
-$showSectionIndex   = in_array('index' , $arrActions);
+$showSectionEdit    = in_array('edit'    , $frontController['actions']);
+$showSectionHistory = in_array('history' , $frontController['actions']);
+$showSectionIndex   = in_array('index'   , $frontController['actions']);
 
 
-'showActionHome'           => $showActionHome,
-'showActionIndex'          => $showActionIndex,
-'showActionHistory'        => $showActionHistory,
-'showActionRaw'            => $showActionRaw,
-'showActionEdit'           => $showActionEdit,
-'showActionCancel'         => $showActionCancel,
-'showActionSave'           => $showActionSave,
-'showSectionMain'          => $showSectionMain,
-'showSectionEdit'          => $showSectionEdit,
-'showSectionHistory'       => $showSectionHistory,
-'showSectionIndex'         => $showSectionIndex,
+$frontController['showActionHome']           = $showActionHome;
+$frontController['showActionIndex']          = $showActionIndex;
+$frontController['showActionHistory']        = $showActionHistory;
+$frontController['showActionRaw']            = $showActionRaw;
+$frontController['showActionEdit']           = $showActionEdit;
+$frontController['showActionCancel']         = $showActionCancel;
+$frontController['showActionSave']           = $showActionSave;
+$frontController['showSectionMain']          = $showSectionMain;
+$frontController['showSectionEdit']          = $showSectionEdit;
+$frontController['showSectionHistory']       = $showSectionHistory;
+$frontController['showSectionIndex']         = $showSectionIndex;
 
 
 // =============================================================================
@@ -396,8 +469,8 @@ if( in_array($_SERVER['SERVER_NAME'], $arrOptions['debugDomains']) ){
 	echo('$arrVirtualFolders = ');
 	var_export($arrVirtualFolders);
 	echo('<br>');
-	echo('$strVirtualPage = ');
-	var_export($strVirtualPage);
+	echo('$virtualPage = ');
+	var_export($virtualPage);
 	echo('<br>');
 	echo('$isFolder = ');
 	var_export($isFolder);
@@ -437,5 +510,10 @@ if( in_array($_SERVER['SERVER_NAME'], $arrOptions['debugDomains']) ){
 // =============================================================================
 // Load template
 if( $loadTemplate ){
+	if($frontController['localFileExists']){
+		$frontController['contents'] = file_get_contents(
+			$frontController['localFile']
+		);
+	}
 	include_once( $arrOptions['template'] );
 }

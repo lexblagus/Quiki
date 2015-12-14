@@ -36,31 +36,20 @@ Quiki layout definition
 
 
 /* =============================================================================
-   Overwrite default styles
-============================================================================= */
-h1, h2, h3, h4, h5, h6 { text-transform:uppercase; }
-
-h1{ margin-top:0;   font-size:1.6em; color:hsl(0,0%,30%); }
-h2{ margin-top:2em; font-size:1.5em; color:hsl(0,0%,35%); }
-h3{ margin-top:2em; font-size:1.4em; color:hsl(0,0%,40%); }
-h4{ margin-top:2em; font-size:1.3em; color:hsl(0,0%,45%); }
-h5{ margin-top:2em; font-size:1.2em; color:hsl(0,0%,50%); }
-h6{ margin-top:2em; font-size:1.1em; color:hsl(0,0%,55%); }
-
-.clear{ clear:both; }
-
-/* =============================================================================
    Debug
 ============================================================================= */
 body.debug header{ background-color:hsla(0,100%,50%,0.05); }
 body.debug header h1{ background-color:hsla(0,100%,50%,0.05); }
 body.debug header nav{ background-color:hsla(0,100%,50%,0.05); }
 
+
 /* =============================================================================
    Layout
 ============================================================================= */
 html{ min-height:100%; }
 	body{ background-color:hsla(0,0%,90%,1); }
+		
+
 	/* -----------------------------------------------------------------------------
 	   Header
 	----------------------------------------------------------------------------- */
@@ -69,10 +58,19 @@ html{ min-height:100%; }
 			header a[href], header a[href]:link, header a[href]:visited{ color:hsl(240,100%,85%); }
 			header a[href]:active, header a[href]:hover{ color:hsl(240,100%,100%); }
 			
+			header h1, header h2, header h3, header h4, header h5, header h6 { text-transform:uppercase; }
+			header h1{ margin-top:0;   font-size:1.6em; color:hsl(0,0%,30%); }
+			header h2{ margin-top:2em; font-size:1.5em; color:hsl(0,0%,35%); }
+			header h3{ margin-top:2em; font-size:1.4em; color:hsl(0,0%,40%); }
+			header h4{ margin-top:2em; font-size:1.3em; color:hsl(0,0%,45%); }
+			header h5{ margin-top:2em; font-size:1.2em; color:hsl(0,0%,50%); }
+			header h6{ margin-top:2em; font-size:1.1em; color:hsl(0,0%,55%); }
 			header h1{ display:inline; margin:0; padding:0; white-space:nowrap; font-size:2.0em; font-weight:100; }
 				header h1 .title{ text-transform:uppercase; padding:0 0 0 0.25ex;}
 				header h1 .page{ text-transform:none; }
 				header h1 .action{ font-size:0.66em; color:hsl(0,100%,100%); text-transform:uppercase; }
+				
+
 			/* -----------------------------------------------------------------------------
 			   Navigation
 			----------------------------------------------------------------------------- */
@@ -81,6 +79,8 @@ html{ min-height:100%; }
 				header nav ul li{ display:inline; margin:0 1em 0 0; font-size:0.75em; font-weight:100; }
 				header nav ul li.alt{ color:hsl(45,100%,50%); }
 					header nav ul li a{ text-transform:uppercase; }
+
+
 			/* -----------------------------------------------------------------------------
 			   Messages
 			----------------------------------------------------------------------------- */
@@ -88,10 +88,15 @@ html{ min-height:100%; }
 				header div.messages a.close[href]{ float:right; margin-right:1em; font-size:0.6em; font-weight:100; text-transform:uppercase; }
 				header div.messages a.close[href], header div.messages a.close[href]:link, header div.messages a.close[href]:visited{ color:hsl(45,100%,50%); }
 				header div.messages a.close[href]:active, header div.messages a.close[href]:hover{ color:hsl(45,100%,90%); }
+		
+
 		/* -----------------------------------------------------------------------------
 		   Main contents
 		----------------------------------------------------------------------------- */
-		main{ display:block; clear:both; }
+		main{ display:block; clear:both; padding:1ex; }
+			main h1, main h2, main h3, main h4, main h5, main h6 { text-transform:uppercase; font-weight:100; }
+
+
 		/* -----------------------------------------------------------------------------
 		   Edit, history and index
 		----------------------------------------------------------------------------- */
@@ -99,13 +104,26 @@ html{ min-height:100%; }
 			section form{ display:block; min-height:100%; }
 				section form textarea{ display:block; width:100%; border-style:none; font-family:"Lucida Console", Monaco, monospace; white-space: pre; font-size:75%; overflow:visible; height:100%; background-color:hsla(0,0%,90%,1);}
 				section form textarea:active{ border-style:none; }
-			section.index table{ width:100%; font-family:"Lucida Console", Monaco, monospace; white-space: pre; border-spacing: 0px; }
-				section.index table tbody tr td{ padding:0.25ex 1.5em 0.25em 0.5ex; }
-				section.index table tbody tr td.minWidth{ width:1em; }
-				section.index table tbody tr td.maxWidth{  }
-				section.index table tbody tr.file td{  }
-				section.index table tbody tr.folder td{ font-weight:bold; }
-				section.index table tbody tr:nth-child(even) td:nth-child(even){ background-color:hsla(0,0%,0%,0.000); }
-				section.index table tbody tr:nth-child(even) td:nth-child(odd) { background-color:hsla(0,0%,0%,0.000); }
-				section.index table tbody tr:nth-child(odd)  td:nth-child(even){ background-color:hsla(0,0%,0%,0.050); }
-				section.index table tbody tr:nth-child(odd)  td:nth-child(odd) { background-color:hsla(0,0%,0%,0.050); }
+			section table.custom{ width:100%; font-family:"Lucida Console", Monaco, monospace; white-space: pre; border-spacing: 0px; }
+				section table.custom tbody tr td{ padding:0.25ex 1.5em 0.25em 0.5ex; }
+				section table.custom tbody tr td.minWidth{ width:1em; }
+				section table.custom tbody tr td.maxWidth{  }
+				section table.custom tbody tr.file   td{ color:hsla(0, 0%, 0%, 0.5);  }
+				section table.custom tbody tr.folder td{ /* font-weight:bold; */ }
+				section table.custom tbody tr td.tag{ font-size:75%; text-transform:uppercase; font-family:sans-serif; }
+				section table.custom tbody tr:nth-child(even) td:nth-child(even){ background-color:hsla(0,0%,0%,0.000); }
+				section table.custom tbody tr:nth-child(even) td:nth-child(odd) { background-color:hsla(0,0%,0%,0.000); }
+				section table.custom tbody tr:nth-child(odd)  td:nth-child(even){ background-color:hsla(0,0%,0%,0.050); }
+				section table.custom tbody tr:nth-child(odd)  td:nth-child(odd) { background-color:hsla(0,0%,0%,0.050); }
+					section table.custom tbody tr.file td a[href]{         color:hsla(240, 50%,50%, 0.66); text-decoration: none; }
+					section table.custom tbody tr.file td a[href]:link{    color:hsla(240, 50%,50%, 0.66); text-decoration: none; }
+					section table.custom tbody tr.file td a[href]:hover {  color:hsla(240, 75%,50%, 0.66); text-decoration: underline; }
+					section table.custom tbody tr.file td a[href]:active{  color:hsla(240,100%,50%, 0.66); text-decoration: underline; }
+					section table.custom tbody tr.file td a[href]:visited{ color:hsla(240, 25%,50%, 0.66); text-decoration: none; }
+
+/* =============================================================================
+   Et cetera
+============================================================================= */
+.clear{ clear:both; }
+
+

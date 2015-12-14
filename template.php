@@ -73,7 +73,7 @@
 		<nav>
 			<ul>
 				<?php if($frontController['showActionHome']){    ?><li><a href="<?php echo( $frontController['virtualHome'] ); ?>">home</a></li><?php } ?>
-				<?php if($frontController['showActionIndex']){   ?><li><a href="<?php echo($frontController['virtualPath']); ?>?index">index</a></li><?php } ?>
+				<?php if($frontController['showActionIndex']){   ?><li><a href="<?php echo($frontController['virtualAbsIndex']); ?>?index">index</a></li><?php } ?>
 				<?php if($frontController['showActionHistory']){ ?><li><a href="?history">history</a></li><?php } ?>
 				<?php if($frontController['showActionRaw']){     ?><li><a href="?raw">raw</a></li><?php } ?>
 				<?php if($frontController['showActionEdit']){    ?><li><a href="?edit">edit</a></li><?php } ?>
@@ -91,26 +91,26 @@
 	</header>
 	<?php if($frontController['showSectionMain']){ ?>
 	<main>
-		contents goes here…
+<?php echo($frontController['contents']); ?>
 	</main>
 	<?php } ?>
 	<?php if($frontController['showSectionEdit']){ ?>
 	<section class="edit">
 		<form>
-			<textarea>contents goes here…</textarea>
+			<textarea><?php echo(htmlentities($frontController['contents'])); ?></textarea>
 		</form>
 	</section>
 	<?php } ?>
 	<?php if($frontController['showSectionHistory']){ ?>
 	<section class="history">
-		<table>
+		<table class="custom">
 			<tbody>
 				<tr>
-					<td><a href="?preview">view</a></td>
-					<td>31/12/9999</td>
-					<td>23:59</td>
-					<td>99999 bytes</td>
-					<td><a href="?restore">restore</a></td>
+					<td class="minWidth"><a href="?preview">view</a></td>
+					<td class="minWidth">99999 bytes</td>
+					<td class="minWidth">31/12/9999 23:59</td>
+					<td class="minWidth"><a href="?restore">restore</a></td>
+					<td class="maxWidth">&nbsp;</td>
 				</tr>
 			</tbody>
 		</table>
@@ -119,16 +119,25 @@
 	<?php if($frontController['showSectionIndex']){ ?>
 	<section class="index">
 		<?php if( $frontController['localIndexDirExists'] ){ ?>
-		<table>
+		<table class="custom">
 			<tbody>
 				<?php foreach($frontController['localIndexDirContents'] as $item ){ ?>
 				<tr class="<?php echo($item['kind']); ?>">
 					<td class="minWidth"><a href="<?php echo($item['virtualPage']); ?>"><?php echo($item['name']); ?></a></td>
-					<td class="minWidth"><?php echo($item['lastChange']); ?></td>
 					<?php if( $item['kind']=='file' ){ ?>
-					<td class="minWidth"><?php echo($item['sizeInBytes']); ?> bytes</td>
+					<td class="minWidth right"><?php echo($item['sizeInBytes']); ?> bytes</td>
 					<?php } elseif( $item['kind']=='folder' ){ ?>
-					<td class="minWidth">folder</td>
+					<td class="minWidth right">&nbsp;</td>
+					<?php } ?>
+					<td class="minWidth"><?php echo( date("Y-m-d H:i:s",$item['lastChange']) ); ?></td>
+					<?php if( $item['kind']=='file' ){ ?>
+					<td class="minWidth tag"><a href="<?php echo($item['virtualPage']); ?>?edit"   >edit</a></td>
+					<td class="minWidth tag"><a href="<?php echo($item['virtualPage']); ?>?raw"    >raw</a></td>
+					<td class="minWidth tag"><a href="<?php echo($item['virtualPage']); ?>?history">history</a></td>
+					<?php } elseif( $item['kind']=='folder' ){ ?>
+					<td class="minWidth">&nbsp;</td>
+					<td class="minWidth">&nbsp;</td>
+					<td class="minWidth">&nbsp;</td>
 					<?php } ?>
 					<td class="maxWidth">&nbsp;</td>
 				</tr>

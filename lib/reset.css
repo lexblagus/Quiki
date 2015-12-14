@@ -99,17 +99,17 @@ code , code * , .code, pre, kbd {
 Links
 ============================================================================= */
 a[href], a[href]:link, a[href]:visited, a[href]:active, a[href]:hover {}
-a[href]{         color:hsla(240, 50%,50%,1); text-decoration: none; }
-a[href]:link{    color:hsla(240, 50%,50%,1); text-decoration: none; }
+a[href]{         color:hsla(240, 33%,50%,1); text-decoration: none; }
+a[href]:link{    color:hsla(240, 33%,50%,1); text-decoration: none; }
 a[href]:hover {  color:hsla(240, 75%,50%,1); text-decoration: underline; }
-a[href]:active{  color:hsla(240,100%,50%,1); text-decoration: underline; }
-a[href]:visited{ color:hsla(240, 25%,50%,1); text-decoration: none; }
+a[href]:active{  color:hsla(240, 75%,50%,1); text-decoration: underline; }
+a[href]:visited{ color:hsla(240, 20%,50%,1); text-decoration: none; }
 
 
 /* =============================================================================
 Headers
 ============================================================================= */
-h1, h2, h3, h4, h5, h6 { margin:2em 0 0.5em 0; padding: 0; font-weight:700; line-height:1em; }
+h1, h2, h3, h4, h5, h6 { margin:2em 0 0.5em 0; padding: 0; font-weight:600; line-height:1em; }
 
 h1{ margin-top:0;   font-size:3.25em; color:hsl(0,0%,30%); }
 h2{ margin-top:2em; font-size:   3em; color:hsl(0,0%,35%); }
@@ -225,5 +225,7 @@ hr {
 Misc
 ============================================================================= */
 .right{ text-align:right }
+.left{ text-align:left }
+.center{ text-align:center }
 .hidden{ display:none !important; }
 
