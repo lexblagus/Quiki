@@ -337,6 +337,9 @@ if(  in_array("index" , $frontController['actions'])  ){
 			}
 		}
 		$frontController['localIndexDirContents'] = array_merge($arrFolders,$arrFiles);
+		if( count($frontController['localIndexDirContents']) == 0 ){
+			array_push($frontController['messages'], "Folder is empty");
+		}
 	}else{
 		array_push($frontController['messages'], "Folder does not exist");
 	}
