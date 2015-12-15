@@ -78,7 +78,7 @@
 				<?php if($frontController['showActionRaw']){     ?><li><a href="?raw">raw</a></li><?php } ?>
 				<?php if($frontController['showActionEdit']){    ?><li><a href="?edit">edit</a></li><?php } ?>
 				<?php if($frontController['showActionCancel']){  ?><li><a href="<?php echo($frontController['virtualPath']); ?>">cancel</a></li><?php } ?>
-				<?php if($frontController['showActionSave']){    ?><li><a href="?save">save</a></li><?php } ?>
+				<?php if($frontController['showActionSave']){    ?><li><a href="javascript:(function(){document.formEdit.submit();})();">save</a></li><?php } ?>
 			</ul>
 		</nav>
 		<div class="clear"></div>
@@ -96,8 +96,8 @@
 	<?php } ?>
 	<?php if($frontController['showSectionEdit']){ ?>
 	<section class="edit">
-		<form>
-			<textarea><?php echo(htmlentities($frontController['contents'])); ?></textarea>
+		<form name="formEdit" action="<?php echo($frontController['virtualPath']); ?>?save" method="post" enctype="application/x-www-form-urlencoded">
+			<textarea name="sourcecode"><?php echo(htmlentities($frontController['contents'])); ?></textarea>
 		</form>
 	</section>
 	<?php } ?>

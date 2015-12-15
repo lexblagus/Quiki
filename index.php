@@ -39,19 +39,15 @@ error_reporting(E_ALL|E_STRICT); // all kinds of error
 // =============================================================================
 // Define options
 $arrOptions = array(
-	'title'           => 'Quiki',         // Title of the page to be shown in header and tab
-	'template'        => 'template.php',  // Rendering file
-	'pagesDir'        => 'pages',         // Directory where the wiki page lives
-	'pagesSuffix'     => '.html',         // File extension. May be empty if you want to use different page extensions, e.g.: http://quiki.local/myfile.txt
-	'historyDir'      => 'history',       // Backup folder
-	'home'            => 'Home',          // Homepage file (without extension if pagesSuffix is not empty)
-	'debugDomains'    => array(           // Virtual domains to dump debug data
-		'debug.tars',
-		'debug.quiki.tars',
-		'debug.quiki.quirks',
-		'debug.quiki-v3.quirks'
-	),
-	'defaultTimezone' => 'America/Sao_Paulo'
+	'title'           => 'Quiki',             // Title of the page to be shown in header and tab
+	'template'        => 'template.php',      // Rendering file
+	'pagesDir'        => 'pages',             // Directory where the wiki page lives
+	'pagesSuffix'     => '.html',             // File extension. May be empty if you want to use different page extensions, e.g.: http://quiki.local/myfile.txt
+	'historyDir'      => 'history',           // Backup folder
+	'home'            => 'Home',              // Homepage file (without extension if pagesSuffix is not empty)
+	'history'         => 1,                   // Enable history (backups on save)
+	'defaultTimezone' => 'America/Sao_Paulo', // Timezone (needed for file timestamps)
+	'debug'           => 0                    // Application debug
 );
 
 
@@ -209,6 +205,7 @@ $localHistoryDir =
 	'/' .
 	implode('/', array_merge($arrVirtualFolders,array($virtualPage)))
 ;
+$localHistoryFile = $localHistoryDir . '/' . date("YmdHis") . $arrOptions['pagesSuffix'];
 
 
 // Front controller declaration, to be used at template
@@ -227,6 +224,8 @@ $frontController = array(
 	'localFile'                => $localFile,
 	'localFileExists'          => $localFileExists,
 	'localHistoryDir'          => $localHistoryDir,
+	'localHistoryDirExists'    => false,
+	'localHistoryFile'         => $localHistoryFile,
 	'localIndexDir'            => false,
 	'localIndexDirExists'      => false,
 	'localIndexDirContents'    => array(),
@@ -243,7 +242,7 @@ $frontController = array(
 	'showSectionHistory'       => false,
 	'showSectionIndex'         => false,
 	//...
-	'contents'                 => '',
+	'contents'                 => isset($_POST["sourcecode"]) ? $_POST["sourcecode"] : '',
 	'messages'                 => array()
 );
 
@@ -327,16 +326,50 @@ if(  in_array("index" , $frontController['actions'])  ){
 	}
 	$loadTemplate = true;
 
+// -----------------------------------------------------------------------------
+}elseif(  in_array("save" , $frontController['actions'])  ){
+	// Save contents
+	if( $arrOptions['history'] && $frontController['localFileExists'] ){
+		$frontController['localHistoryDirExists'] = file_exists( $frontController['localHistoryDir'] );
+		if( !$frontController['localHistoryDirExists'] ){
+			$arrParts = explode('/', $frontController['localHistoryDir']);
+			$countParts = count($arrParts);
+			$currPart = '';
+			for($i=0; $i<$countParts; $i++) {
+				$currPart .= ($i > 0 ? '/' : '') . $arrParts[$i];
+				if( !file_exists($currPart) ){
+					mkdir($currPart);
+				}
+			}
+			
+		}
+		copy($frontController['localFile'], $frontController['localHistoryFile']);
+	}
+
+	if( !$frontController['localFileExists'] ){
+		$arrParts = explode('/', $frontController['localFile']);
+		$countParts = count($arrParts);
+		$currPart = '';
+		for($i=0; $i<$countParts-1; $i++) {
+			$currPart .= ($i > 0 ? '/' : '') . $arrParts[$i];
+			if( !file_exists($currPart) ){
+				mkdir($currPart);
+			}
+		}
+	}
+	
+	file_put_contents( $frontController['localFile'] , $frontController['contents']);
+	
+	$loadTemplate = false;
+	header('Location:' . $frontController['virtualPath']) ;
+
+// -----------------------------------------------------------------------------
 }elseif(  in_array("history" , $frontController['actions'])  ){
 	// Retrieve file history list
 	//...
 	$loadTemplate = true;
 
-}elseif(  in_array("save" , $frontController['actions'])  ){
-	// Save contents
-	//...
-	header('Location:' . $frontController['virtualPath']) ;
-
+// -----------------------------------------------------------------------------
 }elseif(  in_array("restore" , $frontController['actions'])  ){
 	// Restore contents from history
 	//...
@@ -347,23 +380,39 @@ if(  in_array("index" , $frontController['actions'])  ){
 	if( !$frontController['localFileExists'] ){ 
 		array_push($frontController['messages'], "File not found; will create new one on save.");
 	}
+	if($frontController['localFileExists']){
+		$frontController['contents'] = file_get_contents(
+			$frontController['localFile']
+		);
+	}
 	//...
 	$loadTemplate = true;
 
+// -----------------------------------------------------------------------------
 }elseif(  in_array("raw" , $frontController['actions'])  ){
 	// Show raw file
 	//...
 
+// -----------------------------------------------------------------------------
 }elseif(  in_array("preview" , $frontController['actions'])  ){
 	// View history file
 	//...
+	if($frontController['localFileExists']){
+		$frontController['contents'] = file_get_contents(
+			$frontController['localFile']
+		);
+	}
 	$loadTemplate = true;
 
+// -----------------------------------------------------------------------------
 }else{
 	// Read file (default action)
 	if( $frontController['localFileExists'] ){ 
 		array_push($frontController['actions'], "view");
 		//...
+		$frontController['contents'] = file_get_contents(
+			$frontController['localFile']
+		);
 		$loadTemplate = true;
 	}else{
 		// Redirect to editor
@@ -373,6 +422,12 @@ if(  in_array("index" , $frontController['actions'])  ){
 			header('Location:' . $frontController['virtualPath'] . '?edit') ;
 		}
 	}
+}
+
+
+// History not enabled
+if( !$arrOptions['history'] && in_array('history' , $frontController['actions']) ){
+	array_push($frontController['messages'], "History not enabled.");
 }
 
 
@@ -396,7 +451,7 @@ $showActionIndex =
 		in_array("history" ,  $frontController['actions'])
 ;
 $showActionHistory= 
-		$localFileExists &&
+		$arrOptions['history'] && $localFileExists &&
 		(
 			in_array('save'    , $frontController['actions']) ||
 			in_array('restore' , $frontController['actions']) ||
@@ -431,7 +486,7 @@ $showSectionMain    =
 	in_array('view'    , $frontController['actions'])
 ;
 $showSectionEdit    = in_array('edit'    , $frontController['actions']);
-$showSectionHistory = in_array('history' , $frontController['actions']);
+$showSectionHistory = $arrOptions['history'] && in_array('history' , $frontController['actions']);
 $showSectionIndex   = in_array('index'   , $frontController['actions']);
 
 
@@ -450,7 +505,7 @@ $frontController['showSectionIndex']         = $showSectionIndex;
 
 // =============================================================================
 // debug is on the table
-if( in_array($_SERVER['SERVER_NAME'], $arrOptions['debugDomains']) ){
+if( $arrOptions['debug'] ){
 	echo('<html><body><pre><code>');
 
 	/*
@@ -510,10 +565,5 @@ if( in_array($_SERVER['SERVER_NAME'], $arrOptions['debugDomains']) ){
 // =============================================================================
 // Load template
 if( $loadTemplate ){
-	if($frontController['localFileExists']){
-		$frontController['contents'] = file_get_contents(
-			$frontController['localFile']
-		);
-	}
 	include_once( $arrOptions['template'] );
 }

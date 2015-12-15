@@ -102,7 +102,7 @@ html{ min-height:100%; }
 		----------------------------------------------------------------------------- */
 		section{ display:block; }
 			section form{ display:block; min-height:100%; }
-				section form textarea{ display:block; width:100%; border-style:none; font-family:"Lucida Console", Monaco, monospace; white-space: pre; font-size:75%; overflow:visible; height:100%; background-color:hsla(0,0%,90%,1);}
+				section form textarea{ display:block; width:100%; border-style:none none dashed none; border-color:hsla(0,0%,0%,0.1); border-width:0 0 1px 0; font-family:"Lucida Console", Monaco, monospace; white-space: pre; font-size:75%; overflow:visible; height:100%; background-color:hsla(0,0%,90%,1);}
 				section form textarea:active{ border-style:none; }
 			section table.custom{ width:100%; font-family:"Lucida Console", Monaco, monospace; white-space: pre; border-spacing: 0px; }
 				section table.custom tbody tr td{ padding:0.25ex 1.5em 0.25em 0.5ex; }
