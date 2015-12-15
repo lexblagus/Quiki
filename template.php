@@ -105,13 +105,15 @@
 	<section class="history">
 		<table class="custom">
 			<tbody>
+				<?php foreach($frontController['localHistoryDirContents'] as $item ){ ?>
 				<tr>
-					<td class="minWidth"><a href="?preview">view</a></td>
-					<td class="minWidth">99999 bytes</td>
-					<td class="minWidth">31/12/9999 23:59</td>
-					<td class="minWidth"><a href="?restore">restore</a></td>
+					<td class="minWidth"><a href="?preview&amp;timestamp=<?php echo($item['timestamp']); ?>">view</a></td>
+					<td class="minWidth"><?php echo($item['sizeInBytes']); ?> bytes</td>
+					<td class="minWidth"><?php echo( $item['whenBackedUp']->format("Y-m-d H:i:s") ); ?></td>
+					<td class="minWidth"><a href="?restore&amp;timestamp=<?php echo($item['timestamp']); ?>">restore</a></td>
 					<td class="maxWidth">&nbsp;</td>
 				</tr>
+				<?php } ?>
 			</tbody>
 		</table>
 	</section>

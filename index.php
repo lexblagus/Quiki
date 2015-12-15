@@ -59,6 +59,7 @@ if(0){
 // Working variables
 $loadTemplate = false;
 date_default_timezone_set(@date_default_timezone_get());
+$fileTimeFormat = 'YmdHis';
 // ...
 
 
@@ -209,7 +210,7 @@ $localHistoryDir =
 	'/' .
 	implode('/', array_merge($arrVirtualFolders,array($virtualPage)))
 ;
-$localHistoryFile = $localHistoryDir . '/' . date("YmdHis") . $arrOptions['pagesSuffix'];
+$localHistoryFile = $localHistoryDir . '/' . date($fileTimeFormat) . $arrOptions['pagesSuffix'];
 
 
 // Front controller declaration, to be used at template.
@@ -229,6 +230,7 @@ $frontController = array(
 	'localFileExists'          => $localFileExists,
 	'localHistoryDir'          => $localHistoryDir,
 	'localHistoryDirExists'    => false,                 // to be defined bellow
+	'localHistoryDirContents'  => array(),               // to be defined bellow
 	'localHistoryFile'         => $localHistoryFile,
 	'localIndexDir'            => false,                 // to be defined bellow
 	'localIndexDirExists'      => false,                 // to be defined bellow
@@ -296,7 +298,7 @@ if(  in_array("index" , $frontController['actions'])  ){
 				$itemVirtualPage = $frontController['virtualAbsIndex'] . $itemName . '/?index';
 				$itemSize = -1;
 			}elseif($itemKind == 'file'){
-				if(
+				if( true ||
 					$arrOptions['pagesSuffix'] == '' ||
 					preg_match('/' . preg_quote($arrOptions['pagesSuffix']) . '$/', $item)
 				){
@@ -378,24 +380,47 @@ if(  in_array("index" , $frontController['actions'])  ){
 // -----------------------------------------------------------------------------
 }elseif(  in_array("history" , $frontController['actions'])  ){
 	// Retrieve file history list
-	//...
+	if( $arrOptions['history'] ){
+		$frontController['localHistoryDirExists'] = file_exists( $frontController['localHistoryDir'] );
+		if( $frontController['localHistoryDirExists'] ){
+			$arrDirList = scandir( $frontController['localHistoryDir'] , SCANDIR_SORT_ASCENDING);
+			$arrDirList = array_diff( $arrDirList , array('.','..') ); // remove . and ..
+			foreach($arrDirList as $item){
+				$itemLocal = $frontController['localHistoryDir'] . '/' . $item;
+				$strFilePattern = '/^(\d{14})(' . preg_quote($arrOptions['pagesSuffix']) . ')$/';
+				if( 
+					is_file($itemLocal) &&
+					preg_match($strFilePattern , $item)
+				){
+					$itemTimestamp = preg_replace($strFilePattern , '$1', $item);
+					$itemDateTime = date_create_from_format($fileTimeFormat , $itemTimestamp);
+					$itemSize = filesize($itemLocal);
+					array_push(
+						$frontController['localHistoryDirContents'],
+						array(
+							'timestamp'        => $itemTimestamp,
+							'whenBackedUp'     => $itemDateTime,
+							'sizeInBytes'      => $itemSize
+						)
+					);
+				}
+			}
+			//...
+		}else{
+			array_push($frontController['messages'], 'History folder not found (' . $frontController['localHistoryDir'] . ').');
+		}
+	} else {
+		array_push($frontController['messages'], "This feature is not enabled.");
+	}
 	$loadTemplate = true;
 
 // -----------------------------------------------------------------------------
 }elseif(  in_array("restore" , $frontController['actions'])  ){
 	// Restore contents from history
-	//...
-	$loadTemplate = true;
-
-}elseif(  in_array("edit" , $frontController['actions'])  ){
-	// Show file editor
-	if( !$frontController['localFileExists'] ){ 
-		array_push($frontController['messages'], "File not found; will create new one on save.");
-	}
-	if($frontController['localFileExists']){
-		$frontController['contents'] = file_get_contents(
-			$frontController['localFile']
-		);
+	if( $arrOptions['history'] ){
+		//...
+	} else {
+		array_push($frontController['messages'], "This feature is not enabled.");
 	}
 	$loadTemplate = true;
 
@@ -414,6 +439,18 @@ if(  in_array("index" , $frontController['actions'])  ){
 			header('Location:' . $frontController['virtualPath'] . '?edit') ;
 		}
 	}
+
+}elseif(  in_array("edit" , $frontController['actions'])  ){
+	// Show file editor
+	if( !$frontController['localFileExists'] ){ 
+		array_push($frontController['messages'], "File not found; will create new one on save.");
+	}
+	if($frontController['localFileExists']){
+		$frontController['contents'] = file_get_contents(
+			$frontController['localFile']
+		);
+	}
+	$loadTemplate = true;
 
 // -----------------------------------------------------------------------------
 }elseif(  in_array("preview" , $frontController['actions'])  ){
@@ -443,12 +480,6 @@ if(  in_array("index" , $frontController['actions'])  ){
 			header('Location:' . $frontController['virtualPath'] . '?edit') ;
 		}
 	}
-}
-
-
-// History not enabled
-if( !$arrOptions['history'] && in_array('history' , $frontController['actions']) ){
-	array_push($frontController['messages'], "History not enabled.");
 }
 
 
