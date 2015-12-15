@@ -232,6 +232,7 @@ $frontController = array(
 	'localHistoryDirExists'    => false,                 // to be defined bellow
 	'localHistoryDirContents'  => array(),               // to be defined bellow
 	'localHistoryFile'         => $localHistoryFile,
+	'localHistoryFileExists'   => false,                 // to be defined bellow
 	'localIndexDir'            => false,                 // to be defined bellow
 	'localIndexDirExists'      => false,                 // to be defined bellow
 	'localIndexDirContents'    => array(),               // to be defined bellow
@@ -239,6 +240,7 @@ $frontController = array(
 	'showActionHome'           => false,                 // to be defined bellow
 	'showActionIndex'          => false,                 // to be defined bellow
 	'showActionHistory'        => false,                 // to be defined bellow
+	'showActionRestore'        => false,                 // to be defined bellow
 	'showActionRaw'            => false,                 // to be defined bellow
 	'showActionEdit'           => false,                 // to be defined bellow
 	'showActionCancel'         => false,                 // to be defined bellow
@@ -298,7 +300,7 @@ if(  in_array("index" , $frontController['actions'])  ){
 				$itemVirtualPage = $frontController['virtualAbsIndex'] . $itemName . '/?index';
 				$itemSize = -1;
 			}elseif($itemKind == 'file'){
-				if( true ||
+				if(
 					$arrOptions['pagesSuffix'] == '' ||
 					preg_match('/' . preg_quote($arrOptions['pagesSuffix']) . '$/', $item)
 				){
@@ -383,7 +385,7 @@ if(  in_array("index" , $frontController['actions'])  ){
 	if( $arrOptions['history'] ){
 		$frontController['localHistoryDirExists'] = file_exists( $frontController['localHistoryDir'] );
 		if( $frontController['localHistoryDirExists'] ){
-			$arrDirList = scandir( $frontController['localHistoryDir'] , SCANDIR_SORT_ASCENDING);
+			$arrDirList = scandir( $frontController['localHistoryDir'] , SCANDIR_SORT_DESCENDING);
 			$arrDirList = array_diff( $arrDirList , array('.','..') ); // remove . and ..
 			foreach($arrDirList as $item){
 				$itemLocal = $frontController['localHistoryDir'] . '/' . $item;
@@ -405,9 +407,31 @@ if(  in_array("index" , $frontController['actions'])  ){
 					);
 				}
 			}
-			//...
 		}else{
-			array_push($frontController['messages'], 'History folder not found (' . $frontController['localHistoryDir'] . ').');
+			array_push($frontController['messages'], 'No history (missing folder ' . $frontController['localHistoryDir'] . ').');
+		}
+	} else {
+		array_push($frontController['messages'], "This feature is not enabled.");
+	}
+	$loadTemplate = true;
+
+// -----------------------------------------------------------------------------
+}elseif(  in_array("preview" , $frontController['actions'])  ){
+	// View history file
+	if( $arrOptions['history'] ){
+		if( isset( $frontController['actions']["timestamp"] ) ){
+			$frontController['localHistoryFile']  = $localHistoryDir . '/' . $frontController['actions']['timestamp'] . $arrOptions['pagesSuffix'];
+			$frontController['localHistoryFileExists'] = file_exists( $frontController['localHistoryFile'] );
+			if( $frontController['localHistoryFileExists'] ){
+				array_push($frontController['actions'], "view");
+				$frontController['contents'] = file_get_contents(
+					$frontController['localHistoryFile']
+				);
+			}else{
+				array_push($frontController['messages'], 'Restore file not found');
+			}
+		}else{
+			array_push($frontController['messages'], 'Missing action timestamp');
 		}
 	} else {
 		array_push($frontController['messages'], "This feature is not enabled.");
@@ -418,11 +442,27 @@ if(  in_array("index" , $frontController['actions'])  ){
 }elseif(  in_array("restore" , $frontController['actions'])  ){
 	// Restore contents from history
 	if( $arrOptions['history'] ){
-		//...
+		if( isset( $frontController['actions']["timestamp"] ) ){
+			$localHistoryFileNow = $frontController['localHistoryFile'];
+			$frontController['localHistoryFile']  = $localHistoryDir . '/' . $frontController['actions']['timestamp'] . $arrOptions['pagesSuffix'];
+			$frontController['localHistoryFileExists'] = file_exists( $frontController['localHistoryFile'] );
+			if( $frontController['localHistoryFileExists'] ){
+				copy($frontController['localFile'], $localHistoryFileNow);
+				copy($frontController['localHistoryFile'] , $frontController['localFile']);
+				$loadTemplate = false;
+				header('Location:' . $frontController['virtualPath']) ;
+			}else{
+				array_push($frontController['messages'], 'Restore file not found');
+				$loadTemplate = true;
+			}
+		}else{
+			array_push($frontController['messages'], 'Missing action timestamp');
+			$loadTemplate = true;
+		}
 	} else {
 		array_push($frontController['messages'], "This feature is not enabled.");
+		$loadTemplate = true;
 	}
-	$loadTemplate = true;
 
 // -----------------------------------------------------------------------------
 }elseif(  in_array("raw" , $frontController['actions'])  ){
@@ -445,17 +485,6 @@ if(  in_array("index" , $frontController['actions'])  ){
 	if( !$frontController['localFileExists'] ){ 
 		array_push($frontController['messages'], "File not found; will create new one on save.");
 	}
-	if($frontController['localFileExists']){
-		$frontController['contents'] = file_get_contents(
-			$frontController['localFile']
-		);
-	}
-	$loadTemplate = true;
-
-// -----------------------------------------------------------------------------
-}elseif(  in_array("preview" , $frontController['actions'])  ){
-	// View history file
-	//...
 	if($frontController['localFileExists']){
 		$frontController['contents'] = file_get_contents(
 			$frontController['localFile']
@@ -512,24 +541,27 @@ $showActionHistory=
 			in_array('view'    , $frontController['actions'])
 		)
 ;
+$showActionRestore = in_array('preview' , $frontController['actions']);
 $showActionRaw = 
 		$localFileExists && 
+		!in_array('preview' , $frontController['actions']) &&
 		(
 			in_array('save'    , $frontController['actions']) ||
 			in_array('restore' , $frontController['actions']) ||
 			in_array('edit'    , $frontController['actions']) ||
-			in_array('preview' , $frontController['actions']) ||
 			in_array('view'    , $frontController['actions'])
 		)
 ;
 $showActionEdit = 
-	in_array('save'    , $frontController['actions']) ||
-	in_array('restore' , $frontController['actions']) ||
-	in_array('view'    , $frontController['actions'])
+	!in_array('preview' , $frontController['actions']) &&
+	(
+		in_array('save'    , $frontController['actions']) ||
+		in_array('restore' , $frontController['actions']) ||
+		in_array('view'    , $frontController['actions'])
+	)
 ;
-$showActionCancel = in_array('edit' , $frontController['actions']);
+$showActionCancel = in_array('edit' , $frontController['actions']) && $frontController['localFileExists'];
 $showActionSave   = in_array('edit' , $frontController['actions']);
-
 
 $showSectionMain    = 
 	in_array('save'    , $frontController['actions']) ||
@@ -541,10 +573,10 @@ $showSectionEdit    = in_array('edit'    , $frontController['actions']);
 $showSectionHistory = $arrOptions['history'] && in_array('history' , $frontController['actions']);
 $showSectionIndex   = in_array('index'   , $frontController['actions']);
 
-
 $frontController['showActionHome']           = $showActionHome;
 $frontController['showActionIndex']          = $showActionIndex;
 $frontController['showActionHistory']        = $showActionHistory;
+$frontController['showActionRestore']        = $showActionRestore;
 $frontController['showActionRaw']            = $showActionRaw;
 $frontController['showActionEdit']           = $showActionEdit;
 $frontController['showActionCancel']         = $showActionCancel;
