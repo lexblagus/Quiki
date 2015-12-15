@@ -52,7 +52,36 @@
 	<script type="text/javascript" src="<?php echo( $frontController['appBaseFolder'] ); ?>/lib/jquery-2.1.3.min.js"></script>
 	<script type="text/javascript" src="<?php echo( $frontController['appBaseFolder'] ); ?>/lib/jquery.autogrowtextarea.min.js"></script>
 	<script type="text/javascript">
-		$(document).ready(    function(){   $("section form textarea").autoGrow(  { /* extraLine: true */ }  );   }    );
+function enableTab(el) {
+    el.onkeydown = function(e) {
+        if (e.keyCode === 9) { // tab was pressed
+
+            // get caret position/selection
+            var val = this.value,
+                start = this.selectionStart,
+                end = this.selectionEnd;
+
+            // set textarea value to: text before caret + tab + text after caret
+            this.value = val.substring(0, start) + '\t' + val.substring(end);
+
+            // put caret at right position again
+            this.selectionStart = this.selectionEnd = start + 1;
+
+            // prevent the focus lose
+            return false;
+
+        }
+    };
+}
+
+$(document).ready(
+	function(){
+		$("section form textarea").autoGrow(
+			{ /* extraLine: true */ }
+		);
+		enableTab( document.getElementById('sourcecode') );
+	}
+);
 	</script>
 	<?php } ?>
 </head>
@@ -98,7 +127,7 @@
 	<?php if($frontController['showSectionEdit']){ ?>
 	<section class="edit">
 		<form name="formEdit" action="<?php echo($frontController['virtualPath']); ?>?save" method="post" enctype="application/x-www-form-urlencoded">
-			<textarea name="sourcecode"><?php echo(htmlentities($frontController['contents'])); ?></textarea>
+			<textarea id="sourcecode" name="sourcecode"><?php echo(htmlentities($frontController['contents'])); ?></textarea>
 		</form>
 	</section>
 	<?php } ?>
