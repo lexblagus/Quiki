@@ -127,7 +127,7 @@
 					<?php if( $item['kind']=='file' ){ ?>
 					<td class="minWidth right"><?php echo($item['sizeInBytes']); ?> bytes</td>
 					<?php } elseif( $item['kind']=='folder' ){ ?>
-					<td class="minWidth right">&nbsp;</td>
+					<td class="minWidth right">folder</td>
 					<?php } ?>
 					<td class="minWidth"><?php echo( date("Y-m-d H:i:s",$item['lastChange']) ); ?></td>
 					<?php if( $item['kind']=='file' ){ ?>

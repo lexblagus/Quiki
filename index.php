@@ -42,19 +42,23 @@ $arrOptions = array(
 	'title'           => 'Quiki',             // Title of the page to be shown in header and tab
 	'template'        => 'template.php',      // Rendering file
 	'pagesDir'        => 'pages',             // Directory where the wiki page lives
-	'pagesSuffix'     => '.html',             // File extension. May be empty if you want to use different page extensions, e.g.: http://quiki.local/myfile.txt
+	'pagesSuffix'     => '.html',             // File extension
 	'historyDir'      => 'history',           // Backup folder
 	'home'            => 'Home',              // Homepage file (without extension if pagesSuffix is not empty)
-	'history'         => 1,                   // Enable history (backups on save)
-	'defaultTimezone' => 'America/Sao_Paulo', // Timezone (needed for file timestamps)
+	'history'         => 1,                   // Enable history feature (backups on save)
 	'debug'           => 0                    // Application debug
 );
+if(0){
+	// Options for using file extensions (allow opening another extensions than the suffix)
+	$arrOptions['pagesSuffix'] = '';
+	$arrOptions['home']        = 'home.html';
+}
 
 
 // =============================================================================
 // Working variables
 $loadTemplate = false;
-date_default_timezone_set( $arrOptions['defaultTimezone'] );
+date_default_timezone_set(@date_default_timezone_get());
 // ...
 
 
@@ -208,7 +212,7 @@ $localHistoryDir =
 $localHistoryFile = $localHistoryDir . '/' . date("YmdHis") . $arrOptions['pagesSuffix'];
 
 
-// Front controller declaration, to be used at template
+// Front controller declaration, to be used at template.
 $frontController = array(
 	'appBaseFolder'            => $strAppBaseFolder,
 	'appFolder'                => $strAppFolder,
@@ -218,32 +222,31 @@ $frontController = array(
 	'virtualPage'              => $virtualPage, 
 	'virtualHome'              => $virtualHome,
 	'virtualPath'              => $virtualPath,
-	'virtualAbsIndex'          => $virtualAbsIndex, 
+	'virtualAbsIndex'          => $virtualAbsIndex,
 	'virtualTitle'             => $virtualTitle,
 	'isHome'                   => $isHome,
 	'localFile'                => $localFile,
 	'localFileExists'          => $localFileExists,
 	'localHistoryDir'          => $localHistoryDir,
-	'localHistoryDirExists'    => false,
+	'localHistoryDirExists'    => false,                 // to be defined bellow
 	'localHistoryFile'         => $localHistoryFile,
-	'localIndexDir'            => false,
-	'localIndexDirExists'      => false,
-	'localIndexDirContents'    => array(),
+	'localIndexDir'            => false,                 // to be defined bellow
+	'localIndexDirExists'      => false,                 // to be defined bellow
+	'localIndexDirContents'    => array(),               // to be defined bellow
 	'actions'                  => $arrActions,
-	'showActionHome'           => false,
-	'showActionIndex'          => false,
-	'showActionHistory'        => false,
-	'showActionRaw'            => false,
-	'showActionEdit'           => false,
-	'showActionCancel'         => false,
-	'showActionSave'           => false,
-	'showSectionMain'          => false,
-	'showSectionEdit'          => false,
-	'showSectionHistory'       => false,
-	'showSectionIndex'         => false,
-	//...
+	'showActionHome'           => false,                 // to be defined bellow
+	'showActionIndex'          => false,                 // to be defined bellow
+	'showActionHistory'        => false,                 // to be defined bellow
+	'showActionRaw'            => false,                 // to be defined bellow
+	'showActionEdit'           => false,                 // to be defined bellow
+	'showActionCancel'         => false,                 // to be defined bellow
+	'showActionSave'           => false,                 // to be defined bellow
+	'showSectionMain'          => false,                 // to be defined bellow
+	'showSectionEdit'          => false,                 // to be defined bellow
+	'showSectionHistory'       => false,                 // to be defined bellow
+	'showSectionIndex'         => false,                 // to be defined bellow
 	'contents'                 => isset($_POST["sourcecode"]) ? $_POST["sourcecode"] : '',
-	'messages'                 => array()
+	'messages'                 => array()                // to be defined bellow
 );
 
 
@@ -293,8 +296,17 @@ if(  in_array("index" , $frontController['actions'])  ){
 				$itemVirtualPage = $frontController['virtualAbsIndex'] . $itemName . '/?index';
 				$itemSize = -1;
 			}elseif($itemKind == 'file'){
-				$itemVirtualPage = $frontController['virtualAbsIndex'] . $itemName;
-				$itemSize = filesize($itemLocal);
+				if(
+					$arrOptions['pagesSuffix'] == '' ||
+					preg_match('/' . preg_quote($arrOptions['pagesSuffix']) . '$/', $item)
+				){
+					$itemVirtualPage = $frontController['virtualAbsIndex'] . $itemName;
+					$itemSize = filesize($itemLocal);
+				}else{
+					$itemKind = 'unknown';
+					$itemVirtualPage = 'javascript:;';
+					$itemSize = -1;
+				}
 			}else{
 				$itemVirtualPage = 'javascript:;';
 				$itemSize = -1;
@@ -385,13 +397,23 @@ if(  in_array("index" , $frontController['actions'])  ){
 			$frontController['localFile']
 		);
 	}
-	//...
 	$loadTemplate = true;
 
 // -----------------------------------------------------------------------------
 }elseif(  in_array("raw" , $frontController['actions'])  ){
-	// Show raw file
-	//...
+	// Deliver raw file
+	if( $frontController['localFileExists'] ){ 
+		array_push($frontController['actions'], "view");
+		header('Location:' . $frontController['virtualHome'] . $frontController['localFile']);
+		$loadTemplate = false;
+	}else{
+		// Redirect to editor
+		if( count($frontController['actions'])>0 ){
+			header('Location:' . $frontController['_SERVER_REQUEST_URI'] . '&edit') ;
+		}else{
+			header('Location:' . $frontController['virtualPath'] . '?edit') ;
+		}
+	}
 
 // -----------------------------------------------------------------------------
 }elseif(  in_array("preview" , $frontController['actions'])  ){
@@ -409,7 +431,6 @@ if(  in_array("index" , $frontController['actions'])  ){
 	// Read file (default action)
 	if( $frontController['localFileExists'] ){ 
 		array_push($frontController['actions'], "view");
-		//...
 		$frontController['contents'] = file_get_contents(
 			$frontController['localFile']
 		);
