@@ -53,7 +53,7 @@ html{ min-height:100%; }
 	/* -----------------------------------------------------------------------------
 	   Header
 	----------------------------------------------------------------------------- */
-		header{ display:block; background-color:hsla(0,0%,20%,1); margin:0 0 0 0; padding:0.25em 0 0 0; text-align:justify; }
+		header{ display:block; background-color:hsla(0,0%,20%,1); margin:0 0 0 0; padding:0.5em 0 0.5em 0; text-align:justify; }
 			header *{ color:hsla(0,0%,100%,1); }
 			header a[href], header a[href]:link, header a[href]:visited{ color:hsl(240,100%,85%); }
 			header a[href]:active, header a[href]:hover{ color:hsl(240,100%,100%); }
@@ -94,7 +94,18 @@ html{ min-height:100%; }
 		   Main contents
 		----------------------------------------------------------------------------- */
 		main{ display:block; clear:both; padding:1ex; }
-			main h1, main h2, main h3, main h4, main h5, main h6 { text-transform:uppercase; font-weight:100; }
+			main h1,
+			main h2,
+			main h3,
+			main h4,
+			main h5,
+			main h6 { text-transform:uppercase; font-weight:100; }
+			main h1:first-child,
+			main h2:first-child,
+			main h3:first-child,
+			main h4:first-child,
+			main h5:first-child,
+			main h6:first-child { margin-top:0; }
 
 
 		/* -----------------------------------------------------------------------------

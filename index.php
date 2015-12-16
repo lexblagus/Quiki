@@ -411,7 +411,7 @@ if(  in_array("index" , $frontController['actions'])  ){
 				}
 			}
 		}else{
-			array_push($frontController['messages'], 'No history (missing folder ' . $frontController['localHistoryDir'] . ').');
+			array_push($frontController['messages'], 'No history.');
 		}
 	} else {
 		array_push($frontController['messages'], "This feature is not enabled.");
