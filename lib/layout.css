@@ -53,7 +53,7 @@ html{ min-height:100%; }
 	/* -----------------------------------------------------------------------------
 	   Header
 	----------------------------------------------------------------------------- */
-		header{ display:block; background-color:hsla(0,0%,20%,1); margin:0 0 0 0; padding:0.5em 0 0.5em 0; text-align:justify; }
+		header{ display:block; background-color:hsla(0,0%,20%,1); margin:0 0 0 0; padding:0em 0 0em 0; text-align:justify; }
 			header *{ color:hsla(0,0%,100%,1); }
 			header a[href], header a[href]:link, header a[href]:visited{ color:hsl(240,100%,85%); }
 			header a[href]:active, header a[href]:hover{ color:hsl(240,100%,100%); }
@@ -65,16 +65,16 @@ html{ min-height:100%; }
 			header h4{ margin-top:2em; font-size:1.3em; color:hsl(0,0%,45%); }
 			header h5{ margin-top:2em; font-size:1.2em; color:hsl(0,0%,50%); }
 			header h6{ margin-top:2em; font-size:1.1em; color:hsl(0,0%,55%); }
-			header h1{ display:inline; margin:0; padding:0; white-space:nowrap; font-size:2.0em; font-weight:100; }
+			header h1{ display:inline; margin:0; padding:0; white-space:nowrap; font-size:2.0em; font-weight:100; line-height:1.25em; }
 				header h1 .title{ text-transform:uppercase; padding:0 0 0 0.25ex;}
 				header h1 .page{ text-transform:none; }
-				header h1 .action{ font-size:0.66em; color:hsl(0,0%,50%); text-transform:uppercase; }
+				header h1 .action{ font-size:0.66em; color:hsl(0,0%,50%); text-transform:uppercase; line-height:0; }
 				
 
 			/* -----------------------------------------------------------------------------
 			   Navigation
 			----------------------------------------------------------------------------- */
-			header nav{ display:inline; float:right; margin:0.725em 0 0 0;  padding:0; }
+			header nav{ display:inline; float:right; margin:2ex 0 0 0;  padding:0; }
 			header nav ul{ list-style-type:none; margin:0; padding:0; display:inline-block; white-space:nowrap; }
 				header nav ul li{ display:inline; margin:0 1em 0 0; font-size:0.75em; font-weight:100; }
 				header nav ul li.alt{ color:hsl(45,100%,50%); }
