@@ -68,7 +68,7 @@ html{ min-height:100%; }
 			header h1{ display:inline; margin:0; padding:0; white-space:nowrap; font-size:2.0em; font-weight:100; }
 				header h1 .title{ text-transform:uppercase; padding:0 0 0 0.25ex;}
 				header h1 .page{ text-transform:none; }
-				header h1 .action{ font-size:0.66em; color:hsl(0,100%,100%); text-transform:uppercase; }
+				header h1 .action{ font-size:0.66em; color:hsl(0,0%,50%); text-transform:uppercase; }
 				
 
 			/* -----------------------------------------------------------------------------
@@ -116,16 +116,23 @@ html{ min-height:100%; }
 				section form textarea{ display:block; width:100%; border-style:none none dashed none; border-color:hsla(0,0%,0%,0.1); border-width:0 0 1px 0; font-family:"Lucida Console", Monaco, monospace; white-space: pre; font-size:75%; overflow:visible; height:100%; background-color:hsla(0,0%,90%,1);}
 				section form textarea:active{ border-style:none; }
 			section table.custom{ width:100%; font-family:"Lucida Console", Monaco, monospace; white-space: pre; border-spacing: 0px; }
-				section table.custom tbody tr td{ padding:0.25ex 1.5em 0.25em 0.5ex; }
-				section table.custom tbody tr td.minWidth{ width:1em; }
-				section table.custom tbody tr td.maxWidth{  }
+				/* all cells */
+				section table.custom th,
+				section table.custom td{ padding:0.25ex 1.5em 0.25em 0.5ex; border-bottom:1px solid hsla(0,0%,0%,0.100); background-color:hsla(0,0%,0%,0.000); }
+				section table.custom td.minWidth{ width:1em; }
+				section table.custom td.maxWidth{  }
+				section table.custom td.notes{ font-family:sans-serif; font-size:75%; }
+				/* header */
+				section table.custom thead tr th{ font-size:75%; text-transform:uppercase; font-family:sans-serif; font-weight:400; text-align:left; /* background-color:hsla(0,0%,0%,0.125); */ }
+				/* body and children */
+				section table.custom tbody tr td{ color:hsla(0, 0%, 0%, 0.5); }
 				section table.custom tbody tr.file   td{ color:hsla(0, 0%, 0%, 0.5);  }
 				section table.custom tbody tr.folder td{ /* font-weight:bold; */ }
-				section table.custom tbody tr td.tag{ font-size:75%; text-transform:uppercase; font-family:sans-serif; }
-				section table.custom tbody tr:nth-child(even) td:nth-child(even){ background-color:hsla(0,0%,0%,0.000); }
-				section table.custom tbody tr:nth-child(even) td:nth-child(odd) { background-color:hsla(0,0%,0%,0.000); }
-				section table.custom tbody tr:nth-child(odd)  td:nth-child(even){ background-color:hsla(0,0%,0%,0.050); }
-				section table.custom tbody tr:nth-child(odd)  td:nth-child(odd) { background-color:hsla(0,0%,0%,0.050); }
+				section table.custom tbody tr td.tag{ font-family:sans-serif; font-size:75%; text-transform:uppercase; }
+				section table.custom tbody tr:nth-child(even) td:nth-child(even){ /* background-color:hsla(0,0%,0%,0.000); */ }
+				section table.custom tbody tr:nth-child(even) td:nth-child(odd) { /* background-color:hsla(0,0%,0%,0.000); */ }
+				section table.custom tbody tr:nth-child(odd)  td:nth-child(even){ /* background-color:hsla(0,0%,0%,0.050); */ }
+				section table.custom tbody tr:nth-child(odd)  td:nth-child(odd) { /* background-color:hsla(0,0%,0%,0.050); */ }
 					section table.custom tbody tr.file td a[href]{         color:hsla(240, 50%,50%, 0.66); text-decoration: none; }
 					section table.custom tbody tr.file td a[href]:link{    color:hsla(240, 50%,50%, 0.66); text-decoration: none; }
 					section table.custom tbody tr.file td a[href]:hover {  color:hsla(240, 75%,50%, 0.66); text-decoration: underline; }

@@ -405,10 +405,29 @@ if(  in_array("index" , $frontController['actions'])  ){
 						array(
 							'timestamp'        => $itemTimestamp,
 							'whenBackedUp'     => $itemDateTime,
-							'sizeInBytes'      => $itemSize
+							'sizeInBytes'      => $itemSize,
+							'internalNote'     => '&nbsp;'
 						)
 					);
 				}
+			}
+			// Discover newest item and put into notes
+			$arrTimestamps = array();
+			foreach($frontController['localHistoryDirContents'] as $idx => $arrProps){
+				array_push($arrTimestamps, $arrProps['timestamp']);
+			}
+			$arrNewest = array_keys( $arrTimestamps , max($arrTimestamps) , true );
+			foreach($arrNewest as $idxVal){
+				$frontController['localHistoryDirContents'][$idxVal]['internalNote'] = '(newest)';
+			}
+			// Discover oldest item and put into notes
+			$arrTimestamps = array();
+			foreach($frontController['localHistoryDirContents'] as $idx => $arrProps){
+				array_push($arrTimestamps, $arrProps['timestamp']);
+			}
+			$arrOldest = array_keys( $arrTimestamps , min($arrTimestamps) , true );
+			foreach($arrOldest as $idxVal){
+				$frontController['localHistoryDirContents'][$idxVal]['internalNote'] = '(oldest)';
 			}
 		}else{
 			array_push($frontController['messages'], 'No history.');

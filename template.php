@@ -134,13 +134,24 @@ $(document).ready(
 	<?php if($frontController['showSectionHistory']){ ?>
 	<section class="history">
 		<table class="custom">
+			<!-- thead>
+				<tr>
+					<th class="minWidth">size</th>
+					<th class="minWidth">when</th>
+					<th class="minWidth">&nbsp;</th>
+					<th class="minWidth">&nbsp;</th>
+					<th class="minWidth">&nbsp;</th>
+					<th class="maxWidth">&nbsp;</th>
+				</tr>
+			</thead -->
 			<tbody>
 				<?php foreach($frontController['localHistoryDirContents'] as $item ){ ?>
 				<tr>
-					<td class="minWidth tag"><a href="?preview&amp;timestamp=<?php echo($item['timestamp']); ?>">preview</a></td>
 					<td class="minWidth right"><?php echo($item['sizeInBytes']); ?> bytes</td>
 					<td class="minWidth"><?php echo( $item['whenBackedUp']->format("Y-m-d H:i:s") ); ?></td>
+					<td class="minWidth notes"><?php echo($item['internalNote']); ?></td>
 					<td class="minWidth tag"><a href="?restore&amp;timestamp=<?php echo($item['timestamp']); ?>">restore</a></td>
+					<td class="minWidth tag"><a href="?preview&amp;timestamp=<?php echo($item['timestamp']); ?>">preview</a></td>
 					<td class="maxWidth">&nbsp;</td>
 				</tr>
 				<?php } ?>
