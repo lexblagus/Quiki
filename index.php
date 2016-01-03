@@ -42,7 +42,7 @@ include_once('config.php');
 $arrOptions = array_merge(
 	array( // default configuration
 		'title'           => 'Quiki',             // Title of the page to be shown in header and tab
-		'template'        => 'template.php',      // Rendering file
+		'template'        => 'lib/template.php',  // Rendering file
 		'pagesDir'        => 'pages',             // Directory where the wiki page lives
 		'pagesSuffix'     => '.html',             // File extension
 		'historyDir'      => 'history',           // Backup folder

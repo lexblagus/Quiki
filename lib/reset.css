@@ -109,7 +109,7 @@ a[href]:visited{ color:hsla(240, 20%,50%,1); text-decoration: none; }
 /* =============================================================================
 Headers
 ============================================================================= */
-h1, h2, h3, h4, h5, h6 { margin:2em 0 0.5em 0; padding: 0; font-weight:600; line-height:1em; }
+h1, h2, h3, h4, h5, h6 { margin:2em 0 0.5em 0; padding: 0; font-weight:100; line-height:1em; }
 
 h1{ margin-top:0;   font-size:3.00em; color:hsl(0,0%,30%); }
 h2{ margin-top:1em; font-size:2.50em; color:hsl(0,0%,35%); }
@@ -133,10 +133,11 @@ Table
 table{                         margin:0; padding:0; border-spacing:2px; empty-cells:hide; border-collapse:separate; caption-side:bottom; }
 /* simple table */             
 	table tr{                   }
-	table tr th{               margin:0; padding:0.5ex; background-color:hsla(0,0%,0%,0.05); color:hsla(0,0%,50%,1); font-weight:400; }
-	table tr td{               margin:0; padding:0.5ex; background-color:hsla(0,0%,0%,0.15); }
+	table tr th{               margin:0; padding:0.5ex; background-color:hsla(0,0%,0%,0.500); color:hsla(0,0%,90%,1); font-weight:400; text-transform:uppercase; font-size:75%; }
+		table tr th *{         text-transform:none; font-size:125%; }
+	table tr td{               margin:0; padding:0.5ex; background-color:hsla(0,0%,0%,0.100); }
 /* complex table */            
-	table>caption{             margin:0 2px; padding:0.5ex; background-color:hsla(0,0%,0%,0.05); color:hsla(0,0%,25%,1); }
+	table>caption{             margin:0 2px; padding:0.5ex; background-color:hsla(0,0%,0%,0.500); color:hsla(0,0%,90%,1); text-transform:uppercase; font-size:75%; }
 	table>thead{                }
 		table>thead>tr{         }
 			table>thead>tr>th{  }
@@ -148,10 +149,10 @@ table{                         margin:0; padding:0; border-spacing:2px; empty-ce
 			tbody>tr>th{        }
 			tbody>tr>td{        }
 
-table[border]{             border:solid 2px hsla(0,0%,66%,1); border-spacing:0; border-collapse:collapse; }
-	table[border] tr th{   border:solid 2px hsla(0,0%,66%,1); }
-	table[border] tr td{   border:solid 2px hsla(0,0%,66%,1);  }
-	table[border]>caption{ border:solid 2px hsla(0,0%,66%,1); border-top-style:none; margin:0; }
+table[border]{             border:solid 2px hsla(0,0%,25%,1); border-spacing:0; border-collapse:collapse; }
+	table[border] tr th{   border:solid 2px hsla(0,0%,25%,1); }
+	table[border] tr td{   border:solid 2px hsla(0,0%,25%,1);  }
+	table[border]>caption{ border:solid 2px hsla(0,0%,25%,1); border-top-style:none; margin:0; }
 
 div.table { display:table; padding:0; margin:0; }
 div.tr { display:table-row; padding:0; margin:0; }
