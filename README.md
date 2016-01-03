@@ -57,36 +57,40 @@
 	</tbody>
 </table>
 
+<h2><a href="docs/screenshots.md">Screenhots</a></h2>
+
+<p>Because a <a href="docs/screenshots.md">picture</a> is worth a thousand words </p>
+
 <h2>Structure</h2>
 
 <table>
 	<tbody>
 		<tr>
-			<th style="text-align:left;"><code>/.htaccess &amp; /web.config</code></th>
+			<th><code>/.htaccess &amp; /web.config</code></th>
 			<td>Front controllers (forward all requests to index.php)</td>
 		</tr>
 		<tr>
-			<th style="text-align:left;"><code>/index.php</code></th>
+			<th><code>/index.php</code></th>
 			<td>Quiki engine</td>
 		</tr>
 		<tr>
-			<th style="text-align:left;"><code>/config.php</code></th>
+			<th><code>/config.php</code></th>
 			<td>Configuration file (title, template, folders etc.)</td>
 		</tr>
 		<tr>
-			<th style="text-align:left;"><code>/lib/template.php</code></th>
+			<th><code>/lib/template.php</code></th>
 			<td>Template HTML</td>
 		</tr>
 		<tr>
-			<th style="text-align:left;"><code>/lib/layout.css</code></th>
+			<th><code>/lib/layout.css</code></th>
 			<td>Template CSS</td>
 		</tr>
 		<tr>
-			<th style="text-align:left;"><code>/pages</code></th>
+			<th><code>/pages</code></th>
 			<td>Folder that contains all the wiki pages</td>
 		</tr>
 		<tr>
-			<th style="text-align:left;"><code>/history</code></th>
+			<th><code>/history</code></th>
 			<td>Backup folder</td>
 		</tr>
 	</tbody>
