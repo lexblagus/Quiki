@@ -72,23 +72,24 @@ Texts
 p { margin: 1.75em 0 1em 0; }
 b, strong{ font-weight:600; }
 i, em{ font-style: italic; }
-blockquote{ margin:0; font-style: italic; }
+blockquote{ margin:0; font-style:italic; }
 	blockquote::before{ content: "\201C"; } /* “ */
 	blockquote::after{ content: "\201D"; } /* ” */
 	blockquote span.signature::before{ content: " — "; }
 address{ font-style: normal; }
-del{ color:#f00; }
-ins{ color:#0f0; text-decoration:none;  }
+del{ color:hsla(0,100%,50%,1); }
+ins{ color:hsla(90,100%,40%,1); text-decoration:none;  }
 small{ font-size:75% }
 sup{  }
 sub{  }
-cite{ font-style: normal; }
+cite{ font-style:normal; }
 	cite::before{ content: "\00AB"; } /* « */
 	cite::after{ content: "\00BB"; } /* » */
 acronym{  }
 abbr{  }
 bdo{  }
 kbd{ font-style: normal; }
+blockquote, cite{ font-family:serif; }
 code , code * , .code, pre, kbd {
 	font-family:monospace;
 	white-space: pre;
@@ -133,11 +134,11 @@ Table
 table{                         margin:0; padding:0; border-spacing:2px; empty-cells:hide; border-collapse:separate; caption-side:bottom; }
 /* simple table */             
 	table tr{                   }
-	table tr th{               margin:0; padding:0.5ex; background-color:hsla(0,0%,0%,0.500); color:hsla(0,0%,90%,1); font-weight:400; text-transform:uppercase; font-size:75%; }
-		table tr th *{         text-transform:none; font-size:125%; }
+	table tr th{               margin:0; padding:0.5ex; background-color:hsla(0,0%,0%,0.500); color:hsla(0,0%,90%,1); font-weight:100; text-transform:uppercase; }
+		table tr th *{         text-transform:none; }
 	table tr td{               margin:0; padding:0.5ex; background-color:hsla(0,0%,0%,0.100); }
 /* complex table */            
-	table>caption{             margin:0 2px; padding:0.5ex; background-color:hsla(0,0%,0%,0.500); color:hsla(0,0%,90%,1); text-transform:uppercase; font-size:75%; }
+	table>caption{             margin:0 2px; padding:0.5ex; background-color:hsla(0,0%,0%,0.500); color:hsla(0,0%,90%,1); }
 	table>thead{                }
 		table>thead>tr{         }
 			table>thead>tr>th{  }

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<?php if(!isset($arrOptions)){die;} ?><!DOCTYPE html>
 <html dir="ltr" lang="en-US">
 <head>
 	<meta charset="utf-8">

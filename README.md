@@ -57,10 +57,6 @@
 	</tbody>
 </table>
 
-<h2><a href="docs/screenshots.md">Screenhots</a></h2>
-
-<p>Because a <a href="docs/screenshots.md">picture</a> is worth a thousand words </p>
-
 <h2>Structure</h2>
 
 <table>
@@ -98,5 +94,5 @@
 
 
 <h2>About</h2>
-I needed a wiki for the home page of all browsers in my computers; lightweight and fast and without a visual editor because I think is easier to edit HTML/JS/CSS by hand. Inspired by <a href="http://c2.com/cgi/wiki?TigerWiki">TigerWiki</a>, created by <a href="http://blag.us/">Lex Blagus</a>. 
-
+<p>I needed a wiki for the home page of all browsers in my computers; lightweight and fast and without a visual editor because I think is easier to edit HTML/JS/CSS by hand.</p>
+<p>Inspired by <a href="http://c2.com/cgi/wiki?TigerWiki">TigerWiki</a>, created by <a href="http://blag.us/">Lex Blagus</a>.</p>
