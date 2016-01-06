@@ -1,4 +1,4 @@
-<?php if(!isset($arrOptions)){die;} ?><!DOCTYPE html>
+<?php if( !isset($arrOptions) ){ header('Location:..') ; } /* do not render this page if called outside index.php */ ?><!DOCTYPE html>
 <html dir="ltr" lang="en-US">
 <head>
 	<meta charset="utf-8">
@@ -90,9 +90,10 @@ $(document).ready(
 		<h1>
 			<span class="title"><?php echo($arrOptions['title'] . ' / '); ?></span>
 			<span class="page">
-				<a href="<?php echo( $frontController['virtualPath'] ); ?>">
-					<?php echo( $frontController['virtualTitle'] ); ?>
-				</a>
+				<?php for($i=0; $i<count($frontController['virtualFolders']); $i++){ ?>
+					<a href="<?php echo( $frontController['virtualFoldersHref'][$i] ); ?>"><?php echo( $frontController['virtualFolders'][$i] ); ?></a> / 
+				<?php } ?>
+				<a href="<?php echo( $frontController['virtualPath'] ); ?>"><?php echo( $frontController['virtualPage'] ); ?></a>
 			</span>
 			<?php if(  in_array("edit" , $frontController['actions'])  ){ ?><span class="action"> / edit</span><?php } ?>
 			<?php if(  in_array("history" , $frontController['actions'])  ){ ?><span class="action"> / history</span><?php } ?>

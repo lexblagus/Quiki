@@ -40,7 +40,7 @@ error_reporting(E_ALL|E_STRICT); // all kinds of error
 // Define options
 include_once('config.php');
 $arrOptions = array_merge(
-	array( // default configuration
+	array( // default configuration. This is overwritten by config.php
 		'title'           => 'Quiki',             // Title of the page to be shown in header and tab
 		'template'        => 'lib/template.php',  // Rendering file
 		'pagesDir'        => 'pages',             // Directory where the wiki page lives
@@ -191,6 +191,18 @@ if( count($arrAppFolders)==0 && count($arrVirtualFolders)==0 ){
 $isHome = count($arrVirtualFolders)==0 && ($virtualPage==$arrOptions['home'] || $virtualPage=='');
 
 
+// Virtual folders href
+$arrVirtualFoldersHref = array();
+$strAcumulateFolders = '';
+for ($i=0; $i < count($arrVirtualFolders); $i++) { 
+	$strAcumulateFolders .= $arrVirtualFolders[$i] . '/'; 
+	array_push(
+		$arrVirtualFoldersHref,
+		$virtualHome . $strAcumulateFolders . '?index'
+	);
+}
+
+
 // Local file
 $localFile = 
 	implode(
@@ -219,6 +231,7 @@ $frontController = array(
 	'appFolders'               => $arrAppFolders,
 	'virtualFolder'            => implode('/', $arrVirtualFolders), 
 	'virtualFolders'           => $arrVirtualFolders, 
+	'virtualFoldersHref'       => $arrVirtualFoldersHref,
 	'virtualPage'              => $virtualPage, 
 	'virtualHome'              => $virtualHome,
 	'virtualPath'              => $virtualPath,
@@ -610,7 +623,7 @@ $frontController['showSectionIndex']         = $showSectionIndex;
 
 // =============================================================================
 // debug is on the table
-if( $arrOptions['debug'] ){
+if( $arrOptions['debug']==1 ){
 	echo('<html><body><pre><code>');
 
 	/*
