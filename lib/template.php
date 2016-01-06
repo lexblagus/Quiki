@@ -98,7 +98,7 @@ $(document).ready(
 			<?php if(  in_array("edit" , $frontController['actions'])  ){ ?><span class="action"> / edit</span><?php } ?>
 			<?php if(  in_array("history" , $frontController['actions'])  ){ ?><span class="action"> / history</span><?php } ?>
 			<?php if(  in_array("preview" , $frontController['actions'])  ){ ?><span class="action"> / preview</span><?php } ?>
-			<?php if(  in_array("index" , $frontController['actions'])  ){ ?><span class="action"> / index</span><?php } ?>
+			<?php if(  in_array("index" , $frontController['actions'])  ){ ?><span class="action"> index</span><?php } ?>
 		</h1>
 		<nav>
 			<ul>
