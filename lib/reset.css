@@ -134,9 +134,11 @@ Table
 table{                         margin:0; padding:0; border-spacing:2px; empty-cells:hide; border-collapse:separate; caption-side:bottom; }
 /* simple table */             
 	table tr{                   }
-	table tr th{               margin:0; padding:0.5ex; background-color:hsla(0,0%,0%,0.500); color:hsla(0,0%,90%,1); font-weight:100; text-transform:uppercase; }
+	table tr th,
+	table tr td{               margin:0; padding:0.5ex; vertical-align:baseline; }
+	table tr th{               background-color:hsla(0,0%,0%,0.500); color:hsla(0,0%,90%,1); font-weight:100; text-transform:uppercase; }
 		table tr th *{         text-transform:none; }
-	table tr td{               margin:0; padding:0.5ex; background-color:hsla(0,0%,0%,0.100); }
+	table tr td{               background-color:hsla(0,0%,0%,0.100); }
 /* complex table */            
 	table>caption{             margin:0 2px; padding:0.5ex; background-color:hsla(0,0%,0%,0.500); color:hsla(0,0%,90%,1); }
 	table>thead{                }
