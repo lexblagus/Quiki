@@ -512,7 +512,7 @@ if(  in_array("index" , $frontController['actions'])  ){
 	// Deliver raw file
 	if( $frontController['localFileExists'] ){ 
 		array_push($frontController['actions'], "view");
-		header('Location:' . $frontController['virtualHome'] . $frontController['localFile']);
+		header('Location:' . $frontController['appBaseRoot'] . '/' . $frontController['localFile']);
 		$loadTemplate = false;
 	}else{
 		// Redirect to editor
