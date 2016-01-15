@@ -42,46 +42,63 @@
 		<?php if(  in_array("preview" , $frontController['actions'])  ){ ?> / preview<?php } ?>
 		<?php if(  in_array("index" , $frontController['actions'])  ){ ?> / index<?php } ?>
 	</title>
-	<link rel="stylesheet" type="text/css" href="<?php echo( $frontController['appBaseFolder'] ); ?>/lib/reset.css" media="all">
-	<link rel="stylesheet" type="text/css" href="<?php echo( $frontController['appBaseFolder'] ); ?>/lib/layout.css" media="all">
+	<link rel="stylesheet" type="text/css" href="<?php echo( $frontController['appBaseRoot'] ); ?>/lib/reset.css" media="all">
+	<link rel="stylesheet" type="text/css" href="<?php echo( $frontController['appBaseRoot'] ); ?>/lib/layout.css" media="all">
 	<script> 
 // For discussion and comments, see: http://remysharp.com/2009/01/07/html5-enabling-script/
 (function(){if(!/*@cc_on!@*/0)return;var e = "abbr,article,aside,audio,canvas,datalist,details,eventsource,figure,footer,header,hgroup,mark,menu,meter,nav,output,progress,section,time,video".split(','),i=e.length;while(i--){document.createElement(e[i])}})()
 	</script>
 	<?php if(  in_array("edit" , $frontController['actions'])  ){ ?>
-	<script type="text/javascript" src="<?php echo( $frontController['appBaseFolder'] ); ?>/lib/jquery-2.1.3.min.js"></script>
-	<script type="text/javascript" src="<?php echo( $frontController['appBaseFolder'] ); ?>/lib/jquery.autogrowtextarea.min.js"></script>
+	<script type="text/javascript" src="<?php echo( $frontController['appBaseRoot'] ); ?>/lib/jquery-2.1.3.min.js"></script>
+	<script type="text/javascript" src="<?php echo( $frontController['appBaseRoot'] ); ?>/lib/jquery.autogrowtextarea.min.js"></script>
 	<script type="text/javascript">
-function enableTab(el) {
-    el.onkeydown = function(e) {
-        if (e.keyCode === 9) { // tab was pressed
-
-            // get caret position/selection
-            var val = this.value,
-                start = this.selectionStart,
-                end = this.selectionEnd;
-
-            // set textarea value to: text before caret + tab + text after caret
-            this.value = val.substring(0, start) + '\t' + val.substring(end);
-
-            // put caret at right position again
-            this.selectionStart = this.selectionEnd = start + 1;
-
-            // prevent the focus lose
-            return false;
-
-        }
-    };
+function addEvent(obj, evType, fn){
+	if (obj.addEventListener){
+		obj.addEventListener(evType, fn, false);
+		return true;
+	} else if (obj.attachEvent){
+		var r = obj.attachEvent("on"+evType, fn);
+		return r;
+	} else {
+		return false;
+	}
 }
 
-$(document).ready(
+addEvent(
+	window,
+	'load',
 	function(){
-		$("section form textarea").autoGrow(
-			{ /* extraLine: true */ }
-		);
-		enableTab( document.getElementById('sourcecode') );
+		var el = document.getElementById('sourcecode');
+		el.onkeydown = function(e){
+			try{
+				if (e.keyCode === 9) { // tab was pressed
+					// get caret position/selection
+					var val = 
+						this.value,
+						start = this.selectionStart,
+						end = this.selectionEnd
+					;
+					// set textarea value to: text before caret + tab + text after caret
+					this.value = val.substring(0, start) + '\t' + val.substring(end);
+					// put caret at right position again
+					this.selectionStart = this.selectionEnd = start + 1;
+					// prevent the focus lose
+					return false;
+				}
+			} catch(err){}
+		};
 	}
 );
+
+try{
+	$(document).ready(
+		function(){
+			$("section form textarea").autoGrow(
+				{ /* extraLine: true */ }
+			);
+		}
+	);
+} catch(err){}
 	</script>
 	<?php } ?>
 </head>

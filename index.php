@@ -65,7 +65,8 @@ $fileTimeFormat = 'YmdHis';
 // =============================================================================
 /* Front controller logic
 
-	Virtual HTTP address
+	Virtual HTTP addresses
+	http://domain/appFolder1/appFolder2/index.php/wikiFolder1/wikiFolder2/page?action1=value1&action2=value2&action3#hash
 	http://domain/appFolder1/appFolder2/wikiFolder1/wikiFolder2/page?action1=value1&action2=value2&action3#hash
 
 	Local Windows filesystem
@@ -76,17 +77,24 @@ $fileTimeFormat = 'YmdHis';
 
 
 // Application folder
-$strAppBaseFolder = 
+$strAppBase = 
 	str_replace(
 		str_replace( // remove dir from file
-			str_replace('\\','/',__DIR__), // normalize WIndows backslash
+			str_replace('\\','/',__DIR__), // normalize Windows backslash
 			'', 
-			str_replace('\\','/',__FILE__) // normalize WIndows backslash
+			str_replace('\\','/',__FILE__) // normalize Windows backslash
 		),
 		'', 
 		$_SERVER["SCRIPT_NAME"]
 	)
 ;
+if(strpos($_SERVER["REQUEST_URI"] ,$_SERVER["SCRIPT_NAME"])===0){ // url rewrite disabled("index.php/" is in the address)
+	$strAppBaseFolder = $_SERVER["SCRIPT_NAME"];
+	$strAppBaseRoot = $strAppBase;
+}else{
+	$strAppBaseFolder = $strAppBase;
+	$strAppBaseRoot = $strAppBase;
+}
 $strAppFolder = 
 	preg_replace( 
 		"/^\/|\/$/", // remove / from begin and end of uri
@@ -226,6 +234,7 @@ $localHistoryFile = $localHistoryDir . '/' . date($fileTimeFormat) . $arrOptions
 
 // Front controller declaration, to be used at template.
 $frontController = array(
+	'appBaseRoot'              => $strAppBaseRoot,
 	'appBaseFolder'            => $strAppBaseFolder,
 	'appFolder'                => $strAppFolder,
 	'appFolders'               => $arrAppFolders,
@@ -628,52 +637,52 @@ if( $arrOptions['debug']==1 ){
 
 	/*
 	echo('$strAppFolder = ');
-	var_export($strAppFolder);
+	echo(htmlentities(var_export($strAppFolder,true)));
 	echo('<br>');
 	echo('$arrAppFolders = ');
-	var_export($arrAppFolders);
+	echo(htmlentities(var_export($arrAppFolders,true)));
 	echo('<br>');
 	echo('$arrRequest = ');
-	var_export($arrRequest);
+	echo(htmlentities(var_export($arrRequest,true)));
 	echo('<br>');
 	echo('$strTrimmedPath = ');
-	var_export($strTrimmedPath);
+	echo(htmlentities(var_export($strTrimmedPath,true)));
 	echo('<br>');
 	echo('$arrVirtualFolders = ');
-	var_export($arrVirtualFolders);
+	echo(htmlentities(var_export($arrVirtualFolders,true)));
 	echo('<br>');
 	echo('$virtualPage = ');
-	var_export($virtualPage);
+	echo(htmlentities(var_export($virtualPage,true)));
 	echo('<br>');
 	echo('$isFolder = ');
-	var_export($isFolder);
+	echo(htmlentities(var_export($isFolder,true)));
 	echo('<hr>');
 	*/
 
 	echo('$arrOptions = ');
-	var_export($arrOptions);
+	echo(htmlentities(var_export($arrOptions,true)));
 	echo('<hr>');
 
 	echo('$frontController = ');
-	var_export($frontController);
+	echo(htmlentities(var_export($frontController,true)));
 	echo('<hr>');
 	
 	echo('__DIR__ = ');
-	var_export(__DIR__);
+	echo(htmlentities(var_export(__DIR__,true)));
 	echo('<hr>');
 	
 	echo('__FILE__ = ');
-	var_export(__FILE__);
+	echo(htmlentities(var_export(__FILE__,true)));
 	echo('<hr>');
 	
 	echo('$_SERVER["REQUEST_URI"] = ');
-	var_export($_SERVER['REQUEST_URI']);
+	echo(htmlentities(var_export($_SERVER['REQUEST_URI'],true)));
 	echo('<br>');
 	echo('$_SERVER["SCRIPT_NAME"] = ');
-	var_export($_SERVER['SCRIPT_NAME']);
+	echo(htmlentities(var_export($_SERVER['SCRIPT_NAME'],true)));
 	echo('<br>');
 	echo('$_SERVER = ');
-	var_export($_SERVER);
+	echo(htmlentities(var_export($_SERVER,true)));
 
 	echo('</pre></code><hr></body></html>');
 	die;
