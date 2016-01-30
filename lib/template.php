@@ -123,6 +123,7 @@ try{
 				<?php if($frontController['showActionIndex']){   ?><li><a href="<?php echo($frontController['virtualAbsIndex']); ?>?index">index</a></li><?php } ?>
 				<?php if($frontController['showActionHistory']){ ?><li><a href="?history">history</a></li><?php } ?>
 				<?php if($frontController['showActionRestore']){ ?><li><a href="?restore&amp;timestamp=<?php echo(isset($_GET['timestamp']) ? $_GET['timestamp'] : ''); ?>">restore</a></li><?php } ?>
+				<?php if($frontController['showActionDelete']){  ?><li><a href="javascript:if(window.confirm('Pretty sure?')){location.href='?delete'};">delete</a></li><?php } ?>
 				<?php if($frontController['showActionRaw']){     ?><li><a href="?raw">raw</a></li><?php } ?>
 				<?php if($frontController['showActionEdit']){    ?><li><a href="?edit">edit</a></li><?php } ?>
 				<?php if($frontController['showActionCancel']){  ?><li><a href="<?php echo($frontController['virtualPath']); ?>">cancel</a></li><?php } ?>
@@ -193,9 +194,11 @@ try{
 					<td class="minWidth"><?php echo( date("Y-m-d H:i:s",$item['lastChange']) ); ?></td>
 					<?php if( $item['kind']=='file' ){ ?>
 					<td class="minWidth tag"><a href="<?php echo($item['virtualPage']); ?>?edit"   >edit</a></td>
-					<td class="minWidth tag"><a href="<?php echo($item['virtualPage']); ?>?raw"    >raw</a></td>
+					<td class="minWidth tag"><a href="<?php echo($item['virtualPage']); ?>?edit"   >edit</a></td>
+					<td class="minWidth tag"><a href="javascript:if(window.confirm('Pretty sure?')){location.href='<?php echo($item['virtualPage']); ?>?delete'};" >delete</a></td>
 					<td class="minWidth tag"><a href="<?php echo($item['virtualPage']); ?>?history">history</a></td>
 					<?php } elseif( $item['kind']=='folder' ){ ?>
+					<td class="minWidth">&nbsp;</td>
 					<td class="minWidth">&nbsp;</td>
 					<td class="minWidth">&nbsp;</td>
 					<td class="minWidth">&nbsp;</td>

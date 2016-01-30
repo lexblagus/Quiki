@@ -90,17 +90,17 @@ table tbody tr th{ text-align:left; }
 			<td>Template CSS</td>
 		</tr>
 		<tr>
-			<th><code>pages</code></th>
+			<th><code>pages/</code></th>
 			<td>Folder that contains all the wiki pages</td>
 		</tr>
 		<tr>
-			<th><code>history</code></th>
-			<td>Backup folder</td>
+			<th><code>history/</code></th>
+			<td>Backup folder, with page name as folder and timestamp as filenames</td>
 		</tr>
 	</tbody>
 </table>
 
-<h2>Tested on…</h2>
+<h2>Tested on browsers</h2>
 
 <table>
 	<thead>
@@ -129,9 +129,9 @@ table tbody tr th{ text-align:left; }
 			<td>12.16</td>
 		</tr>
 		<tr>
-			<td rowspan="6">Windows Server 2016</td>
+			<td rowspan="5">Windows Server 2016<br>(Windows 10)</td>
 			<td>Internet Explorer</td>
-			<td>?</td>
+			<td>11</td>
 		</tr>
 		<tr>
 			<td>Edge</td>
@@ -139,19 +139,15 @@ table tbody tr th{ text-align:left; }
 		</tr>
 		<tr>
 			<td>Google Chrome</td>
-			<td>?</td>
+			<td>48, 50</td>
 		</tr>
 		<tr>
 			<td>Firefox</td>
-			<td>?</td>
+			<td>42</td>
 		</tr>
 		<tr>
 			<td>Opera</td>
-			<td>?</td>
-		</tr>
-		<tr>
-			<td>…</td>
-			<td>?</td>
+			<td>34</td>
 		</tr>
 		<tr>
 			<td rowspan="6">Windows 7</td>
@@ -161,7 +157,7 @@ table tbody tr th{ text-align:left; }
 	</tbody>
 </table>
 
-<h6>Webservers</h6>
+<h2>Tested on webservers</h2>
 
 <p>
 	<ul>
@@ -174,8 +170,13 @@ table tbody tr th{ text-align:left; }
 
 <p>
 	<ul>
-		<li>Rename pages</li>
-		<li>Rename "newest" to "latest" and "oldest" to "first" in history table (at template)</li>
+		<li>Header link: <b>"Rename"</b> [page] (and backups, with conflict check)</li>
+		<li>Header link: <b>"Move"</b> [page] (and backups, with conflict check) using the index table with a link "here" (at the right cell, in the same context of "edit"/"raw"/"history" links at rightest cell)</li>
+		<li>Header links: <b>"Previous"</b>, <b>"next"</b> and <b>"edit"</b> when in history preview</li>
+		<li>Header link: <b>"Create"</b> [page] (with window.prompt or any better solution)</li>
+		<li>Old versions of IE do not support HSLA color mode; this is not intended to be fixed</li>
+		<li><del>Header link: <b>"Delete"</b> [page] (keep backups)</del></li>
+		<li><del>Rename "newest" to <b>"latest"</b> and "oldest" to <b>"first"</b> in history table (at template)</del></li>
 	</ul>
 </p>
 

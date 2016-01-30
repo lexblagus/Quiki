@@ -6,6 +6,7 @@ $arrUserOptions = array(
 	'pagesSuffix'     => '.html',             // File extension
 	'historyDir'      => 'history',           // Backup folder
 	'home'            => 'Home',              // Homepage file (without extension if pagesSuffix is not empty)
+	'delete'          => 1,                   // Enable deleting files (keep backups)
 	'history'         => 1,                   // Enable history feature (backups on save)
 	'debug'           => 0                    // Application debug
 );

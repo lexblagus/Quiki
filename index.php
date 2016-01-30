@@ -47,6 +47,7 @@ $arrOptions = array_merge(
 		'pagesSuffix'     => '.html',             // File extension
 		'historyDir'      => 'history',           // Backup folder
 		'home'            => 'Home',              // Homepage file (without extension if pagesSuffix is not empty)
+		'delete'          => 1,                   // Enable deleting files (keep backups)
 		'history'         => 1,                   // Enable history feature (backups on save)
 		'debug'           => 0                    // Application debug
 	),
@@ -263,6 +264,7 @@ $frontController = array(
 	'showActionHistory'        => false,                 // to be defined bellow
 	'showActionRestore'        => false,                 // to be defined bellow
 	'showActionRaw'            => false,                 // to be defined bellow
+	'showActionDelete'         => false,                 // to be defined bellow
 	'showActionEdit'           => false,                 // to be defined bellow
 	'showActionCancel'         => false,                 // to be defined bellow
 	'showActionSave'           => false,                 // to be defined bellow
@@ -294,7 +296,7 @@ if(  in_array("index" , $frontController['actions'])  ){
 	if( $frontController['localIndexDirExists'] ){
 		$arrDirList = scandir( $frontController['localIndexDir'] , SCANDIR_SORT_ASCENDING);
 		if( $isHome ){
-			$arrDirList = array_diff( $arrDirList , array('.','..') ); // remove . and ..
+			$arrDirList = array_diff( $arrDirList , array('.','..') ); // exclude . and ..
 		}else{
 			$arrDirList = array_diff( $arrDirList , array('.') ); // remove .
 		}
@@ -410,7 +412,7 @@ if(  in_array("index" , $frontController['actions'])  ){
 		$frontController['localHistoryDirExists'] = file_exists( $frontController['localHistoryDir'] );
 		if( $frontController['localHistoryDirExists'] ){
 			$arrDirList = scandir( $frontController['localHistoryDir'] , SCANDIR_SORT_DESCENDING);
-			$arrDirList = array_diff( $arrDirList , array('.','..') ); // remove . and ..
+			$arrDirList = array_diff( $arrDirList , array('.','..') ); // exclude . and ..
 			foreach($arrDirList as $item){
 				$itemLocal = $frontController['localHistoryDir'] . '/' . $item;
 				$strFilePattern = '/^(\d{14})(' . preg_quote($arrOptions['pagesSuffix']) . ')$/';
@@ -439,7 +441,7 @@ if(  in_array("index" , $frontController['actions'])  ){
 			}
 			$arrNewest = array_keys( $arrTimestamps , max($arrTimestamps) , true );
 			foreach($arrNewest as $idxVal){
-				$frontController['localHistoryDirContents'][$idxVal]['internalNote'] = '(newest)';
+				$frontController['localHistoryDirContents'][$idxVal]['internalNote'] = '(latest)';
 			}
 			// Discover oldest item and put into notes
 			$arrTimestamps = array();
@@ -448,7 +450,7 @@ if(  in_array("index" , $frontController['actions'])  ){
 			}
 			$arrOldest = array_keys( $arrTimestamps , min($arrTimestamps) , true );
 			foreach($arrOldest as $idxVal){
-				$frontController['localHistoryDirContents'][$idxVal]['internalNote'] = '(oldest)';
+				$frontController['localHistoryDirContents'][$idxVal]['internalNote'] = '(first)';
 			}
 		}else{
 			array_push($frontController['messages'], 'No history.');
@@ -508,6 +510,92 @@ if(  in_array("index" , $frontController['actions'])  ){
 	}
 
 // -----------------------------------------------------------------------------
+}elseif(  in_array("delete" , $frontController['actions'])  ){
+	// erase file
+	if( $arrOptions['delete'] ){
+		if( $frontController['localFileExists'] ){
+			// make last backup
+			if( $arrOptions['history'] ){
+				$frontController['localHistoryDirExists'] = file_exists( $frontController['localHistoryDir'] );
+				if( !$frontController['localHistoryDirExists'] ){
+					$arrParts = explode('/', $frontController['localHistoryDir']);
+					$countParts = count($arrParts);
+					$currPart = '';
+					for($i=0; $i<$countParts; $i++) {
+						$currPart .= ($i > 0 ? '/' : '') . $arrParts[$i];
+						if( !file_exists($currPart) ){
+							mkdir($currPart);
+						}
+					}
+					
+				}
+				copy($frontController['localFile'], $frontController['localHistoryFile']);
+			}
+
+			// delete target file and all empty parent folders
+			$arrParts = explode('/', $frontController['localFile']);
+			$arrParts = array_reverse($arrParts);
+			$countParts = count($arrParts);
+			$currPart = '';
+			$arrLocals = array();
+			for($i=$countParts-1; $i>=0; $i--) {
+				$currPart .= ($i < $countParts-1 ? '/' : '') . $arrParts[$i];
+				array_push($arrLocals, $currPart);
+			}
+			$arrLocals = array_reverse($arrLocals);
+			$isDeleted = false;
+			foreach($arrLocals as $itemLocal){
+				if(is_file($itemLocal)){
+					try{
+						if( @unlink($itemLocal) ){
+							$isDeleted = true;
+							array_push($frontController['messages'], "File deleted.");
+						}else{
+							$isDeleted = false;
+						}
+					}catch(exception $err){
+						$isDeleted = false;
+					}
+					if(!$isDeleted){
+						array_push($frontController['messages'], 'Unable to delete file: filesystem permitions or it is in use.');
+						array_push($frontController['actions'], "view");
+						$frontController['contents'] = file_get_contents(
+							$frontController['localFile']
+						);
+						$loadTemplate = true;
+					}
+				}elseif($isDeleted && is_dir($itemLocal)){
+					$arrDirList = scandir( $itemLocal );
+					$arrDirList = array_diff( $arrDirList , array('.','..') ); // exclude . and ..
+					if( count($arrDirList) == 0 ){
+						try{
+							if( @rmdir($itemLocal) ){
+								$isDeleted = true;
+							}else{
+								$isDeleted = false;
+							}
+						}catch(exception $err){
+							$isDeleted = false;
+						}
+						if(!$isDeleted){
+							$loadTemplate = false;
+							array_push($frontController['messages'], 'Error erasing folder: ' . $itemLocal);
+						}
+					}
+				}
+			}
+			$loadTemplate = true;
+		}else{
+			array_push($frontController['messages'], "File not found. No worries.");
+			$loadTemplate = true;
+		}
+	} else {
+		array_push($frontController['messages'], "This feature is not enabled.");
+		$loadTemplate = true;
+	}
+
+
+// -----------------------------------------------------------------------------
 }elseif(  in_array("raw" , $frontController['actions'])  ){
 	// Deliver raw file
 	if( $frontController['localFileExists'] ){ 
@@ -562,6 +650,7 @@ $showActionHome =
 		in_array('history' , $frontController['actions']) || 
 		in_array('save'    , $frontController['actions']) || 
 		in_array('restore' , $frontController['actions']) || 
+		in_array('delete'  , $frontController['actions']) || 
 		in_array('edit'    , $frontController['actions']) || 
 		in_array('preview' , $frontController['actions']) || 
 		(!$isHome && in_array('view' , $frontController['actions'])) 
@@ -580,6 +669,7 @@ $showActionHistory=
 			in_array('save'    , $frontController['actions']) ||
 			in_array('restore' , $frontController['actions']) ||
 			in_array('edit'    , $frontController['actions']) ||
+			in_array('delete'  , $frontController['actions']) ||
 			in_array('preview' , $frontController['actions']) ||
 			in_array('view'    , $frontController['actions'])
 		)
@@ -595,6 +685,17 @@ $showActionRaw =
 			in_array('view'    , $frontController['actions'])
 		)
 ;
+$showActionDelete = 
+		$arrOptions['delete'] && 
+		$localFileExists && (
+			$localFileExists && 
+			(
+				in_array('history' , $frontController['actions']) ||
+				in_array('edit'    , $frontController['actions']) ||
+				in_array('view'    , $frontController['actions'])
+			)
+		)
+;
 $showActionEdit = 
 	!in_array('preview' , $frontController['actions']) &&
 	(
@@ -603,7 +704,13 @@ $showActionEdit =
 		in_array('view'    , $frontController['actions'])
 	)
 ;
-$showActionCancel = in_array('edit' , $frontController['actions']) && $frontController['localFileExists'];
+$showActionCancel = 
+	(
+		in_array('edit'    , $frontController['actions']) ||
+		in_array('preview' , $frontController['actions'])
+	) && 
+	$frontController['localFileExists']
+;
 $showActionSave   = in_array('edit' , $frontController['actions']);
 
 $showSectionMain    = 
@@ -621,6 +728,7 @@ $frontController['showActionIndex']          = $showActionIndex;
 $frontController['showActionHistory']        = $showActionHistory;
 $frontController['showActionRestore']        = $showActionRestore;
 $frontController['showActionRaw']            = $showActionRaw;
+$frontController['showActionDelete']         = $showActionDelete;
 $frontController['showActionEdit']           = $showActionEdit;
 $frontController['showActionCancel']         = $showActionCancel;
 $frontController['showActionSave']           = $showActionSave;
