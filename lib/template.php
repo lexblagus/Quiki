@@ -134,7 +134,7 @@ try{
 		<?php if( count($frontController['messages']) > 0 ){ ?>
 		<div id="messages" class="messages">
 			<?php echo(implode('<br>' , $frontController['messages'])); ?>
-			<a href="javascript:(function(){document.getElementById('messages').style.display='none';})();" class="close">dismiss</a>
+			<!-- /* design flaw: not usefull. Erase? */ <a href="javascript:(function(){document.getElementById('messages').style.display='none';})();" class="close">dismiss</a> -->
 		</div>
 		<?php } ?>
 	</header>

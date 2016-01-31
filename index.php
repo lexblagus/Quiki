@@ -492,8 +492,22 @@ if(  in_array("index" , $frontController['actions'])  ){
 			$frontController['localHistoryFile']  = $localHistoryDir . '/' . $frontController['actions']['timestamp'] . $arrOptions['pagesSuffix'];
 			$frontController['localHistoryFileExists'] = file_exists( $frontController['localHistoryFile'] );
 			if( $frontController['localHistoryFileExists'] ){
-				copy($frontController['localFile'], $localHistoryFileNow);
-				copy($frontController['localHistoryFile'] , $frontController['localFile']);
+				if( $frontController['localFileExists'] ){
+					copy($frontController['localFile'], $localHistoryFileNow); // make backup
+				}
+				// Create directory structure (if not exists already)
+				if( !$frontController['localFileExists'] ){
+					$arrParts = explode('/', $frontController['localFile']);
+					$countParts = count($arrParts);
+					$currPart = '';
+					for($i=0; $i<$countParts-1; $i++) {
+						$currPart .= ($i > 0 ? '/' : '') . $arrParts[$i];
+						if( !file_exists($currPart) ){
+							mkdir($currPart);
+						}
+					}
+				}
+				copy($frontController['localHistoryFile'] , $frontController['localFile']); // restore
 				$loadTemplate = false;
 				header('Location:' . $frontController['virtualPath']) ;
 			}else{
@@ -664,14 +678,15 @@ $showActionIndex =
 		in_array("history" ,  $frontController['actions'])
 ;
 $showActionHistory= 
-		$arrOptions['history'] && $localFileExists &&
-		(
-			in_array('save'    , $frontController['actions']) ||
-			in_array('restore' , $frontController['actions']) ||
-			in_array('edit'    , $frontController['actions']) ||
-			in_array('delete'  , $frontController['actions']) ||
-			in_array('preview' , $frontController['actions']) ||
-			in_array('view'    , $frontController['actions'])
+		in_array('edit'    , $frontController['actions']) || (
+			$arrOptions['history'] && $localFileExists &&
+			(
+				in_array('save'    , $frontController['actions']) ||
+				in_array('restore' , $frontController['actions']) ||
+				in_array('delete'  , $frontController['actions']) ||
+				in_array('preview' , $frontController['actions']) ||
+				in_array('view'    , $frontController['actions'])
+			)
 		)
 ;
 $showActionRestore = in_array('preview' , $frontController['actions']);
