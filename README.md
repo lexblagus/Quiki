@@ -104,7 +104,7 @@ _An open source very lightweight wiki engine_
 
 You can see a fully functional copy of Quiki at [http://quiki.blag.us/](http://quiki.blag.us/).
 
-Examples of internal pages: [HTML elements](examples/Elements) and [font families](examples/Fonts) (you can also view the [index](./?index))
+Examples of internal pages: [HTML elements](http://quiki.blag.us/examples/Elements) and [font families](http://quiki.blag.us/examples/Fonts) (you can also view the [index](http://quiki.blag.us/?index))
 
 ## Structure
 
