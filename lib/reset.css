@@ -77,8 +77,8 @@ blockquote{ margin:0; font-style:italic; }
 	blockquote::after{ content: "\201D"; } /* ” */
 	blockquote span.signature::before{ content: " — "; }
 address{ font-style: normal; }
-del{ color:hsla(0,100%,50%,1); }
-ins{ color:hsla(90,100%,40%,1); text-decoration:none;  }
+del{ color:hsl(0,100%,50%); }
+ins{ color:hsl(90,100%,40%); text-decoration:none;  }
 small{ font-size:75% }
 sup{  }
 sub{  }
@@ -100,17 +100,17 @@ code , code * , .code, pre, kbd {
 Links
 ============================================================================= */
 a[href], a[href]:link, a[href]:visited, a[href]:active, a[href]:hover {}
-a[href]{         color:hsla(240, 33%,50%,1); text-decoration: none; }
-a[href]:link{    color:hsla(240, 33%,50%,1); text-decoration: none; }
-a[href]:hover {  color:hsla(240, 75%,50%,1); text-decoration: underline; }
-a[href]:active{  color:hsla(240, 75%,50%,1); text-decoration: underline; }
-a[href]:visited{ color:hsla(240, 20%,50%,1); text-decoration: none; }
+a[href]{         color:hsl(240, 33%,50%); text-decoration: none; }
+a[href]:link{    color:hsl(240, 33%,50%); text-decoration: none; }
+a[href]:hover {  color:hsl(240, 75%,50%); text-decoration: underline; }
+a[href]:active{  color:hsl(240, 75%,50%); text-decoration: underline; }
+a[href]:visited{ color:hsl(240, 20%,50%); text-decoration: none; }
 
 
 /* =============================================================================
 Headers
 ============================================================================= */
-h1, h2, h3, h4, h5, h6 { margin:2em 0 0.5em 0; padding: 0; font-weight:100; line-height:1em; }
+h1, h2, h3, h4, h5, h6 { margin:2em 0 0.5em 0; padding: 0; font-weight:400; line-height:1em; }
 
 h1{ margin-top:0;   font-size:3.00em; color:hsl(0,0%,50%); font-weight:100; }
 h2{ margin-top:1em; font-size:2.50em; color:hsl(0,0%,40%); font-weight:100; }

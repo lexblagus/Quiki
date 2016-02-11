@@ -74,7 +74,7 @@ html{ min-height:100%; }
 			/* -----------------------------------------------------------------------------
 			   Navigation
 			----------------------------------------------------------------------------- */
-			header nav{ display:inline; float:right; margin:2ex 0 0 0;  padding:0; }
+			header nav{ display:inline; float:right; margin:2ex 0 0 1em;  padding:0; }
 			header nav ul{ list-style-type:none; margin:0; padding:0; display:inline-block; white-space:nowrap; }
 				header nav ul li{ display:inline; margin:0 1em 0 0; font-size:0.75em; font-weight:100; }
 				header nav ul li.alt{ color:hsl(45,100%,50%); }

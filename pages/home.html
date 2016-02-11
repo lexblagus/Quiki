@@ -31,39 +31,44 @@ table tbody tr th{ text-align:left; }
 			<td>Show the pages within the pages folders (or its subfolders) with links to view, edit or version history</td>
 		</tr>
 		<tr>
-			<th>Edit</th>
-			<td>Open a simple source code editor, with links to save, cancel, raw, history, index and home</td>
-		</tr>
-		<tr>
-			<th>Save</th>
-			<td>Create a backup of the current page (if it exists) and write the changes</td>
-		</tr>
-		<tr>
-			<th>Cancel</th>
-			<td>Discard changes on the source editor, going back to page view</td>
-		</tr>
-		<tr>
 			<th>History</th>
 			<td>Show the list of previous version of a given page, with links to preview and restore</td>
-		</tr>
-		<tr>
-			<th>Preview</th>
-			<td>Preview a history version the be restored, with links to restauration, history, index and home</td>
 		</tr>
 		<tr>
 			<th>Restore</th>
 			<td>Take a snapshot of the current page and restore the selected version</td>
 		</tr>
 		<tr>
+			<th>Delete</th>
+			<td>Erase a givem page, leaving backups for restauration</td>
+		</tr>
+		<tr>
 			<th>Raw</th>
 			<td>Display the page without the wiki frame</td>
+		</tr>
+		<tr>
+			<th>Edit</th>
+			<td>Open a simple source code editor, with links to save, cancel, raw, history, index and home</td>
+		</tr>
+		<tr>
+			<th>Cancel</th>
+			<td>Discard changes on the source editor, going back to page view</td>
+		</tr>
+		<tr>
+			<th>Save</th>
+			<td>Create a backup of the current page (if it exists) and write the changes</td>
+		</tr>
+		<tr>
+			<th>Preview</th>
+			<td>Preview a history version the be restored, with links to restauration, history, index and home</td>
 		</tr>
 	</tbody>
 </table>
 
 <h2>Examples</h2>
 
-<p><a href="examples/Elements">HTML elements</a> and <a href="examples/Fonts">font families</a></p>
+<p>You can see a fully functional copy of Quiki at <a href="http://quiki.blag.us/">http://quiki.blag.us/</a>.</p>
+<p>Examples of internal pages: <a href="examples/Elements">HTML elements</a> and <a href="examples/Fonts">font families</a> (you can also view the <a href="./?index">index</a>)</p>
 
 <h2>Structure</h2>
 
@@ -161,12 +166,13 @@ table tbody tr th{ text-align:left; }
 
 <p>
 	<ul>
-		<li>Apache 2.4.16 (Mac OS El Capitan)</li>
-		<li>IIS 10 (Windows Server 2016)</li>
+		<li>Apache 2.4.16 (Mac OS El Capitan) + PHP 5.5.30</li>
+		<li>IIS 10 (Windows Server 2016) + PHP 5.6.0</li>
+		<li>Apache 2.3.9 (Linux) + PHP 5.3.29</li>
 	</ul>
 </p>
 
-<h2>To do / known bogs</h2>
+<h2>To do / known bugs</h2>
 
 <p>
 	<ul>
@@ -174,11 +180,17 @@ table tbody tr th{ text-align:left; }
 		<li>Header link: <b>"Move"</b> [page] (and backups, with conflict check) using the index table with a link "here" (at the right cell, in the same context of "edit"/"raw"/"history" links at rightest cell)</li>
 		<li>Header links: <b>"Previous"</b>, <b>"next"</b> and <b>"edit"</b> when in history preview</li>
 		<li>Header link: <b>"Create"</b> [page] (with window.prompt or any better solution)</li>
+		<li><b>"Purge"</b> orphan history data. For a single deleted item, on red feedback message. Or for all history.</li>
 		<li>Old versions of IE do not support HSLA color mode; this is not intended to be fixed</li>
-		<li><del>Header link: <b>"Delete"</b> [page] (keep backups)</del></li>
-		<li><del>Rename "newest" to <b>"latest"</b> and "oldest" to <b>"first"</b> in history table (at template)</del></li>
+		<li>Maybe, someday, a <span title="what you see is what you get">WYSIWYG</span> editor</li>
+		<li>Done: <del>Header link: <b>"Delete"</b> [page] (keep backups)</del></li>
+		<li>Done: <del>Rename "newest" to <b>"latest"</b> and "oldest" to <b>"first"</b> in history table (at template)</del></li>
 	</ul>
 </p>
+
+
+<h2>Source code</h2>
+<p>Oh, yes, Quiki code is open source available on <a href="https://github.com/lexblagus/Quiki">GitHub</a></p>
 
 
 <h2>About</h2>

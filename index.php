@@ -81,7 +81,7 @@ $fileTimeFormat = 'YmdHis';
 $strAppBase = 
 	str_replace(
 		str_replace( // remove dir from file
-			str_replace('\\','/',__DIR__), // normalize Windows backslash
+			str_replace('\\','/',dirname(__FILE__)), // normalize Windows backslash
 			'', 
 			str_replace('\\','/',__FILE__) // normalize Windows backslash
 		),
@@ -288,13 +288,13 @@ if(  in_array("index" , $frontController['actions'])  ){
 			str_replace(
 				'\\',
 				'/',
-				__DIR__ . '\\' . $arrOptions['pagesDir'] . '\\' . implode('\\', $frontController['virtualFolders'])
+				dirname(__FILE__) . '\\' . $arrOptions['pagesDir'] . '\\' . implode('\\', $frontController['virtualFolders'])
 			) . '/'
 		)
 	;
 	$frontController['localIndexDirExists'] = file_exists( $frontController['localIndexDir'] );
 	if( $frontController['localIndexDirExists'] ){
-		$arrDirList = scandir( $frontController['localIndexDir'] , SCANDIR_SORT_ASCENDING);
+		$arrDirList = scandir( $frontController['localIndexDir'] , 0);
 		if( $isHome ){
 			$arrDirList = array_diff( $arrDirList , array('.','..') ); // exclude . and ..
 		}else{
@@ -411,7 +411,7 @@ if(  in_array("index" , $frontController['actions'])  ){
 	if( $arrOptions['history'] ){
 		$frontController['localHistoryDirExists'] = file_exists( $frontController['localHistoryDir'] );
 		if( $frontController['localHistoryDirExists'] ){
-			$arrDirList = scandir( $frontController['localHistoryDir'] , SCANDIR_SORT_DESCENDING);
+			$arrDirList = scandir( $frontController['localHistoryDir'] , 1);
 			$arrDirList = array_diff( $arrDirList , array('.','..') ); // exclude . and ..
 			foreach($arrDirList as $item){
 				$itemLocal = $frontController['localHistoryDir'] . '/' . $item;
@@ -790,8 +790,8 @@ if( $arrOptions['debug']==1 ){
 	echo(htmlentities(var_export($frontController,true)));
 	echo('<hr>');
 	
-	echo('__DIR__ = ');
-	echo(htmlentities(var_export(__DIR__,true)));
+	echo('dirname(__FILE__) = ');
+	echo(htmlentities(var_export(dirname(__FILE__),true)));
 	echo('<hr>');
 	
 	echo('__FILE__ = ');
