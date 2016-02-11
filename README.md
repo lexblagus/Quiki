@@ -1,7 +1,3 @@
-<style type="text/css">
-table tbody tr th{ text-align:left; }
-</style>
-
 <p><i>An open source very lightweight wiki engine</i></p>
 
 <h2>Features</h2>
