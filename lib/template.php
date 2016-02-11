@@ -194,7 +194,7 @@ try{
 					<td class="minWidth"><?php echo( date("Y-m-d H:i:s",$item['lastChange']) ); ?></td>
 					<?php if( $item['kind']=='file' ){ ?>
 					<td class="minWidth tag"><a href="<?php echo($item['virtualPage']); ?>?edit"   >edit</a></td>
-					<td class="minWidth tag"><a href="<?php echo($item['virtualPage']); ?>?edit"   >edit</a></td>
+					<td class="minWidth tag"><a href="<?php echo($item['virtualPage']); ?>?raw"   >raw</a></td>
 					<td class="minWidth tag"><a href="javascript:if(window.confirm('Pretty sure?')){location.href='<?php echo($item['virtualPage']); ?>?delete'};" >delete</a></td>
 					<td class="minWidth tag"><a href="<?php echo($item['virtualPage']); ?>?history">history</a></td>
 					<?php } elseif( $item['kind']=='folder' ){ ?>
