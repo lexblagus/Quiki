@@ -72,6 +72,7 @@ class Quiki{
 		
 		if(0){ // log samples
 			$this->logIndent++;
+			$this->log('',      0, null,$this->logHR());
 			$this->log(null,null,null,'This is a default message');
 			$this->log('',      0, __LINE__,'This is a default message');
 			$this->log('debug', 1, __LINE__,'This is a debug');
@@ -79,6 +80,7 @@ class Quiki{
 			$this->log('info',  3, __LINE__,'This is a info');
 			$this->log('warn',  4, __LINE__,'This is a warn');
 			$this->log('error', 5, __LINE__,'This is a error');
+			$this->log('',      0, null,$this->logHR());
 			$this->logIndent--;
 		}
 		
@@ -115,7 +117,7 @@ class Quiki{
 
 
 	// -----------------------------------------------------------------------------
-	// Log
+	// Debug/log
 	// -----------------------------------------------------------------------------
 	private $logData = array();
 	private $logIndent = 0;
@@ -124,11 +126,14 @@ class Quiki{
 			$this->logData, 
 			array( 
 				'level' => $level , 
-				'indent' => $indent==null ? $this->logIndent : $indent,
+				'indent' => $indent===null ? $this->logIndent : $indent,
 				'line' => $line, 
 				'message' => $message 
 			)
 		);
+	}
+	private function logHR(){
+		return str_repeat("-", 80);
 	}
 	private function logFlush(){
 		if( $this->config['debug']==1 || ($this->config['enableUserDebug']==1 && isset($_GET['debug']) && $_GET['debug']==1) ){
@@ -155,7 +160,7 @@ class Quiki{
 				}else{
 					echo('<span style="color:hsl(0,0%,50%)">');
 				}
-				$indentChar = str_repeat(" ", $thisLastLineLength); // maybe "\t"
+				$indentChar = str_repeat("&nbsp;", $thisLastLineLength); // maybe "\t"
 				$indent = str_repeat(
 					$indentChar,
 					$this->logData[$idx]['indent']
@@ -169,10 +174,10 @@ class Quiki{
 					)
 				);
 				$lineNumber = $this->logData[$idx]['line'] . " ";
-				$message = htmlentities(
-					str_replace(
-						"\n",
-						"\n" . $indent . $indentChar . str_repeat(" ", $thisLastLineLength),
+				$message = str_replace(
+					"\n",
+					"\n" . $indent . $indentChar . str_repeat(" ", $thisLastLineLength),
+					htmlentities(
 						$this->logData[$idx]['message']
 					)
 				);
