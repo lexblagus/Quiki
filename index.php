@@ -30,8 +30,178 @@
                                     //         /                                
                                      //      //                                 
                                       ///////                                   
-================================================================================
-*/
+================================================================================ */
+//error_reporting(0); // no errors at all
+error_reporting(E_ALL|E_STRICT); // all kinds of error
+// =============================================================================
+
+
+class Quiki{
+
+
+	// -----------------------------------------------------------------------------
+	// Configuration
+	// -----------------------------------------------------------------------------
+	private $config = array(        // default configuration. This is overwritten by config.php
+		'title'           => 'Quiki',             // Title of the page to be shown in header and tab
+		'template'        => 'lib/template.php',  // Rendering file
+		'pagesDir'        => 'pages',             // Directory where the wiki page lives
+		'pagesSuffix'     => '.html',             // File extension
+		'historyDir'      => 'history',           // Backup folder
+		'home'            => 'Home',              // Homepage file (without extension if pagesSuffix is not empty)
+		'delete'          => 1,                   // Enable deleting files (keep backups)
+		'history'         => 1,                   // Enable history feature (backups on save)
+		'debug'           => 1,                   // Debug mode
+		'enableUserDebug' => 0                    // Enable debug by querystring "http://domain/?debug=1"
+	);
+
+
+	// -----------------------------------------------------------------------------
+	// Working variables
+	// -----------------------------------------------------------------------------
+	private $loadTemplate = false;
+	private $fileTimeFormat = 'YmdHis';
+
+
+	// -----------------------------------------------------------------------------
+	// Constructor
+	// -----------------------------------------------------------------------------
+	public function __construct($userConfig = array()){
+		$this->log('log', $this->logIndent, __LINE__, '__construct');
+		$this->logIndent++;
+		
+		if(0){ // log samples
+			$this->logIndent++;
+			$this->log(null,null,null,'This is a default message');
+			$this->log('',      0, __LINE__,'This is a default message');
+			$this->log('debug', 1, __LINE__,'This is a debug');
+			$this->log('log',   2, __LINE__,'This is a log');
+			$this->log('info',  3, __LINE__,'This is a info');
+			$this->log('warn',  4, __LINE__,'This is a warn');
+			$this->log('error', 5, __LINE__,'This is a error');
+			$this->logIndent--;
+		}
+		
+		$this->log('info',  $this->logIndent, __LINE__,'Setup configuration');
+		$this->config = array_merge(
+			$this->config,
+			$userConfig
+		);
+		$this->log('debug', $this->logIndent, __LINE__,'$this->config = '."\n".var_export($this->config,true));
+		
+		date_default_timezone_set(@date_default_timezone_get());
+		
+		//...
+		
+		$this->logIndent--;
+		$this->render();
+	}
+
+
+	// -----------------------------------------------------------------------------
+	// Front controller logic
+	// -----------------------------------------------------------------------------
+	//...
+
+
+	// -----------------------------------------------------------------------------
+	// Render
+	// -----------------------------------------------------------------------------
+	private function render(){
+		$this->log('log', $this->logIndent, __LINE__,'render');
+		$this->logFlush();
+		//...
+	}
+
+
+	// -----------------------------------------------------------------------------
+	// Log
+	// -----------------------------------------------------------------------------
+	private $logData = array();
+	private $logIndent = 0;
+	private function log($level, $indent, $line, $message){
+		array_push(
+			$this->logData, 
+			array( 
+				'level' => $level , 
+				'indent' => $indent==null ? $this->logIndent : $indent,
+				'line' => $line, 
+				'message' => $message 
+			)
+		);
+	}
+	private function logFlush(){
+		if( $this->config['debug']==1 || ($this->config['enableUserDebug']==1 && isset($_GET['debug']) && $_GET['debug']==1) ){
+			echo('<html><body><pre><code>');
+			echo('<b>Quiki debug mode</b>'."\n"."\n");
+			// detect last line length
+			$thisLastLineLength = 0;
+			foreach ($this->logData as $idx => $value) {
+				$thisLastLineLength = strlen($this->logData[$idx]['line']) > $thisLastLineLength ? strlen($this->logData[$idx]['line']) : $thisLastLineLength;
+			}
+			// render contents
+			foreach ($this->logData as $idx => $value) {
+				// colorize
+				if(  strtolower( $this->logData[$idx]['level'] )=='error'  ){
+					echo('<span style="color:hsl(0,100%,50%)">');
+				}elseif(  strtolower( $this->logData[$idx]['level'] )=='warn'  ){
+					echo('<span style="color:hsl(45,100%,45%)">');
+				}elseif(  strtolower( $this->logData[$idx]['level'] )=='info'  ){
+					echo('<span style="color:hsl(135,75%,33%)">');
+				}elseif(  strtolower( $this->logData[$idx]['level'] )=='log'  ){
+					echo('<span style="color:hsl(240,50%,50%)">');
+				}elseif(  strtolower( $this->logData[$idx]['level'] )=='debug'  ){
+					echo('<span style="color:hsl(0,0%,0%)">');
+				}else{
+					echo('<span style="color:hsl(0,0%,50%)">');
+				}
+				$indentChar = str_repeat(" ", $thisLastLineLength); // maybe "\t"
+				$indent = str_repeat(
+					$indentChar,
+					$this->logData[$idx]['indent']
+				);
+				$lineNumberIndent = str_repeat(
+					' ',
+					(
+						$thisLastLineLength - strlen(
+							$this->logData[$idx]['line']
+						)
+					)
+				);
+				$lineNumber = $this->logData[$idx]['line'] . " ";
+				$message = htmlentities(
+					str_replace(
+						"\n",
+						"\n" . $indent . $indentChar . str_repeat(" ", $thisLastLineLength),
+						$this->logData[$idx]['message']
+					)
+				);
+				echo($indent . $lineNumberIndent . $lineNumber . $message);
+				echo('</span>'."\n");
+			}
+			echo('</pre></code></body></html>');
+			die;
+		}
+	}
+	// -----------------------------------------------------------------------------
+}
+// =============================================================================
+new Quiki();
+die;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //error_reporting(0); // no errors at all
 error_reporting(E_ALL|E_STRICT); // all kinds of error
 
@@ -64,17 +234,17 @@ $fileTimeFormat = 'YmdHis';
 
 
 // =============================================================================
-/* Front controller logic
-
-	Virtual HTTP addresses
-	http://domain/appFolder1/appFolder2/index.php/wikiFolder1/wikiFolder2/page?action1=value1&action2=value2&action3#hash
-	http://domain/appFolder1/appFolder2/wikiFolder1/wikiFolder2/page?action1=value1&action2=value2&action3#hash
-
-	Local Windows filesystem
-	C:\webserver\website\appFolder1\appFolder2\wikiFolder1\wikiFolder2\page.extension
-	Local Unix-like filesystem
-	/directory/webserver/website/appFolder1/appFolder2/wikiFolder1/wikiFolder2/page.extension
-*/
+// Front controller logic
+//
+//	Virtual HTTP addresses
+//	http://domain/appFolder1/appFolder2/index.php/wikiFolder1/wikiFolder2/page?action1=value1&action2=value2&action3#hash
+//	http://domain/appFolder1/appFolder2/wikiFolder1/wikiFolder2/page?action1=value1&action2=value2&action3#hash
+//
+//	Local Windows filesystem
+//	C:\webserver\website\appFolder1\appFolder2\wikiFolder1\wikiFolder2\page.extension
+//	Local Unix-like filesystem
+//	/directory/webserver/website/appFolder1/appFolder2/wikiFolder1/wikiFolder2/page.extension
+//
 
 
 // Application folder
@@ -758,29 +928,27 @@ $frontController['showSectionIndex']         = $showSectionIndex;
 if( $arrOptions['debug']==1 ){
 	echo('<html><body><pre><code>');
 
-	/*
-	echo('$strAppFolder = ');
-	echo(htmlentities(var_export($strAppFolder,true)));
-	echo('<br>');
-	echo('$arrAppFolders = ');
-	echo(htmlentities(var_export($arrAppFolders,true)));
-	echo('<br>');
-	echo('$arrRequest = ');
-	echo(htmlentities(var_export($arrRequest,true)));
-	echo('<br>');
-	echo('$strTrimmedPath = ');
-	echo(htmlentities(var_export($strTrimmedPath,true)));
-	echo('<br>');
-	echo('$arrVirtualFolders = ');
-	echo(htmlentities(var_export($arrVirtualFolders,true)));
-	echo('<br>');
-	echo('$virtualPage = ');
-	echo(htmlentities(var_export($virtualPage,true)));
-	echo('<br>');
-	echo('$isFolder = ');
-	echo(htmlentities(var_export($isFolder,true)));
-	echo('<hr>');
-	*/
+	//echo('$strAppFolder = ');
+	//echo(htmlentities(var_export($strAppFolder,true)));
+	//echo('<br>');
+	//echo('$arrAppFolders = ');
+	//echo(htmlentities(var_export($arrAppFolders,true)));
+	//echo('<br>');
+	//echo('$arrRequest = ');
+	//echo(htmlentities(var_export($arrRequest,true)));
+	//echo('<br>');
+	//echo('$strTrimmedPath = ');
+	//echo(htmlentities(var_export($strTrimmedPath,true)));
+	//echo('<br>');
+	//echo('$arrVirtualFolders = ');
+	//echo(htmlentities(var_export($arrVirtualFolders,true)));
+	//echo('<br>');
+	//echo('$virtualPage = ');
+	//echo(htmlentities(var_export($virtualPage,true)));
+	//echo('<br>');
+	//echo('$isFolder = ');
+	//echo(htmlentities(var_export($isFolder,true)));
+	//echo('<hr>');
 
 	echo('$arrOptions = ');
 	echo(htmlentities(var_export($arrOptions,true)));
@@ -817,3 +985,6 @@ if( $arrOptions['debug']==1 ){
 if( $loadTemplate ){
 	include_once( $arrOptions['template'] );
 }
+
+
+
