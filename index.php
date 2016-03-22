@@ -51,8 +51,8 @@ class Quiki{
 		'home'            => 'Home',              // Homepage file (without extension if pagesSuffix is not empty)
 		'delete'          => 1,                   // Enable deleting files (keep backups)
 		'history'         => 1,                   // Enable history feature (backups on save)
-		'debug'           => 1,                   // Debug mode
-		'enableUserDebug' => 0                    // Enable debug by querystring "http://domain/?debug=1"
+		'debug'           => 0,                   // Debug mode
+		'enableUserDebug' => 0                    // Enable debug by querystring, e.g.: "http://domain/?debug=1"
 	);
 
 
@@ -70,27 +70,31 @@ class Quiki{
 		$this->log('log', $this->logIndent, __LINE__, '__construct');
 		$this->logIndent++;
 		
-		if(1){ // log samples
+		if(0){ // log samples
 			$this->logIndent++;
-			$this->logHR(0);
-			$this->log(0          ,  1 , __LINE__ , 'This is a log'     );
-			$this->log('log'      ,  2 , __LINE__ , 'This is a log'     );
-			$this->log(1          ,  3 , __LINE__ , 'This is a detail'  );
-			$this->log('detail'   ,  4 , __LINE__ , 'This is a detail'  );
-			$this->log(2          ,  5 , __LINE__ , 'This is a debug'   );
-			$this->log('debug'    ,  6 , __LINE__ , 'This is a debug'   );
-			$this->log(3          ,  7 , __LINE__ , 'This is a info'    );
-			$this->log('info'     ,  8 , __LINE__ , 'This is a info'    );
-			$this->log(4          ,  9 , __LINE__ , 'This is a warn'    );
-			$this->log('warn'     , 10 , __LINE__ , 'This is a warn'    );
-			$this->log(5          , 11 , __LINE__ , 'This is a error'   );
-			$this->log('error'    , 12 , __LINE__ , 'This is a error'   );
-			$this->log(6          , 13 , __LINE__ , 'This is a fatal'   );
-			$this->log('fatal'    , 14 , __LINE__ , 'This is a fatal'   );
-			$this->log(9          , 15 , __LINE__ , 'This is a unknown' );
-			$this->log('unknown'  , 16 , __LINE__ , 'This is a unknown' );
-			$this->log( null , null , null , 'This is a default message withou any parameter' );
-			$this->logHR(0);
+			$this->logHR();
+
+			$this->log('fatal'    ,  0 , __LINE__ , 'This is a fatal'   );
+			$this->log('error'    ,  1 , __LINE__ , 'This is a error'   );
+			$this->log('warn'     ,  2 , __LINE__ , 'This is a warn'    );
+			$this->log('info'     ,  3 , __LINE__ , 'This is a info'    );
+			$this->log('log'      ,  4 , __LINE__ , 'This is a log'     );
+			$this->log('debug'    ,  5 , __LINE__ , 'This is a debug'   );
+			$this->log('detail'   ,  6 , __LINE__ , 'This is a detail'  );
+			$this->log('unknown'  ,  7 , __LINE__ , 'This is a unknown' );
+
+			$this->log(0          ,  0 , __LINE__ , 'This is a fatal'   );
+			$this->log(1          ,  1 , __LINE__ , 'This is a error'   );
+			$this->log(2          ,  2 , __LINE__ , 'This is a warn'    );
+			$this->log(3          ,  3 , __LINE__ , 'This is a info'    );
+			$this->log(4          ,  4 , __LINE__ , 'This is a log'     );
+			$this->log(5          ,  5 , __LINE__ , 'This is a debug'   );
+			$this->log(6          ,  6 , __LINE__ , 'This is a detail'  );
+			$this->log(7          ,  7 , __LINE__ , 'This is a unknown' );
+
+			$this->log(null , null , null , 'This is a default message withou any parameter' );
+
+			$this->logHR();
 			$this->logIndent--;
 		}
 		
@@ -103,15 +107,17 @@ class Quiki{
 		
 		date_default_timezone_set(@date_default_timezone_get());
 		
+		$this->getFrontController();
+
 		//...
 		
-		$this->logIndent--;
 		$this->render();
+		$this->logIndent--;
 	}
 
 
 	// -----------------------------------------------------------------------------
-	// Front controller logic
+	// Front controller
 	// -----------------------------------------------------------------------------
 	//	Virtual HTTP addresses
 	//	http://domain/appFolder1/appFolder2/index.php/wikiFolder1/wikiFolder2/page?action1=value1&action2=value2&action3#hash
@@ -122,9 +128,61 @@ class Quiki{
 	//	Local Unix-like filesystem
 	//	/directory/webserver/website/appFolder1/appFolder2/wikiFolder1/wikiFolder2/page.extension
 	// -----------------------------------------------------------------------------
-	private function getFrontController(){
-		$this->log('log', $this->logIndent, __LINE__,'render');
+	public $frontController = array(
+		'appBaseRoot'              => null, // $strAppBaseRoot,
+		'appBaseFolder'            => null, // $strAppBaseFolder,
+		'appFolder'                => null, // $strAppFolder,
+		'appFolders'               => null, // $arrAppFolders,
+		'virtualFolder'            => null, // implode('/', $arrVirtualFolders), 
+		'virtualFolders'           => null, // $arrVirtualFolders, 
+		'virtualFoldersHref'       => null, // $arrVirtualFoldersHref,
+		'virtualPage'              => null, // $virtualPage, 
+		'virtualHome'              => null, // $virtualHome,
+		'virtualPath'              => null, // $virtualPath,
+		'virtualAbsIndex'          => null, // $virtualAbsIndex,
+		'virtualTitle'             => null, // $virtualTitle,
+		'isHome'                   => null, // $isHome,
+		'localFile'                => null, // $localFile,
+		'localFileExists'          => null, // $localFileExists,
+		'localHistoryDir'          => null, // $localHistoryDir,
+		'localHistoryDirExists'    => null, // false,
+		'localHistoryDirContents'  => null, // array(),
+		'localHistoryFile'         => null, // $localHistoryFile,
+		'localHistoryFileExists'   => null, // false,
+		'localIndexDir'            => null, // false,
+		'localIndexDirExists'      => null, // false,
+		'localIndexDirContents'    => null, // array(),
+		'actions'                  => null, // $arrActions,
+		'showActionHome'           => null, // false,
+		'showActionIndex'          => null, // false,
+		'showActionHistory'        => null, // false,
+		'showActionRestore'        => null, // false,
+		'showActionRaw'            => null, // false,
+		'showActionDelete'         => null, // false,
+		'showActionEdit'           => null, // false,
+		'showActionCancel'         => null, // false,
+		'showActionSave'           => null, // false,
+		'showSectionMain'          => null, // false,
+		'showSectionEdit'          => null, // false,
+		'showSectionHistory'       => null, // false,
+		'showSectionIndex'         => null, // false,
+		'contents'                 => null, // isset($_POST["sourcecode"]) ? $_POST["sourcecode"] : '',
+		'messages'                 => null, // array()
+	);
 
+
+	private function getFrontController(){
+		$this->log('log', $this->logIndent, __LINE__,'getFrontController');
+
+	}
+
+
+	// -----------------------------------------------------------------------------
+	// Action
+	// -----------------------------------------------------------------------------
+	private function execute( $action ){
+		$this->log('log', $this->logIndent, __LINE__,'execute');
+		//...
 	}
 
 
@@ -144,16 +202,16 @@ class Quiki{
 	private $logData = array();
 	private $logIndent = 0;
 	private $logLevels = array(
-		'log',
-		'detail',
-		'debug' ,
-		'info'  ,
-		'warn'  ,
-		'error' ,
-		'fatal' 
+		array( 'levelNumber' => 0 , 'levelName' => 'fatal'   , 'color' => 'hsl(315,  100%, 50%)' ),
+		array( 'levelNumber' => 1 , 'levelName' => 'error'   , 'color' => 'hsl(  0,  100%, 50%)' ),
+		array( 'levelNumber' => 2 , 'levelName' => 'warn'    , 'color' => 'hsl( 45,  100%, 50%)' ),
+		array( 'levelNumber' => 3 , 'levelName' => 'info'    , 'color' => 'hsl(240,   50%, 50%)' ),
+		array( 'levelNumber' => 4 , 'levelName' => 'log'     , 'color' => 'hsl(  0,    0%,  0%)' ),
+		array( 'levelNumber' => 5 , 'levelName' => 'debug'   , 'color' => 'hsl(135,   75%, 33%)' ),
+		array( 'levelNumber' => 6 , 'levelName' => 'detail'  , 'color' => 'hsl(  0,    0%, 50%)' ),
+		array( 'levelNumber' => 7 , 'levelName' => 'DEFAULT' , 'color' => 'hsl(  0,    0%, 90%)' )  // default must always be the last item
 	);
 	private function log($level, $indent, $line, $message){
-		$levelSearch = array_search($level, $this->logLevels);
 		array_push(
 			$this->logData, 
 			array( 
@@ -165,21 +223,20 @@ class Quiki{
 		);
 	}
 	private function getLogLevel($level){
-		if( is_string($level) ){
-			$serchLevel = array_search($level, $this->logLevels);
-			if($serchLevel===false){
-				$intLevel = -1;
-			}else{
-				$intLevel = $serchLevel;
+		if( is_int($level) && isset($this->logLevels[$level]) ){ // by index
+			return $this->logLevels[$level];
+		}elseif( is_string($level) ){ // by level name
+			for($i=0; $i<count($this->logLevels); $i++) { // find this level name
+				if( $this->logLevels[$i]['levelName']==$level ){ // match found
+					return $this->logLevels[$i];
+				}
 			}
-		}elseif( is_int($level) ){
-			$intLevel = $level;
-		}else{
-			$intLevel = -1;
+			return $this->logLevels[count($this->logLevels)-1]; // no matches found
+		}else{// no level found
+			return $this->logLevels[count($this->logLevels)-1]; 
 		}
-		return $intLevel;
 	}
-	private function logHR($level , $char='-'){
+	private function logHR($level=7, $char='-'){
 		array_push(
 			$this->logData, 
 			array( 
@@ -217,14 +274,7 @@ class Quiki{
 			// render contents
 			foreach ($this->logData as $idx => $value) {
 				// colorize
-				if(      $this->logData[$idx]['level']==0  ){ echo('<span style="color:hsl(  0,    0%,  0%)">'); } // log
-				elseif(  $this->logData[$idx]['level']==1  ){ echo('<span style="color:hsl(  0,    0%, 50%)">'); } // detail
-				elseif(  $this->logData[$idx]['level']==2  ){ echo('<span style="color:hsl(135,   75%, 33%)">'); } // debug
-				elseif(  $this->logData[$idx]['level']==3  ){ echo('<span style="color:hsl(240,   50%, 50%)">'); } // info
-				elseif(  $this->logData[$idx]['level']==4  ){ echo('<span style="color:hsl( 45,  100%, 50%)">'); } // warn
-				elseif(  $this->logData[$idx]['level']==5  ){ echo('<span style="color:hsl(  0,  100%, 50%)">'); } // error
-				elseif(  $this->logData[$idx]['level']==6  ){ echo('<span style="color:hsl(315,  100%, 50%)">'); } // fatal
-				else{                                         echo('<span style="color:hsl(  0,    0%, 90%)">'); } // unknown
+				echo('<span style="color:' . $this->logData[$idx]['level']['color'] . ';">');
 				// indentation
 				$indentChar = str_repeat("&nbsp;", $largestLineNumberStrLen); // maybe "\t"
 				$indent = str_repeat(
@@ -263,18 +313,18 @@ class Quiki{
 	// -----------------------------------------------------------------------------
 }
 // =============================================================================
-new Quiki();
-die; // ...
+include_once('config.php');
+new Quiki(
+	$arrUserOptions
+);
+die; // <!> remove at the end of refactoring
 
 
 
 
 
 // ████████████████████████████████████████████████████████████████████████████████
-
-
-
-
+if(0){ // failsafe
 
 
 
@@ -1062,3 +1112,11 @@ if( $arrOptions['debug']==1 ){
 if( $loadTemplate ){
 	include_once( $arrOptions['template'] );
 }
+
+
+
+
+
+
+
+} // failsafe
