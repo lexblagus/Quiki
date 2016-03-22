@@ -42,7 +42,7 @@ class Quiki{
 	// -----------------------------------------------------------------------------
 	// Configuration
 	// -----------------------------------------------------------------------------
-	private $config = array(        // default configuration. This is overwritten by config.php
+	private $config = array(                      // default configuration. This may be overwritten by config.php
 		'title'           => 'Quiki',             // Title of the page to be shown in header and tab
 		'template'        => 'lib/template.php',  // Rendering file
 		'pagesDir'        => 'pages',             // Directory where the wiki page lives
@@ -70,17 +70,27 @@ class Quiki{
 		$this->log('log', $this->logIndent, __LINE__, '__construct');
 		$this->logIndent++;
 		
-		if(0){ // log samples
+		if(1){ // log samples
 			$this->logIndent++;
-			$this->log('',      0, null,$this->logHR());
-			$this->log(null,null,null,'This is a default message');
-			$this->log('',      0, __LINE__,'This is a default message');
-			$this->log('debug', 1, __LINE__,'This is a debug');
-			$this->log('log',   2, __LINE__,'This is a log');
-			$this->log('info',  3, __LINE__,'This is a info');
-			$this->log('warn',  4, __LINE__,'This is a warn');
-			$this->log('error', 5, __LINE__,'This is a error');
-			$this->log('',      0, null,$this->logHR());
+			$this->logHR(0);
+			$this->log(0          ,  1 , __LINE__ , 'This is a log'     );
+			$this->log('log'      ,  2 , __LINE__ , 'This is a log'     );
+			$this->log(1          ,  3 , __LINE__ , 'This is a detail'  );
+			$this->log('detail'   ,  4 , __LINE__ , 'This is a detail'  );
+			$this->log(2          ,  5 , __LINE__ , 'This is a debug'   );
+			$this->log('debug'    ,  6 , __LINE__ , 'This is a debug'   );
+			$this->log(3          ,  7 , __LINE__ , 'This is a info'    );
+			$this->log('info'     ,  8 , __LINE__ , 'This is a info'    );
+			$this->log(4          ,  9 , __LINE__ , 'This is a warn'    );
+			$this->log('warn'     , 10 , __LINE__ , 'This is a warn'    );
+			$this->log(5          , 11 , __LINE__ , 'This is a error'   );
+			$this->log('error'    , 12 , __LINE__ , 'This is a error'   );
+			$this->log(6          , 13 , __LINE__ , 'This is a fatal'   );
+			$this->log('fatal'    , 14 , __LINE__ , 'This is a fatal'   );
+			$this->log(9          , 15 , __LINE__ , 'This is a unknown' );
+			$this->log('unknown'  , 16 , __LINE__ , 'This is a unknown' );
+			$this->log( null , null , null , 'This is a default message withou any parameter' );
+			$this->logHR(0);
 			$this->logIndent--;
 		}
 		
@@ -103,7 +113,19 @@ class Quiki{
 	// -----------------------------------------------------------------------------
 	// Front controller logic
 	// -----------------------------------------------------------------------------
-	//...
+	//	Virtual HTTP addresses
+	//	http://domain/appFolder1/appFolder2/index.php/wikiFolder1/wikiFolder2/page?action1=value1&action2=value2&action3#hash
+	//	http://domain/appFolder1/appFolder2/wikiFolder1/wikiFolder2/page?action1=value1&action2=value2&action3#hash
+	//
+	//	Local Windows filesystem
+	//	C:\webserver\website\appFolder1\appFolder2\wikiFolder1\wikiFolder2\page.extension
+	//	Local Unix-like filesystem
+	//	/directory/webserver/website/appFolder1/appFolder2/wikiFolder1/wikiFolder2/page.extension
+	// -----------------------------------------------------------------------------
+	private function getFrontController(){
+		$this->log('log', $this->logIndent, __LINE__,'render');
+
+	}
 
 
 	// -----------------------------------------------------------------------------
@@ -121,62 +143,112 @@ class Quiki{
 	// -----------------------------------------------------------------------------
 	private $logData = array();
 	private $logIndent = 0;
+	private $logLevels = array(
+		'log',
+		'detail',
+		'debug' ,
+		'info'  ,
+		'warn'  ,
+		'error' ,
+		'fatal' 
+	);
 	private function log($level, $indent, $line, $message){
+		$levelSearch = array_search($level, $this->logLevels);
 		array_push(
 			$this->logData, 
 			array( 
-				'level' => $level , 
-				'indent' => $indent===null ? $this->logIndent : $indent,
-				'line' => $line, 
+				'level'   => $this->getLogLevel($level), 
+				'indent'  => $indent===null ? $this->logIndent : $indent,
+				'line'    => $line, 
 				'message' => $message 
 			)
 		);
 	}
-	private function logHR(){
-		return str_repeat("-", 80);
+	private function getLogLevel($level){
+		if( is_string($level) ){
+			$serchLevel = array_search($level, $this->logLevels);
+			if($serchLevel===false){
+				$intLevel = -1;
+			}else{
+				$intLevel = $serchLevel;
+			}
+		}elseif( is_int($level) ){
+			$intLevel = $level;
+		}else{
+			$intLevel = -1;
+		}
+		return $intLevel;
+	}
+	private function logHR($level , $char='-'){
+		array_push(
+			$this->logData, 
+			array( 
+				'level' => $this->getLogLevel($level), 
+				'indent' => 0,
+				'line' => -1, 
+				'message' => str_repeat($char, 80)
+			)
+		);
 	}
 	private function logFlush(){
-		if( $this->config['debug']==1 || ($this->config['enableUserDebug']==1 && isset($_GET['debug']) && $_GET['debug']==1) ){
+		if(
+			$this->config['debug']==1 || 
+			(
+				$this->config['enableUserDebug']==1 && 
+				isset($_GET['debug']) && 
+				$_GET['debug']==1
+			)
+		){
 			echo('<html><body><pre><code>');
 			echo('<b>Quiki debug mode</b>'."\n"."\n");
-			// detect last line length
-			$thisLastLineLength = 0;
+			// detect longest line number length
+			$largestLineNumberStrLen = 0;
 			foreach ($this->logData as $idx => $value) {
-				$thisLastLineLength = strlen($this->logData[$idx]['line']) > $thisLastLineLength ? strlen($this->logData[$idx]['line']) : $thisLastLineLength;
+				$largestLineNumberStrLen = 
+					$this->logData[$idx]['line'] > 0
+					? (
+						strlen($this->logData[$idx]['line']) > $largestLineNumberStrLen 
+						? strlen($this->logData[$idx]['line']) 
+						: $largestLineNumberStrLen
+					)
+					: $largestLineNumberStrLen
+				;
 			}
 			// render contents
 			foreach ($this->logData as $idx => $value) {
 				// colorize
-				if(  strtolower( $this->logData[$idx]['level'] )=='error'  ){
-					echo('<span style="color:hsl(0,100%,50%)">');
-				}elseif(  strtolower( $this->logData[$idx]['level'] )=='warn'  ){
-					echo('<span style="color:hsl(45,100%,45%)">');
-				}elseif(  strtolower( $this->logData[$idx]['level'] )=='info'  ){
-					echo('<span style="color:hsl(135,75%,33%)">');
-				}elseif(  strtolower( $this->logData[$idx]['level'] )=='log'  ){
-					echo('<span style="color:hsl(240,50%,50%)">');
-				}elseif(  strtolower( $this->logData[$idx]['level'] )=='debug'  ){
-					echo('<span style="color:hsl(0,0%,0%)">');
-				}else{
-					echo('<span style="color:hsl(0,0%,50%)">');
-				}
-				$indentChar = str_repeat("&nbsp;", $thisLastLineLength); // maybe "\t"
+				if(      $this->logData[$idx]['level']==0  ){ echo('<span style="color:hsl(  0,    0%,  0%)">'); } // log
+				elseif(  $this->logData[$idx]['level']==1  ){ echo('<span style="color:hsl(  0,    0%, 50%)">'); } // detail
+				elseif(  $this->logData[$idx]['level']==2  ){ echo('<span style="color:hsl(135,   75%, 33%)">'); } // debug
+				elseif(  $this->logData[$idx]['level']==3  ){ echo('<span style="color:hsl(240,   50%, 50%)">'); } // info
+				elseif(  $this->logData[$idx]['level']==4  ){ echo('<span style="color:hsl( 45,  100%, 50%)">'); } // warn
+				elseif(  $this->logData[$idx]['level']==5  ){ echo('<span style="color:hsl(  0,  100%, 50%)">'); } // error
+				elseif(  $this->logData[$idx]['level']==6  ){ echo('<span style="color:hsl(315,  100%, 50%)">'); } // fatal
+				else{                                         echo('<span style="color:hsl(  0,    0%, 90%)">'); } // unknown
+				// indentation
+				$indentChar = str_repeat("&nbsp;", $largestLineNumberStrLen); // maybe "\t"
 				$indent = str_repeat(
 					$indentChar,
 					$this->logData[$idx]['indent']
 				);
+				// line number empty fill
 				$lineNumberIndent = str_repeat(
 					' ',
 					(
-						$thisLastLineLength - strlen(
-							$this->logData[$idx]['line']
+						$largestLineNumberStrLen >= 0
+						? (
+							$largestLineNumberStrLen - strlen(
+								$this->logData[$idx]['line']
+							)
 						)
+						: 0
 					)
 				);
-				$lineNumber = $this->logData[$idx]['line'] . " ";
+				// line number itself
+				$lineNumber = $this->logData[$idx]['line'] > 0 ? $this->logData[$idx]['line'] . " " : "";
 				$message = str_replace(
 					"\n",
-					"\n" . $indent . $indentChar . str_repeat(" ", $thisLastLineLength),
+					"\n" . $indent . $indentChar . str_repeat(" ", $largestLineNumberStrLen),
 					htmlentities(
 						$this->logData[$idx]['message']
 					)
@@ -192,13 +264,13 @@ class Quiki{
 }
 // =============================================================================
 new Quiki();
-die;
+die; // ...
 
 
 
 
 
-
+// ████████████████████████████████████████████████████████████████████████████████
 
 
 
@@ -990,6 +1062,3 @@ if( $arrOptions['debug']==1 ){
 if( $loadTemplate ){
 	include_once( $arrOptions['template'] );
 }
-
-
-
