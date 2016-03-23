@@ -103,8 +103,6 @@ class Quiki{
 
 		$this->log('debug', $this->logIndent, __LINE__,'$this->config = '.var_export($this->config,true), 1);
 		
-		$this->logSamples();
-		
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 		
 		date_default_timezone_set(@date_default_timezone_get());
@@ -126,6 +124,15 @@ class Quiki{
 		$this->log('detail', $this->logIndent, __LINE__,'$_GET = ' . var_export($_GET,true));
 		$this->log('detail', $this->logIndent, __LINE__,'$_POST = ' . var_export($_POST,true));
 		$this->log('detail', $this->logIndent, __LINE__,'$_SERVER = ' . var_export($_SERVER,true));
+		
+		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+		
+		$this->logHR();
+		$this->logSamples();
+		
+		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+		
+		$this->logHR();
 		$this->log('info', $this->logIndent, __LINE__,'Render log');
 		$this->logFlush();
 		
@@ -140,33 +147,36 @@ class Quiki{
 		$this->log('log', $this->logIndent, __LINE__, 'run');
 		$this->logIndent++;
 		
-		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-		
+		$this->logHR();
 		$this->getFrontController();
 
 		$this->log('info',  $this->logIndent, __LINE__,'Run actions');
+		$this->logHR();
 		if     ( in_array("index"   , $this->frontController['actions']) ){
 			$this->actionIndex();
-		}elseif( in_array('save'    , $this->frontController['actions']) ){
-			$this->actionSave();
 		}elseif( in_array('history' , $this->frontController['actions']) ){
 			$this->actionHistory();
-		}elseif( in_array('preview' , $this->frontController['actions']) ){
-			$this->actionPreview();
 		}elseif( in_array('restore' , $this->frontController['actions']) ){
 			$this->actionRestore();
+		}elseif( in_array('preview' , $this->frontController['actions']) ){
+			$this->actionPreview();
+		
 		}elseif( in_array('delete'  , $this->frontController['actions']) ){
 			$this->actionDelete();
-		}elseif( in_array('raw'     , $this->frontController['actions']) ){
-			$this->actionRaw();
+		}elseif( in_array('save'    , $this->frontController['actions']) ){
+			$this->actionSave();
 		}elseif( in_array('edit'    , $this->frontController['actions']) ){
 			$this->actionEdit();
+		}elseif( in_array('raw'     , $this->frontController['actions']) ){
+			$this->actionRaw();
 		}else{
 			$this->actionRead();
 		}
 
-		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+		$this->logHR();
+		$this->getActionsAndSections();
 
+		$this->logHR();
 		$this->render();
 
 		$this->logIndent--;
@@ -382,21 +392,7 @@ class Quiki{
 			'contents'                 => isset($_POST["sourcecode"]) ? $_POST["sourcecode"] : '',
 			'messages'                 => array()                // to be defined bellow
 		);
-		$this->log('debug', $this->logIndent, __LINE__,'$this->frontController = ' . var_export($this->frontController,true));
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-		$this->logIndent--;
-	}
-
-
-	// -----------------------------------------------------------------------------
-	// Action: index
-	// -----------------------------------------------------------------------------
-	private function actionIndex(){
-		$this->log('log', $this->logIndent, __LINE__,'actionIndex');
-		$this->logIndent++;
-
-		//...
-
 		$this->logIndent--;
 	}
 
@@ -416,22 +412,50 @@ class Quiki{
 			);
 			$this->loadTemplate = true;
 		}else{
-			$this->log('info', null, __LINE__, 'Local file does not exists; redirect to editor');
-			
-			if( count($this->frontController['actions'])>0 ){
-				$redirectTo = $this->frontController['_SERVER_REQUEST_URI'] . '&edit';
-			}else{
-				$redirectTo = $this->frontController['virtualPath'] . '?edit';
-			}
-			$this->log('debug', $this->logIndent, __LINE__,'$redirectTo = ' . var_export($redirectTo,true));
-			
-			if($this->config['debug'] != 1){
-				$this->log('warn', null, __LINE__, 'Redirecting…');
-				header('Location:' . $redirectTo) ;
-			}else{
-				$this->log('warn', null, __LINE__, 'Local file does not exists; would redirect to editor if not in debug mode');
-			}
+			$this->log('warn', null, __LINE__, 'Local file does not exists; redirect to editor');
+			$this->auxRedirect($this->frontController['virtualPath'] . '?edit');
 		}
+
+		$this->logIndent--;
+	}
+
+
+	// -----------------------------------------------------------------------------
+	// Action: raw
+	// -----------------------------------------------------------------------------
+	private function actionRaw(){
+		$this->log('log', $this->logIndent, __LINE__,'actionRaw');
+		$this->logIndent++;
+		
+		if( $this->frontController['localFileExists'] ){ 
+			array_push($this->frontController['actions'], "view");
+			$this->auxRedirect($this->frontController['appBaseRoot'] . '/' . $this->frontController['localFile']);
+			$this->loadTemplate = false;
+		}else{
+			$this->log('error', null, __LINE__, 'Local file does not exists; redirect to editor');
+			$this->auxRedirect($this->frontController['virtualPath'] . '?edit');
+		}
+		
+		$this->logIndent--;
+	}
+
+
+	// -----------------------------------------------------------------------------
+	// Action: edit
+	// -----------------------------------------------------------------------------
+	private function actionEdit(){
+		$this->log('log', $this->logIndent, __LINE__,'actionEdit');
+		$this->logIndent++;
+
+		if( !$this->frontController['localFileExists'] ){ 
+			array_push($this->frontController['messages'], "File does not exist yet; will create new one on save.");
+		}
+		if($this->frontController['localFileExists']){
+			$this->frontController['contents'] = file_get_contents(
+				$this->frontController['localFile']
+			);
+		}
+		$this->loadTemplate = true;
 
 		$this->logIndent--;
 	}
@@ -442,6 +466,138 @@ class Quiki{
 	// -----------------------------------------------------------------------------
 	private function actionSave(){
 		$this->log('log', $this->logIndent, __LINE__,'actionSave');
+		$this->logIndent++;
+
+		$this->auxMakeLocalFileDirStruct();
+		file_put_contents( $this->frontController['localFile'] , $this->frontController['contents']);
+		$this->getFrontController();
+		$this->auxMakeBackup();
+		$this->loadTemplate = false;
+		$this->auxRedirect( $this->frontController['virtualPath'] );
+
+		$this->logIndent--;
+	}
+
+
+	// -----------------------------------------------------------------------------
+	// Action: delete
+	// -----------------------------------------------------------------------------
+	private function actionDelete(){
+		$this->log('log', $this->logIndent, __LINE__,'actionDelete');
+		$this->logIndent++;
+
+		if( $this->config['delete'] ){
+			$this->log('info', null, __LINE__, 'Delete is enabled in config');
+
+			if( $this->frontController['localFileExists'] ){
+				$this->log('info', null, __LINE__, 'Make backup');
+				$this->auxMakeBackup();
+
+				$this->log('info', null, __LINE__, 'Delete target file and all empty parent folders');
+				$arrParts = explode('/', $this->frontController['localFile']);
+				$arrParts = array_reverse($arrParts);
+				$countParts = count($arrParts);
+				$currPart = '';
+				$arrLocals = array();
+				$this->logIndent++;
+				for($i=$countParts-1; $i>=0; $i--) {
+					$this->log('debug', $this->logIndent, __LINE__,'$i = '.var_export($i, true));
+					$this->logIndent++;
+					$currPart .= ($i < $countParts-1 ? '/' : '') . $arrParts[$i];
+					$this->log('debug', $this->logIndent, __LINE__,'$currPart = '.var_export($currPart, true));
+					array_push($arrLocals, $currPart);
+					$this->logIndent--;
+				}
+				$this->logIndent--;
+				$arrLocals = array_reverse($arrLocals);
+				$this->log('debug', $this->logIndent, __LINE__,'$arrLocals = '.var_export($arrLocals, true));
+				$isDeleted = false;
+				$this->logIndent++;
+				foreach($arrLocals as $itemLocal){
+					$this->log('debug', $this->logIndent, __LINE__,'$itemLocal = '.var_export($itemLocal, true));
+					$this->logIndent++;
+					if(is_file($itemLocal)){
+						$this->log('info', null, __LINE__, 'Is a file');
+						try{
+							$this->log('info', null, __LINE__, 'Trying to delete…');
+							if( @unlink($itemLocal) ){
+								$this->log('info', null, __LINE__, 'File deleted');
+								$isDeleted = true;
+								array_push($this->frontController['messages'], "File deleted.");
+							}else{
+								$this->log('error', null, __LINE__, 'File not deleted');
+								$isDeleted = false;
+							}
+						}catch(exception $err){
+							$this->log('error', null, __LINE__, 'Error erasing file');
+							$this->log('debug', $this->logIndent, __LINE__,'$err = '.var_export($err, true));
+							$isDeleted = false;
+						}
+						if(!$isDeleted){
+							$this->log('info', null, __LINE__, 'Push error message');
+							array_push($this->frontController['messages'], 'Unable to delete file: filesystem permitions or it is in use.');
+							array_push($this->frontController['actions'], "view");
+							$this->log('info', null, __LINE__, 'Get contents to render');
+							$this->frontController['contents'] = file_get_contents(
+								$this->frontController['localFile']
+							);
+							$this->loadTemplate = true;
+						}
+					}elseif($isDeleted && is_dir($itemLocal)){
+						$this->log('info', null, __LINE__, 'Parent has been deleted and this is a directory');
+						$arrDirList = scandir( $itemLocal );
+						$arrDirList = array_diff( $arrDirList , array('.','..') ); // exclude . and ..
+						$this->logIndent++;
+						if( count($arrDirList) == 0 ){
+							$this->log('info', null, __LINE__, 'Directory is empty');
+							try{
+								$this->log('info', null, __LINE__, 'Trying to delete…');
+								if( @rmdir($itemLocal) ){
+									$this->log('info', null, __LINE__, 'Directory deleted');
+									$isDeleted = true;
+								}else{
+									$this->log('error', null, __LINE__, 'Directory not deleted');
+									$isDeleted = false;
+								}
+							}catch(exception $err){
+								$this->log('error', null, __LINE__, 'Error erasing directory');
+								$this->log('debug', $this->logIndent, __LINE__,'$err = '.var_export($err, true));
+								$isDeleted = false;
+							}
+							if(!$isDeleted){
+								$this->log('info', null, __LINE__, 'Push erasing file error message');
+								$this->loadTemplate = false;
+								array_push($this->frontController['messages'], 'Error erasing folder: ' . $itemLocal);
+							}
+						}else{
+							$this->log('warn', null, __LINE__, 'Responsability assurance: cannot delete a non-empty directory');
+						}
+						$this->logIndent--;
+					}
+					$this->logIndent--;
+				}
+				$this->logIndent--;
+				$this->loadTemplate = true;
+			}else{
+				$this->log('warn', null, __LINE__, 'File to be deleted not found');
+				array_push($this->frontController['messages'], "File not found. No worries.");
+				$this->loadTemplate = true;
+			}
+		} else {
+			$this->log('error', null, __LINE__, 'Delete is enabled in config');
+			array_push($this->frontController['messages'], "This feature is not enabled.");
+			$this->loadTemplate = true;
+		}
+
+		$this->logIndent--;
+	}
+
+
+	// -----------------------------------------------------------------------------
+	// Action: index
+	// -----------------------------------------------------------------------------
+	private function actionIndex(){
+		$this->log('log', $this->logIndent, __LINE__,'actionIndex');
 		$this->logIndent++;
 
 		//...
@@ -490,39 +646,228 @@ class Quiki{
 
 
 	// -----------------------------------------------------------------------------
-	// Action: delete
+	// Auxiliar: make backup
 	// -----------------------------------------------------------------------------
-	private function actionDelete(){
-		$this->log('log', $this->logIndent, __LINE__,'actionDelete');
+	private function auxMakeBackup(){
+		$this->log('log', $this->logIndent, __LINE__,'auxMakeBackup');
 		$this->logIndent++;
 
-		//...
+		if( $this->config['history'] && $this->frontController['localFileExists'] ){
+			$this->log('info', null, __LINE__, 'History is enabled and local file exists');
+			$this->frontController['localHistoryDirExists'] = file_exists( $this->frontController['localHistoryDir'] );
+			if( !$this->frontController['localHistoryDirExists'] ){
+				$this->log('info', null, __LINE__, 'Create backup directory structure');
+				$arrParts = explode('/', $this->frontController['localHistoryDir']);
+				$countParts = count($arrParts);
+				$currPart = '';
+				for($i=0; $i<$countParts; $i++) {
+					$this->log('debug', $this->logIndent, __LINE__,'$i = '.var_export($i,true));
+					$this->logIndent++;
+					$currPart .= ($i > 0 ? '/' : '') . $arrParts[$i];
+					$this->log('debug', $this->logIndent, __LINE__,'$currPart = '.var_export($currPart,true));
+					$this->logIndent++;
+					if( !file_exists($currPart) ){
+						$this->log('info', null, __LINE__, 'Create directory');
+						mkdir($currPart);
+					}else{
+						$this->log('info', null, __LINE__, 'Directory exists');
+					}
+					$this->logIndent--;
+					$this->logIndent--;
+				}
+				
+			}
+			copy($this->frontController['localFile'], $this->frontController['localHistoryFile']);
+		}elseif(!$this->config['history']){
+			$this->log('warn', null, __LINE__, 'History is not enabled.');
+		}elseif(!$this->frontController['localFileExists']){
+			$this->log('error', null, __LINE__, 'Local file to backup does not exists');
+		}else{
+			$this->log('error', null, __LINE__, 'Unpredicted error');
+		}
 
 		$this->logIndent--;
 	}
 
 
 	// -----------------------------------------------------------------------------
-	// Action: raw
+	// Auxiliar: make directory structure
 	// -----------------------------------------------------------------------------
-	private function actionRaw(){
-		$this->log('log', $this->logIndent, __LINE__,'actionRaw');
+	private function auxMakeLocalFileDirStruct(){
+		$this->log('log', $this->logIndent, __LINE__,'auxMakeLocalFileDirStruct');
 		$this->logIndent++;
 
-		//...
+		if( !$this->frontController['localFileExists'] ){
+			$this->log('info', null, __LINE__, 'Local file exists');
+			$arrParts = explode('/', $this->frontController['localFile']);
+			$countParts = count($arrParts);
+			$currPart = '';
+			for($i=0; $i<$countParts-1; $i++) {
+				$this->log('debug', $this->logIndent, __LINE__,'$i = '.var_export($i,true));
+				$this->logIndent++;
+				$currPart .= ($i > 0 ? '/' : '') . $arrParts[$i];
+				$this->log('debug', $this->logIndent, __LINE__,'$currPart = '.var_export($currPart,true));
+				$this->logIndent++;
+				if( !file_exists($currPart) ){
+					$this->log('info', null, __LINE__, 'Create directory');
+					mkdir($currPart);
+				}else{
+					$this->log('info', null, __LINE__, 'Directory exists');
+				}
+				$this->logIndent--;
+				$this->logIndent--;
+			}
+		}else{
+			$this->log('warn', null, __LINE__, 'Local file to make directory structure already exists');
+		}
 
 		$this->logIndent--;
 	}
 
 
 	// -----------------------------------------------------------------------------
-	// Action: edit
+	// Auxiliar: redirect
 	// -----------------------------------------------------------------------------
-	private function actionEdit(){
-		$this->log('log', $this->logIndent, __LINE__,'actionEdit');
+	private function auxRedirect($redirectTo){
+		$this->log('log', $this->logIndent, __LINE__,'auxRedirect');
 		$this->logIndent++;
 
-		//...
+		$this->log('debug', $this->logIndent, __LINE__,'$redirectTo = ' . var_export($redirectTo,true));
+		if(!$this->config['debug']){
+			$this->log('warn', null, __LINE__, 'Redirecting…');
+			header('Location:' . $redirectTo) ;
+		}else{
+			$this->log('warn', null, __LINE__, 'Would redirect to editor if not in debug mode');
+		}
+
+		$this->logIndent--;
+	}
+
+
+
+	// -----------------------------------------------------------------------------
+	// Template controls
+	// -----------------------------------------------------------------------------
+	private function getActionsAndSections(){
+		$this->log('log', $this->logIndent, __LINE__,'getActionsAndSections');
+		$this->logIndent++;
+
+		$showActionHome = 
+				in_array('index'   , $this->frontController['actions']) || 
+				in_array('history' , $this->frontController['actions']) || 
+				in_array('save'    , $this->frontController['actions']) || 
+				in_array('restore' , $this->frontController['actions']) || 
+				in_array('delete'  , $this->frontController['actions']) || 
+				in_array('edit'    , $this->frontController['actions']) || 
+				in_array('preview' , $this->frontController['actions']) || 
+				(!$this->frontController['isHome'] && in_array('view' , $this->frontController['actions'])) 
+		;
+		$this->log('debug', $this->logIndent, __LINE__,'$showActionHome = '.var_export($showActionHome, true));
+
+		$showActionIndex = 
+				in_array('save'    ,  $this->frontController['actions']) ||
+				in_array('restore' ,  $this->frontController['actions']) ||
+				in_array('edit'    ,  $this->frontController['actions']) ||
+				in_array('preview' ,  $this->frontController['actions']) ||
+				in_array('view'    ,  $this->frontController['actions']) ||
+				in_array("history" ,  $this->frontController['actions'])
+		;
+		$this->log('debug', $this->logIndent, __LINE__,'$showActionIndex = '.var_export($showActionIndex, true));
+
+		$showActionHistory= 
+				in_array('edit'    , $this->frontController['actions']) || (
+					$this->config['history'] && $this->frontController['localFileExists'] &&
+					(
+						in_array('save'    , $this->frontController['actions']) ||
+						in_array('restore' , $this->frontController['actions']) ||
+						in_array('delete'  , $this->frontController['actions']) ||
+						in_array('preview' , $this->frontController['actions']) ||
+						in_array('view'    , $this->frontController['actions'])
+					)
+				)
+		;
+		$this->log('debug', $this->logIndent, __LINE__,'$showActionHistory = '.var_export($showActionHistory, true));
+
+		$showActionRestore = in_array('preview' , $this->frontController['actions']);
+		$this->log('debug', $this->logIndent, __LINE__,'$showActionRestore = '.var_export($showActionRestore, true));
+
+		$showActionRaw = 
+				$this->frontController['localFileExists'] && 
+				!in_array('preview' , $this->frontController['actions']) &&
+				(
+					in_array('save'    , $this->frontController['actions']) ||
+					in_array('restore' , $this->frontController['actions']) ||
+					in_array('edit'    , $this->frontController['actions']) ||
+					in_array('view'    , $this->frontController['actions'])
+				)
+		;
+		$this->log('debug', $this->logIndent, __LINE__,'$showActionRaw = '.var_export($showActionRaw, true));
+
+		$showActionDelete = 
+				$this->config['delete'] && 
+				$this->frontController['localFileExists'] && (
+					$this->frontController['localFileExists'] && 
+					(
+						in_array('history' , $this->frontController['actions']) ||
+						in_array('edit'    , $this->frontController['actions']) ||
+						in_array('view'    , $this->frontController['actions'])
+					)
+				)
+		;
+		$this->log('debug', $this->logIndent, __LINE__,'$showActionDelete = '.var_export($showActionDelete, true));
+
+		$showActionEdit = 
+			!in_array('preview' , $this->frontController['actions']) &&
+			(
+				in_array('save'    , $this->frontController['actions']) ||
+				in_array('restore' , $this->frontController['actions']) ||
+				in_array('view'    , $this->frontController['actions'])
+			)
+		;
+		$this->log('debug', $this->logIndent, __LINE__,'$showActionEdit = '.var_export($showActionEdit, true));
+
+		$showActionCancel = 
+			(
+				in_array('edit'    , $this->frontController['actions']) ||
+				in_array('preview' , $this->frontController['actions'])
+			) && 
+			$this->frontController['localFileExists']
+		;
+		$this->log('debug', $this->logIndent, __LINE__,'$showActionCancel = '.var_export($showActionCancel, true));
+
+		$showActionSave   = in_array('edit' , $this->frontController['actions']);
+		$this->log('debug', $this->logIndent, __LINE__,'$showActionSave = '.var_export($showActionSave, true));
+
+		$showSectionMain    = 
+			in_array('save'    , $this->frontController['actions']) ||
+			in_array('restore' , $this->frontController['actions']) ||
+			in_array('preview' , $this->frontController['actions']) ||
+			in_array('view'    , $this->frontController['actions'])
+		;
+		$this->log('debug', $this->logIndent, __LINE__,'$showSectionMain = '.var_export($showSectionMain, true));
+
+		$showSectionEdit    = in_array('edit'    , $this->frontController['actions']);
+		$this->log('debug', $this->logIndent, __LINE__,'$showSectionEdit = '.var_export($showSectionEdit, true));
+
+		$showSectionHistory = $this->config['history'] && in_array('history' , $this->frontController['actions']);
+		$this->log('debug', $this->logIndent, __LINE__,'$showSectionHistory = '.var_export($showSectionHistory, true));
+
+		$showSectionIndex   = in_array('index'   , $this->frontController['actions']);
+		$this->log('debug', $this->logIndent, __LINE__,'$showSectionIndex = '.var_export($showSectionIndex, true));
+
+		$this->frontController['showActionHome']           = $showActionHome;
+		$this->frontController['showActionIndex']          = $showActionIndex;
+		$this->frontController['showActionHistory']        = $showActionHistory;
+		$this->frontController['showActionRestore']        = $showActionRestore;
+		$this->frontController['showActionRaw']            = $showActionRaw;
+		$this->frontController['showActionDelete']         = $showActionDelete;
+		$this->frontController['showActionEdit']           = $showActionEdit;
+		$this->frontController['showActionCancel']         = $showActionCancel;
+		$this->frontController['showActionSave']           = $showActionSave;
+		$this->frontController['showSectionMain']          = $showSectionMain;
+		$this->frontController['showSectionEdit']          = $showSectionEdit;
+		$this->frontController['showSectionHistory']       = $showSectionHistory;
+		$this->frontController['showSectionIndex']         = $showSectionIndex;
 
 		$this->logIndent--;
 	}
@@ -534,15 +879,13 @@ class Quiki{
 	private function render(){
 		$this->log('log', $this->logIndent, __LINE__,'render');
 		$this->logIndent++;
+		
 		$this->log('debug', $this->logIndent, __LINE__,'$this->loadTemplate = ' . var_export($this->loadTemplate,true));
 		if( $this->loadTemplate==true ){
 			$this->log('info', null, __LINE__, 'Render template file');
 			$this->log('debug', $this->logIndent, __LINE__,'$this->config[\'template\'] = ' . var_export($this->config['template'],true));
-			if( $this->config['debug']==false ){
-				include_once( $this->config['template'] );
-			}else{
-				$this->log('warn', null, __LINE__, 'Do not render template file because we are in debug mode');
-			}
+			include_once( $this->config['template'] );
+			$this->log('warn', null, __LINE__, 'Do not render template file because we are in debug mode');
 		}else{
 			$this->log('warn', null, __LINE__, 'Do not render template file');
 		}
@@ -559,7 +902,7 @@ class Quiki{
 	private $logLevels = array(
 		array( 'levelNumber' => 0 , 'levelName' => 'fatal'   , 'color' => 'hsl(315,  100%, 50%)' ),
 		array( 'levelNumber' => 1 , 'levelName' => 'error'   , 'color' => 'hsl(  0,  100%, 50%)' ),
-		array( 'levelNumber' => 2 , 'levelName' => 'warn'    , 'color' => 'hsl( 45,  100%, 50%)' ),
+		array( 'levelNumber' => 2 , 'levelName' => 'warn'    , 'color' => 'hsl( 45,  100%, 45%)' ),
 		array( 'levelNumber' => 3 , 'levelName' => 'info'    , 'color' => 'hsl(240,   50%, 50%)' ),
 		array( 'levelNumber' => 4 , 'levelName' => 'log'     , 'color' => 'hsl(  0,    0%,  0%)' ),
 		array( 'levelNumber' => 5 , 'levelName' => 'debug'   , 'color' => 'hsl(135,   75%, 33%)' ),
@@ -620,11 +963,10 @@ class Quiki{
 				;
 			}
 			// render contents
-			echo('<html><body><pre><code>');
-			echo('<b>Quiki debug mode</b>'."\n"."\n");
+			echo('<html><body><hr><h1>Debug</h1><pre><code>'."\n"."\n");
 			foreach ($this->logData as $idx => $value) {
 				// colorize
-				echo('<span style="color:' . $this->logData[$idx]['level']['color'] . ';">');
+				echo('<span class="debug" style="color:' . $this->logData[$idx]['level']['color'] . ';">');
 				// indentation
 				$indentChar = str_repeat(" ", $largestLineNumberStrLen) . " ";
 				$indent = str_repeat(
@@ -665,7 +1007,8 @@ class Quiki{
 		$this->log('log',  $this->logIndent, __LINE__,'logSamples', 1);
 		$this->logIndent++;
 		
-		$this->log(null , null , null , 'This is a default message without any parameter' );
+		$this->log('info' , null , __LINE__ , 'All possible log variations:' );
+		$this->logIndent++;
 		foreach ($this->logLevels as $arrLevel) {
 			$this->log(
 				$arrLevel['levelName'],
@@ -682,6 +1025,13 @@ class Quiki{
 				'$this->log(\'' . $arrLevel['levelNumber'] . '\', null, __LINE__, \'' . $arrLevel['levelNumber'] . ' message\');'
 			);
 		}
+		$this->logIndent--;
+		$this->log('info' , null , __LINE__ , 'Some examples of log usage:' );
+		$this->logIndent++;
+		$this->log(null , null , null , '$this->log(null , null , null , \'No parameters\' );' );
+		$this->log(null , null , null , '$this->log(\'debug\', $this->logIndent, __LINE__,\'$something = \'.var_export($something, true));' );
+		$this->logIndent--;
+		
 
 		$this->logIndent--;
 	}

@@ -8,7 +8,7 @@ $arrUserOptions = array(
 	'home'            => 'Home',              // Homepage file (without extension if pagesSuffix is not empty)
 	'delete'          => 1,                   // Enable deleting files (keep backups)
 	'history'         => 1,                   // Enable history feature (backups on save)
-	'debug'           => 0,                   // Application debug
+	'debug'           => 1,                   // Application debug
 	'enableUserDebug' => 1                    // Enable debug by querystring, e.g.: "http://domain/?debug=1"
 );
 if(0){
