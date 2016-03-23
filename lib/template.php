@@ -104,19 +104,21 @@ try{
 </head>
 <body class="_debug">
 	<header>
-		<h1>
-			<span class="title"><?php echo($this->config['title'] . ' / '); ?></span>
-			<span class="page">
-				<?php for($i=0; $i<count($this->frontController['virtualFolders']); $i++){ ?>
-					<a href="<?php echo( $this->frontController['virtualFoldersHref'][$i] ); ?>"><?php echo( $this->frontController['virtualFolders'][$i] ); ?></a> / 
-				<?php } ?>
-				<a href="<?php echo( $this->frontController['virtualPath'] ); ?>"><?php echo( $this->frontController['virtualPage'] ); ?></a>
-			</span>
-			<?php if(  in_array("edit" , $this->frontController['actions'])  ){ ?><span class="action"> / edit</span><?php } ?>
-			<?php if(  in_array("history" , $this->frontController['actions'])  ){ ?><span class="action"> / history</span><?php } ?>
-			<?php if(  in_array("preview" , $this->frontController['actions'])  ){ ?><span class="action"> / preview</span><?php } ?>
-			<?php if(  in_array("index" , $this->frontController['actions'])  ){ ?><span class="action"> index</span><?php } ?>
-		</h1>
+		<div>
+			<h1>
+				<span class="title"><?php echo($this->config['title'] . ' / '); ?></span>
+				<span class="page">
+					<?php for($i=0; $i<count($this->frontController['virtualFolders']); $i++){ ?>
+						<a href="<?php echo( $this->frontController['virtualFoldersHref'][$i] ); ?>"><?php echo( $this->frontController['virtualFolders'][$i] ); ?></a> / 
+					<?php } ?>
+					<a href="<?php echo( $this->frontController['virtualPath'] ); ?>"><?php echo( $this->frontController['virtualPage'] ); ?></a>
+				</span>
+				<?php if(  in_array("edit" , $this->frontController['actions'])  ){ ?><span class="action"> / edit</span><?php } ?>
+				<?php if(  in_array("history" , $this->frontController['actions'])  ){ ?><span class="action"> / history</span><?php } ?>
+				<?php if(  in_array("preview" , $this->frontController['actions'])  ){ ?><span class="action"> / preview</span><?php } ?>
+				<?php if(  in_array("index" , $this->frontController['actions'])  ){ ?><span class="action"> index</span><?php } ?>
+			</h1>
+		</div>
 		<nav>
 			<ul>
 				<?php if($this->frontController['showActionHome']){    ?><li><a href="<?php echo( $this->frontController['virtualHome'] ); ?>">home</a></li><?php } ?>
@@ -130,11 +132,9 @@ try{
 				<?php if($this->frontController['showActionSave']){    ?><li><a href="javascript:(function(){document.formEdit.submit();})();">save</a></li><?php } ?>
 			</ul>
 		</nav>
-		<div class="clear"></div>
 		<?php if( count($this->frontController['messages']) > 0 ){ ?>
 		<div id="messages" class="messages">
 			<?php echo(implode('<br>' , $this->frontController['messages'])); ?>
-			<!-- /* design flaw: not usefull. Erase? */ <a href="javascript:(function(){document.getElementById('messages').style.display='none';})();" class="close">dismiss</a> -->
 		</div>
 		<?php } ?>
 	</header>

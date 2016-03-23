@@ -9,7 +9,7 @@ $arrUserOptions = array(
 	'delete'          => 1,                   // Enable deleting files (keep backups)
 	'history'         => 1,                   // Enable history feature (backups on save)
 	'debug'           => 0,                   // Application debug
-	'enableUserDebug' => 1                    // Enable debug by querystring, e.g.: "http://domain/?debug=1"
+	'enableUserDebug' => 0                    // Enable debug by querystring, e.g.: "http://domain/?debug=1"
 );
 if(0){
 	// Options for using file extensions (allow opening another extensions than the suffix)

@@ -167,6 +167,22 @@ class Quiki{
 		$this->getActionsAndSections();
 
 		$this->logHR();
+
+		if(0){
+			$this->log('warn', null, __LINE__, 'Show all menu itens for layout development');
+			$this->frontController['showActionHome'] = true;
+			$this->frontController['showActionIndex'] = true;
+			$this->frontController['showActionHistory'] = true;
+			$this->frontController['showActionRestore'] = true;
+			$this->frontController['showActionRaw'] = true;
+			$this->frontController['showActionDelete'] = true;
+			$this->frontController['showActionEdit'] = true;
+			$this->frontController['showActionCancel'] = true;
+			$this->frontController['showActionSave'] = true;
+		}
+
+
+
 		$this->render();
 
 		$this->logIndent--;
@@ -332,7 +348,13 @@ class Quiki{
 			) .
 			$this->config['pagesSuffix']
 		;
-		$localFileExists = file_exists( $localFile );
+		try{
+			$this->log('info', null, __LINE__, 'Try to access filesystem');
+			$localFileExists = file_exists( $localFile );
+		}catch(exception $err){
+			$this->log('error', null, __LINE__, 'Error accessing filesystem');
+			$this->log('debug', $this->logIndent, __LINE__,'$err = '.var_export($err, true));
+		}
 		$localHistoryDir = 
 			$this->config['historyDir'] . 
 			'/' .
@@ -395,11 +417,17 @@ class Quiki{
 		$this->logIndent++;
 
 		if( $this->frontController['localFileExists'] ){ 
-			$this->log('info', null, __LINE__, 'local file exists');
+			$this->log('info', null, __LINE__, 'Local file exists');
 			array_push($this->frontController['actions'], "view");
-			$this->frontController['contents'] = file_get_contents(
-				$this->frontController['localFile']
-			);
+			try{
+				$this->log('info', null, __LINE__, 'Try to access filesystem');
+				$this->frontController['contents'] = file_get_contents(
+					$this->frontController['localFile']
+				);
+			}catch(exception $err){
+				$this->log('error', null, __LINE__, 'Error accessing filesystem');
+				$this->log('debug', $this->logIndent, __LINE__,'$err = '.var_export($err, true));
+			}
 			$this->loadTemplate = true;
 		}else{
 			$this->log('warn', null, __LINE__, 'Local file does not exists; redirect to editor');
@@ -460,7 +488,13 @@ class Quiki{
 		$this->logIndent++;
 
 		$this->auxMakeLocalFileDirStruct();
-		file_put_contents( $this->frontController['localFile'] , $this->frontController['contents']);
+			try{
+				$this->log('info', null, __LINE__, 'Try to access filesystem');
+				file_put_contents( $this->frontController['localFile'] , $this->frontController['contents']);
+			}catch(exception $err){
+				$this->log('error', null, __LINE__, 'Error accessing filesystem');
+				$this->log('debug', $this->logIndent, __LINE__,'$err = '.var_export($err, true));
+			}
 		$this->getFrontController();
 		$this->auxMakeBackup();
 		$this->loadTemplate = false;
@@ -506,66 +540,72 @@ class Quiki{
 				$this->logIndent++;
 				foreach($arrLocals as $itemLocal){
 					$this->log('debug', $this->logIndent, __LINE__,'$itemLocal = '.var_export($itemLocal, true));
-					$this->logIndent++;
-					if(is_file($itemLocal)){
-						$this->log('info', null, __LINE__, 'Is a file');
-						try{
-							$this->log('info', null, __LINE__, 'Trying to delete…');
-							if( @unlink($itemLocal) ){
-								$this->log('info', null, __LINE__, 'File deleted');
-								$isDeleted = true;
-								array_push($this->frontController['messages'], "File deleted.");
-							}else{
-								$this->log('error', null, __LINE__, 'File not deleted');
-								$isDeleted = false;
-							}
-						}catch(exception $err){
-							$this->log('error', null, __LINE__, 'Error erasing file');
-							$this->log('debug', $this->logIndent, __LINE__,'$err = '.var_export($err, true));
-							$isDeleted = false;
-						}
-						if(!$isDeleted){
-							$this->log('info', null, __LINE__, 'Push error message');
-							array_push($this->frontController['messages'], 'Unable to delete file: filesystem permitions or it is in use.');
-							array_push($this->frontController['actions'], "view");
-							$this->log('info', null, __LINE__, 'Get contents to render');
-							$this->frontController['contents'] = file_get_contents(
-								$this->frontController['localFile']
-							);
-							$this->loadTemplate = true;
-						}
-					}elseif($isDeleted && is_dir($itemLocal)){
-						$this->log('info', null, __LINE__, 'Parent has been deleted and this is a directory');
-						$arrDirList = scandir( $itemLocal );
-						$arrDirList = array_diff( $arrDirList , array('.','..') ); // exclude . and ..
+					try{
+						$this->log('info', null, __LINE__, 'Try to access filesystem');
 						$this->logIndent++;
-						if( count($arrDirList) == 0 ){
-							$this->log('info', null, __LINE__, 'Directory is empty');
+						if(is_file($itemLocal)){
+							$this->log('info', null, __LINE__, 'Is a file');
 							try{
-								$this->log('info', null, __LINE__, 'Trying to delete…');
-								if( @rmdir($itemLocal) ){
-									$this->log('info', null, __LINE__, 'Directory deleted');
+								$this->log('info', null, __LINE__, 'Try to access filesystem');
+								if( @unlink($itemLocal) ){
+									$this->log('info', null, __LINE__, 'File deleted');
 									$isDeleted = true;
+									array_push($this->frontController['messages'], "File deleted.");
 								}else{
-									$this->log('error', null, __LINE__, 'Directory not deleted');
+									$this->log('error', null, __LINE__, 'File not deleted');
 									$isDeleted = false;
 								}
 							}catch(exception $err){
-								$this->log('error', null, __LINE__, 'Error erasing directory');
+								$this->log('error', null, __LINE__, 'Error accessing filesystem');
 								$this->log('debug', $this->logIndent, __LINE__,'$err = '.var_export($err, true));
 								$isDeleted = false;
 							}
 							if(!$isDeleted){
-								$this->log('info', null, __LINE__, 'Push erasing file error message');
-								$this->loadTemplate = false;
-								array_push($this->frontController['messages'], 'Error erasing folder: ' . $itemLocal);
+								$this->log('info', null, __LINE__, 'Push error message');
+								array_push($this->frontController['messages'], 'Unable to delete file: filesystem permitions or it is in use.');
+								array_push($this->frontController['actions'], "view");
+								$this->log('info', null, __LINE__, 'Get contents to render');
+								$this->frontController['contents'] = file_get_contents(
+									$this->frontController['localFile']
+								);
+								$this->loadTemplate = true;
 							}
-						}else{
-							$this->log('warn', null, __LINE__, 'Responsability assurance: cannot delete a non-empty directory');
+						}elseif($isDeleted && is_dir($itemLocal)){
+							$this->log('info', null, __LINE__, 'Parent has been deleted and this is a directory');
+							$arrDirList = scandir( $itemLocal );
+							$arrDirList = array_diff( $arrDirList , array('.','..') ); // exclude . and ..
+							$this->logIndent++;
+							if( count($arrDirList) == 0 ){
+								$this->log('info', null, __LINE__, 'Directory is empty');
+								try{
+									$this->log('info', null, __LINE__, 'Try to access filesystem');
+									if( @rmdir($itemLocal) ){
+										$this->log('info', null, __LINE__, 'Directory deleted');
+										$isDeleted = true;
+									}else{
+										$this->log('error', null, __LINE__, 'Directory not deleted');
+										$isDeleted = false;
+									}
+								}catch(exception $err){
+									$this->log('error', null, __LINE__, 'Error accessing filesystem');
+									$this->log('debug', $this->logIndent, __LINE__,'$err = '.var_export($err, true));
+									$isDeleted = false;
+								}
+								if(!$isDeleted){
+									$this->log('info', null, __LINE__, 'Push erasing file error message');
+									$this->loadTemplate = false;
+									array_push($this->frontController['messages'], 'Error erasing folder: ' . $itemLocal);
+								}
+							}else{
+								$this->log('warn', null, __LINE__, 'Responsability assurance: cannot delete a non-empty directory');
+							}
+							$this->logIndent--;
 						}
 						$this->logIndent--;
+					}catch(exception $err){
+						$this->log('error', null, __LINE__, 'Error accessing filesystem');
+						$this->log('debug', $this->logIndent, __LINE__,'$err = '.var_export($err, true));
 					}
-					$this->logIndent--;
 				}
 				$this->logIndent--;
 				$this->loadTemplate = true;
@@ -597,7 +637,13 @@ class Quiki{
 			$this->logIndent++;
 			if( $this->frontController['localHistoryDirExists'] ){
 				$this->log('info', null, __LINE__, 'Local history dir exists');
-				$arrDirList = scandir( $this->frontController['localHistoryDir'] , 1);
+				try{
+					$this->log('info', null, __LINE__, 'Try to access filesystem');
+					$arrDirList = scandir( $this->frontController['localHistoryDir'] , 1);
+				}catch(exception $err){
+					$this->log('error', null, __LINE__, 'Error accessing filesystem');
+					$this->log('debug', $this->logIndent, __LINE__,'$err = '.var_export($err, true));
+				}
 				$arrDirList = array_diff( $arrDirList , array('.','..') ); // exclude . and ..
 				$this->log('debug', $this->logIndent, __LINE__,'$arrDirList = '.var_export($arrDirList, true));
 				foreach($arrDirList as $item){
@@ -607,28 +653,36 @@ class Quiki{
 					$this->log('debug', $this->logIndent, __LINE__,'$itemLocal = '.var_export($itemLocal, true));
 					$strFilePattern = '/^(\d{14})(' . preg_quote($this->config['pagesSuffix']) . ')$/';
 					$this->log('debug', $this->logIndent, __LINE__,'$strFilePattern = '.var_export($strFilePattern, true));
-					if( 
-						is_file($itemLocal) &&
-						preg_match($strFilePattern , $item)
-					){
-						$this->log('info', null, __LINE__, 'Item is file and match pattern');
-						$itemTimestamp = preg_replace($strFilePattern , '$1', $item);
-						$this->log('debug', $this->logIndent, __LINE__,'$itemTimestamp = '.var_export($itemTimestamp, true));
-						$itemDateTime = date_create_from_format($this->fileTimeFormat , $itemTimestamp);
-						$this->log('debug', $this->logIndent, __LINE__,'$itemDateTime = '.var_export($itemDateTime, true));
-						$itemSize = filesize($itemLocal);
-						$this->log('debug', $this->logIndent, __LINE__,'$itemSize = '.var_export($itemSize, true));
-						array_push(
-							$this->frontController['localHistoryDirContents'],
-							array(
-								'timestamp'        => $itemTimestamp,
-								'whenBackedUp'     => $itemDateTime,
-								'sizeInBytes'      => $itemSize,
-								'internalNote'     => '&nbsp;'
-							)
-						);
-					}else{
-						$this->log('warn', null, __LINE__, 'Item is not file and/or match pattern');
+					try{
+						$this->log('info', null, __LINE__, 'Try to access filesystem');
+						$this->logIndent++;
+						if( 
+							is_file($itemLocal) &&
+							preg_match($strFilePattern , $item)
+						){
+							$this->log('info', null, __LINE__, 'Item is file and match pattern');
+							$itemTimestamp = preg_replace($strFilePattern , '$1', $item);
+							$this->log('debug', $this->logIndent, __LINE__,'$itemTimestamp = '.var_export($itemTimestamp, true));
+							$itemDateTime = date_create_from_format($this->fileTimeFormat , $itemTimestamp);
+							$this->log('debug', $this->logIndent, __LINE__,'$itemDateTime = '.var_export($itemDateTime, true));
+							$itemSize = filesize($itemLocal);
+							$this->log('debug', $this->logIndent, __LINE__,'$itemSize = '.var_export($itemSize, true));
+							array_push(
+								$this->frontController['localHistoryDirContents'],
+								array(
+									'timestamp'        => $itemTimestamp,
+									'whenBackedUp'     => $itemDateTime,
+									'sizeInBytes'      => $itemSize,
+									'internalNote'     => '&nbsp;'
+								)
+							);
+						}else{
+							$this->log('warn', null, __LINE__, 'Item is not file and/or match pattern');
+						}
+						$this->logIndent--;
+					}catch(exception $err){
+						$this->log('error', null, __LINE__, 'Error accessing filesystem');
+						$this->log('debug', $this->logIndent, __LINE__,'$err = '.var_export($err, true));
 					}
 					$this->logIndent--;
 				}
@@ -697,9 +751,15 @@ class Quiki{
 				if( $this->frontController['localHistoryFileExists'] ){
 					$this->log('info', null, __LINE__, 'Local history file exists');
 					array_push($this->frontController['actions'], "view");
-					$this->frontController['contents'] = file_get_contents(
-						$this->frontController['localHistoryFile']
-					);
+					try{
+						$this->log('info', null, __LINE__, 'Try to access filesystem');
+						$this->frontController['contents'] = file_get_contents(
+							$this->frontController['localHistoryFile']
+						);
+					}catch(exception $err){
+						$this->log('error', null, __LINE__, 'Error accessing filesystem');
+						$this->log('debug', $this->logIndent, __LINE__,'$err = '.var_export($err, true));
+					}
 				}else{
 					$this->log('error', null, __LINE__, 'Restore file not found');
 					array_push($this->frontController['messages'], 'Restore file not found');
@@ -737,7 +797,13 @@ class Quiki{
 					$this->auxMakeBackup();
 					$this->auxMakeLocalFileDirStruct();
 					$this->log('info', null, __LINE__, 'Restore file');
-					copy($this->frontController['localHistoryFile'] , $this->frontController['localFile']);
+					try{
+						$this->log('info', null, __LINE__, 'Try to access filesystem');
+						copy($this->frontController['localHistoryFile'] , $this->frontController['localFile']);
+					}catch(exception $err){
+						$this->log('error', null, __LINE__, 'Error accessing filesystem');
+						$this->log('debug', $this->logIndent, __LINE__,'$err = '.var_export($err, true));
+					}
 					$this->loadTemplate = false;
 					$this->auxRedirect($this->frontController['virtualPath']);
 				}else{
@@ -779,13 +845,25 @@ class Quiki{
 		;
 		$this->log('debug', $this->logIndent, __LINE__,'$this->frontController[\'localIndexDir\'] = '.var_export($this->frontController['localIndexDir'], true));
 
-		$this->frontController['localIndexDirExists'] = file_exists( $this->frontController['localIndexDir'] );
+		try{
+			$this->log('info', null, __LINE__, 'Try to access filesystem');
+			$this->frontController['localIndexDirExists'] = file_exists( $this->frontController['localIndexDir'] );
+		}catch(exception $err){
+			$this->log('error', null, __LINE__, 'Error accessing filesystem');
+			$this->log('debug', $this->logIndent, __LINE__,'$err = '.var_export($err, true));
+		}
 		$this->log('debug', $this->logIndent, __LINE__,'$this->frontController[\'localIndexDirExists\'] = '.var_export($this->frontController['localIndexDirExists'], true));
 
 		$this->logIndent++;
 		if( $this->frontController['localIndexDirExists'] ){
 			$this->log('info', null, __LINE__, 'Local index dir exists');
-			$arrDirList = scandir( $this->frontController['localIndexDir'] , 0);
+			try{
+				$this->log('info', null, __LINE__, 'Try to access filesystem');
+				$arrDirList = scandir( $this->frontController['localIndexDir'] , 0);
+			}catch(exception $err){
+				$this->log('error', null, __LINE__, 'Error accessing filesystem');
+				$this->log('debug', $this->logIndent, __LINE__,'$err = '.var_export($err, true));
+			}
 			$this->logIndent++;
 			if( $this->frontController['isHome'] ){
 				$this->log('info', null, __LINE__, 'Home: exclude . and ..');
@@ -814,31 +892,43 @@ class Quiki{
 				$itemLocal = $this->frontController['localIndexDir'] . $item;
 				$this->log('debug', $this->logIndent, __LINE__,'$itemLocal = '.var_export($itemLocal, true));
 				
-				$this->logIndent++;
-				if(is_dir($itemLocal)){
-					$this->log('info', null, __LINE__, 'Local item is folder');
-					$itemKind =  'folder';
-					$itemVirtualPage = $this->frontController['virtualAbsIndex'] . $itemName . '/?index';
-					$itemSize = -1;
-				}elseif(is_file($itemLocal)){
-					$this->log('info', null, __LINE__, 'Local item is file');
-					$itemKind =  'file';
-					if(
-						$this->config['pagesSuffix'] == '' ||
-						preg_match('/' . preg_quote($this->config['pagesSuffix']) . '$/', $item)
-					){
-						$itemVirtualPage = $this->frontController['virtualAbsIndex'] . $itemName;
-						$itemSize = filesize($itemLocal);
+				try{
+					$this->log('info', null, __LINE__, 'Try to access filesystem');
+					$this->logIndent++;
+					if(is_dir($itemLocal)){
+						$this->log('info', null, __LINE__, 'Local item is folder');
+						$itemKind =  'folder';
+						$itemVirtualPage = $this->frontController['virtualAbsIndex'] . $itemName . '/?index';
+						$itemSize = -1;
+					}elseif(is_file($itemLocal)){
+						$this->log('info', null, __LINE__, 'Local item is file');
+						$itemKind =  'file';
+						if(
+							$this->config['pagesSuffix'] == '' ||
+							preg_match('/' . preg_quote($this->config['pagesSuffix']) . '$/', $item)
+						){
+							$itemVirtualPage = $this->frontController['virtualAbsIndex'] . $itemName;
+							try{
+								$this->log('info', null, __LINE__, 'Try to access filesystem');
+								$itemSize = filesize($itemLocal);
+							}catch(exception $err){
+								$this->log('error', null, __LINE__, 'Error accessing filesystem');
+								$this->log('debug', $this->logIndent, __LINE__,'$err = '.var_export($err, true));
+							}
+						}else{
+							$itemKind = 'unknown';
+							$itemVirtualPage = 'javascript:;';
+							$itemSize = -1;
+						}
 					}else{
-						$itemKind = 'unknown';
+						$this->log('info', null, __LINE__, 'Local item is unknown');
+						$itemKind =  'unknown';
 						$itemVirtualPage = 'javascript:;';
 						$itemSize = -1;
 					}
-				}else{
-					$this->log('info', null, __LINE__, 'Local item is unknown');
-					$itemKind =  'unknown';
-					$itemVirtualPage = 'javascript:;';
-					$itemSize = -1;
+				}catch(exception $err){
+					$this->log('error', null, __LINE__, 'Error accessing filesystem');
+					$this->log('debug', $this->logIndent, __LINE__,'$err = '.var_export($err, true));
 				}
 				$this->logIndent--;
 				$this->log('debug', $this->logIndent, __LINE__,'$itemKind = '.var_export($itemKind, true));
@@ -846,13 +936,19 @@ class Quiki{
 				$this->log('debug', $this->logIndent, __LINE__,'$itemSize = '.var_export($itemSize, true));
 				
 				$this->log('info', null, __LINE__, 'Push item');
-				$arrItem = array(
-					'name'        => $itemName,
-					'kind'        => $itemKind,
-					'virtualPage' => $itemVirtualPage,
-					'lastChange'  => filemtime($itemLocal),
-					'sizeInBytes' => $itemSize,
-				);
+				try{
+					$this->log('info', null, __LINE__, 'Try to access filesystem');
+					$arrItem = array(
+						'name'        => $itemName,
+						'kind'        => $itemKind,
+						'virtualPage' => $itemVirtualPage,
+						'lastChange'  => filemtime($itemLocal),
+						'sizeInBytes' => $itemSize,
+					);
+				}catch(exception $err){
+					$this->log('error', null, __LINE__, 'Error accessing filesystem');
+					$this->log('debug', $this->logIndent, __LINE__,'$err = '.var_export($err, true));
+				}
 				$this->log('debug', $this->logIndent, __LINE__,'$arrItem = '.var_export($arrItem, true));
 
 				$this->logIndent++;
@@ -912,14 +1008,26 @@ class Quiki{
 					$this->logIndent++;
 					$currPart .= ($i > 0 ? '/' : '') . $arrParts[$i];
 					$this->log('debug', $this->logIndent, __LINE__,'$currPart = '.var_export($currPart,true));
-					$this->logIndent++;
-					if( !file_exists($currPart) ){
-						$this->log('info', null, __LINE__, 'Create directory');
-						mkdir($currPart);
-					}else{
-						$this->log('info', null, __LINE__, 'Directory exists');
+					try{
+						$this->log('info', null, __LINE__, 'Try to access filesystem');
+						$this->logIndent++;
+						if( !file_exists($currPart) ){
+							$this->log('info', null, __LINE__, 'Create directory');
+							try{
+								$this->log('info', null, __LINE__, 'Try to access filesystem');
+								mkdir($currPart);
+							}catch(exception $err){
+								$this->log('error', null, __LINE__, 'Error accessing filesystem');
+								$this->log('debug', $this->logIndent, __LINE__,'$err = '.var_export($err, true));
+							}
+						}else{
+							$this->log('info', null, __LINE__, 'Directory exists');
+						}
+						$this->logIndent--;
+					}catch(exception $err){
+						$this->log('error', null, __LINE__, 'Error accessing filesystem');
+						$this->log('debug', $this->logIndent, __LINE__,'$err = '.var_export($err, true));
 					}
-					$this->logIndent--;
 					$this->logIndent--;
 				}
 				
@@ -927,10 +1035,16 @@ class Quiki{
 			$this->log('info', null, __LINE__, 'Copy (with new name) local file to backup directory');
 			$localHistoryFile = $this->frontController['localHistoryDir'] . '/' . date($this->fileTimeFormat) . $this->config['pagesSuffix'];
 			$this->log('debug', $this->logIndent, __LINE__,'$localHistoryFile = '.var_export($localHistoryFile,true));
-			copy(
-				$this->frontController['localFile'],
-				$localHistoryFile
-			);
+			try{
+				$this->log('info', null, __LINE__, 'Try to access filesystem');
+				copy(
+					$this->frontController['localFile'],
+					$localHistoryFile
+				);
+			}catch(exception $err){
+				$this->log('error', null, __LINE__, 'Error accessing filesystem');
+				$this->log('debug', $this->logIndent, __LINE__,'$err = '.var_export($err, true));
+			}
 		}elseif(!$this->config['history']){
 			$this->log('warn', null, __LINE__, 'History is not enabled.');
 		}elseif(!$this->frontController['localFileExists']){
@@ -963,7 +1077,13 @@ class Quiki{
 				$this->logIndent++;
 				if( !file_exists($currPart) ){
 					$this->log('info', null, __LINE__, 'Create directory');
-					mkdir($currPart);
+					try{
+						$this->log('info', null, __LINE__, 'Try to access filesystem');
+						mkdir($currPart);
+					}catch(exception $err){
+						$this->log('error', null, __LINE__, 'Error accessing filesystem');
+						$this->log('debug', $this->logIndent, __LINE__,'$err = '.var_export($err, true));
+					}
 				}else{
 					$this->log('info', null, __LINE__, 'Directory exists');
 				}
@@ -1137,8 +1257,13 @@ class Quiki{
 		if( $this->loadTemplate==true ){
 			$this->log('info', null, __LINE__, 'Render template file');
 			$this->log('debug', $this->logIndent, __LINE__,'$this->config[\'template\'] = ' . var_export($this->config['template'],true));
-			include_once( $this->config['template'] );
-			$this->log('warn', null, __LINE__, 'Do not render template file because we are in debug mode');
+			try{
+				$this->log('info', null, __LINE__, 'Try to access filesystem');
+				include_once( $this->config['template'] );
+			}catch(exception $err){
+				$this->log('error', null, __LINE__, 'Error accessing filesystem');
+				$this->log('debug', $this->logIndent, __LINE__,'$err = '.var_export($err, true));
+			}
 		}else{
 			$this->log('warn', null, __LINE__, 'Do not render template file');
 		}
@@ -1275,7 +1400,7 @@ class Quiki{
 				$arrLevel['levelNumber'],
 				null,
 				__LINE__ ,
-				'$this->log(\'' . $arrLevel['levelNumber'] . '\', null, __LINE__, \'' . $arrLevel['levelNumber'] . ' message\');'
+				'$this->log(' . $arrLevel['levelNumber'] . ', null, __LINE__, \'' . $arrLevel['levelNumber'] . ' message\');'
 			);
 		}
 		$this->logIndent--;
@@ -1308,6 +1433,12 @@ class Quiki{
 }
 // =============================================================================
 include_once('config.php');
-$quiki = new Quiki(
-	$arrUserOptions
-);
+
+try{
+	$quiki = new Quiki(
+		$arrUserOptions
+	);
+}catch(exception $err){
+	var_export($err);
+}
+

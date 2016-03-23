@@ -68,14 +68,14 @@ html{ min-height:100%; }
 			header h1{ display:inline; margin:0; padding:0; white-space:nowrap; font-size:2.0em; font-weight:100; line-height:1.25em; }
 				header h1 .title{ text-transform:uppercase; padding:0 0 0 0.25ex;}
 				header h1 .page{ text-transform:none; }
-				header h1 .action{ font-size:0.66em; color:hsl(0,0%,50%); text-transform:uppercase; line-height:0; }
+				header h1 .action{ font-size:0.66em; color:hsl(0,0%,80%); text-transform:uppercase; line-height:0; }
 				
 
 			/* -----------------------------------------------------------------------------
 			   Navigation
 			----------------------------------------------------------------------------- */
-			header nav{ display:inline; float:right; margin:2ex 0 0 1em;  padding:0; }
-			header nav ul{ list-style-type:none; margin:0; padding:0; display:inline-block; white-space:nowrap; }
+			header nav{ margin:0; padding:0 1ex 0 1ex; text-align:right; background-color:hsla(0,0%,30%,1); }
+			header nav ul{ list-style-type:none; margin:0; padding:0; display:inline-block; }
 				header nav ul li{ display:inline; margin:0 1em 0 0; font-size:0.75em; font-weight:100; }
 				header nav ul li.alt{ color:hsl(45,100%,50%); }
 					header nav ul li a{ text-transform:uppercase; }
@@ -84,7 +84,7 @@ html{ min-height:100%; }
 			/* -----------------------------------------------------------------------------
 			   Messages
 			----------------------------------------------------------------------------- */
-			header div.messages{ display:block; margin:0;  padding:0.25em; background-color:hsla(0,66%,33%,1); font-size:0.8em; color:hsl(90,100%,80%); font-weight:100; }
+			header div.messages{ display:block; margin:0;  padding:0 0.5ex; background-color:hsla(0,0%,40%,1); font-size:0.8em; color:hsl(0,0%,100%); font-weight:100; }
 				header div.messages a.close[href]{ float:right; margin-right:1em; font-size:0.6em; font-weight:100; text-transform:uppercase; }
 				header div.messages a.close[href], header div.messages a.close[href]:link, header div.messages a.close[href]:visited{ color:hsl(45,100%,50%); }
 				header div.messages a.close[href]:active, header div.messages a.close[href]:hover{ color:hsl(45,100%,90%); }
