@@ -152,26 +152,16 @@ class Quiki{
 
 		$this->log('info',  $this->logIndent, __LINE__,'Run actions');
 		$this->logHR();
-		if     ( in_array("index"   , $this->frontController['actions']) ){
-			$this->actionIndex();
-		}elseif( in_array('history' , $this->frontController['actions']) ){
-			$this->actionHistory();
-		}elseif( in_array('restore' , $this->frontController['actions']) ){
-			$this->actionRestore();
-		}elseif( in_array('preview' , $this->frontController['actions']) ){
-			$this->actionPreview();
-		
-		}elseif( in_array('delete'  , $this->frontController['actions']) ){
-			$this->actionDelete();
-		}elseif( in_array('save'    , $this->frontController['actions']) ){
-			$this->actionSave();
-		}elseif( in_array('edit'    , $this->frontController['actions']) ){
-			$this->actionEdit();
-		}elseif( in_array('raw'     , $this->frontController['actions']) ){
-			$this->actionRaw();
-		}else{
-			$this->actionRead();
-		}
+		if     ( false ){ // dummy
+		}elseif( in_array("index"   , $this->frontController['actions']) ){ $this->actionIndex();
+		}elseif( in_array('restore' , $this->frontController['actions']) ){ $this->actionRestore();
+		}elseif( in_array('preview' , $this->frontController['actions']) ){ $this->actionPreview();
+		}elseif( in_array('history' , $this->frontController['actions']) ){ $this->actionHistory();
+		}elseif( in_array('delete'  , $this->frontController['actions']) ){ $this->actionDelete();
+		}elseif( in_array('save'    , $this->frontController['actions']) ){ $this->actionSave();
+		}elseif( in_array('edit'    , $this->frontController['actions']) ){ $this->actionEdit();
+		}elseif( in_array('raw'     , $this->frontController['actions']) ){ $this->actionRaw();
+		}else  {                                                            $this->actionRead(); }
 
 		$this->logHR();
 		$this->getActionsAndSections();
@@ -428,6 +418,7 @@ class Quiki{
 		$this->logIndent++;
 		
 		if( $this->frontController['localFileExists'] ){ 
+			$this->log('info', null, __LINE__, 'local file exists');
 			array_push($this->frontController['actions'], "view");
 			$this->auxRedirect($this->frontController['appBaseRoot'] . '/' . $this->frontController['localFile']);
 			$this->loadTemplate = false;
@@ -594,26 +585,95 @@ class Quiki{
 
 
 	// -----------------------------------------------------------------------------
-	// Action: index
-	// -----------------------------------------------------------------------------
-	private function actionIndex(){
-		$this->log('log', $this->logIndent, __LINE__,'actionIndex');
-		$this->logIndent++;
-
-		//...
-
-		$this->logIndent--;
-	}
-
-
-	// -----------------------------------------------------------------------------
 	// Action: history
 	// -----------------------------------------------------------------------------
 	private function actionHistory(){
 		$this->log('log', $this->logIndent, __LINE__,'actionHistory');
 		$this->logIndent++;
 
-		//...
+		if( $this->config['history'] ){
+			$this->log('info', null, __LINE__, 'History is enabled');
+			$this->frontController['localHistoryDirExists'] = file_exists( $this->frontController['localHistoryDir'] );
+			$this->logIndent++;
+			if( $this->frontController['localHistoryDirExists'] ){
+				$this->log('info', null, __LINE__, 'Local history dir exists');
+				$arrDirList = scandir( $this->frontController['localHistoryDir'] , 1);
+				$arrDirList = array_diff( $arrDirList , array('.','..') ); // exclude . and ..
+				$this->log('debug', $this->logIndent, __LINE__,'$arrDirList = '.var_export($arrDirList, true));
+				foreach($arrDirList as $item){
+					$this->log('debug', $this->logIndent, __LINE__,'$item = '.var_export($item, true));
+					$this->logIndent++;
+					$itemLocal = $this->frontController['localHistoryDir'] . '/' . $item;
+					$this->log('debug', $this->logIndent, __LINE__,'$itemLocal = '.var_export($itemLocal, true));
+					$strFilePattern = '/^(\d{14})(' . preg_quote($this->config['pagesSuffix']) . ')$/';
+					$this->log('debug', $this->logIndent, __LINE__,'$strFilePattern = '.var_export($strFilePattern, true));
+					if( 
+						is_file($itemLocal) &&
+						preg_match($strFilePattern , $item)
+					){
+						$this->log('info', null, __LINE__, 'Item is file and match pattern');
+						$itemTimestamp = preg_replace($strFilePattern , '$1', $item);
+						$this->log('debug', $this->logIndent, __LINE__,'$itemTimestamp = '.var_export($itemTimestamp, true));
+						$itemDateTime = date_create_from_format($this->fileTimeFormat , $itemTimestamp);
+						$this->log('debug', $this->logIndent, __LINE__,'$itemDateTime = '.var_export($itemDateTime, true));
+						$itemSize = filesize($itemLocal);
+						$this->log('debug', $this->logIndent, __LINE__,'$itemSize = '.var_export($itemSize, true));
+						array_push(
+							$this->frontController['localHistoryDirContents'],
+							array(
+								'timestamp'        => $itemTimestamp,
+								'whenBackedUp'     => $itemDateTime,
+								'sizeInBytes'      => $itemSize,
+								'internalNote'     => '&nbsp;'
+							)
+						);
+					}else{
+						$this->log('warn', null, __LINE__, 'Item is not file and/or match pattern');
+					}
+					$this->logIndent--;
+				}
+				$this->log('info', null, __LINE__, 'Discover newest item and put into notes');
+				$arrTimestamps = array();
+				$this->logIndent++;
+				foreach($this->frontController['localHistoryDirContents'] as $idx => $arrProps){
+					$this->log('debug', $this->logIndent, __LINE__,'$arrProps = '.var_export($arrProps, true));
+					array_push($arrTimestamps, $arrProps['timestamp']);
+				}
+				$this->logIndent--;
+				$arrNewest = array_keys( $arrTimestamps , max($arrTimestamps) , true );
+				$this->log('debug', $this->logIndent, __LINE__,'$arrNewest = '.var_export($arrNewest, true));
+				$this->logIndent++;
+				foreach($arrNewest as $idxVal){
+					$this->log('debug', $this->logIndent, __LINE__,'$idxVal = '.var_export($idxVal, true));
+					$this->frontController['localHistoryDirContents'][$idxVal]['internalNote'] = '(latest)';
+				}
+				$this->logIndent--;
+				$this->log('info', null, __LINE__, 'Discover oldest item and put into notes');
+				$arrTimestamps = array();
+				$this->logIndent++;
+				foreach($this->frontController['localHistoryDirContents'] as $idx => $arrProps){
+					$this->log('debug', $this->logIndent, __LINE__,'$arrProps = '.var_export($arrProps, true));
+					array_push($arrTimestamps, $arrProps['timestamp']);
+				}
+				$this->logIndent--;
+				$arrOldest = array_keys( $arrTimestamps , min($arrTimestamps) , true );
+				$this->log('debug', $this->logIndent, __LINE__,'$arrOldest = '.var_export($arrOldest, true));
+				$this->logIndent++;
+				foreach($arrOldest as $idxVal){
+					$this->log('debug', $this->logIndent, __LINE__,'$idxVal = '.var_export($idxVal, true));
+					$this->frontController['localHistoryDirContents'][$idxVal]['internalNote'] = '(first)';
+				}
+				$this->logIndent--;
+			}else{
+				$this->log('warn', null, __LINE__, 'There is no history folder');
+				array_push($this->frontController['messages'], 'No history.');
+			}
+			$this->logIndent--;
+		} else {
+			$this->log('error', null, __LINE__, 'History is not enabled');
+			array_push($this->frontController['messages'], "This feature is not enabled.");
+		}
+		$this->loadTemplate = true;
 
 		$this->logIndent--;
 	}
@@ -626,7 +686,35 @@ class Quiki{
 		$this->log('log', $this->logIndent, __LINE__,'actionPreview');
 		$this->logIndent++;
 
-		//...
+		if( $this->config['history'] ){
+			$this->log('info', null, __LINE__, 'History is enabled');
+			$this->logIndent++;
+			if( isset( $this->frontController['actions']["timestamp"] ) ){
+				$this->log('info', null, __LINE__, 'Timestamp action has been declared');
+				$this->frontController['localHistoryFile'] = $this->frontController['localHistoryDir'] . '/' . $this->frontController['actions']['timestamp'] . $this->config['pagesSuffix'];
+				$this->frontController['localHistoryFileExists'] = file_exists( $this->frontController['localHistoryFile'] );
+				$this->logIndent++;
+				if( $this->frontController['localHistoryFileExists'] ){
+					$this->log('info', null, __LINE__, 'Local history file exists');
+					array_push($this->frontController['actions'], "view");
+					$this->frontController['contents'] = file_get_contents(
+						$this->frontController['localHistoryFile']
+					);
+				}else{
+					$this->log('error', null, __LINE__, 'Restore file not found');
+					array_push($this->frontController['messages'], 'Restore file not found');
+				}
+				$this->logIndent--;
+			}else{
+				$this->log('error', null, __LINE__, 'Missing timestamp action');
+				array_push($this->frontController['messages'], 'Missing timestamp action');
+			}
+			$this->logIndent--;
+		} else {
+			$this->log('error', null, __LINE__, 'History is not enabled');
+			array_push($this->frontController['messages'], "This feature is not enabled.");
+		}
+		$this->loadTemplate = true;
 
 		$this->logIndent--;
 	}
@@ -636,10 +724,170 @@ class Quiki{
 	// Action: restore
 	// -----------------------------------------------------------------------------
 	private function actionRestore(){
+		$this->log('log', $this->logIndent, __LINE__,'actionRestore');
+		$this->logIndent++;
+
+		if( $this->config['history'] ){
+			$this->log('info', null, __LINE__, 'History is enabled');
+			if( isset( $this->frontController['actions']["timestamp"] ) ){
+				$this->log('info', null, __LINE__, 'Timestamp action has been declared');
+				$this->frontController['localHistoryFile']  = $this->frontController['localHistoryDir'] . '/' . $this->frontController['actions']['timestamp'] . $this->config['pagesSuffix'];
+				$this->frontController['localHistoryFileExists'] = file_exists( $this->frontController['localHistoryFile'] );
+				if( $this->frontController['localHistoryFileExists'] ){
+					$this->auxMakeBackup();
+					$this->auxMakeLocalFileDirStruct();
+					$this->log('info', null, __LINE__, 'Restore file');
+					copy($this->frontController['localHistoryFile'] , $this->frontController['localFile']);
+					$this->loadTemplate = false;
+					$this->auxRedirect($this->frontController['virtualPath']);
+				}else{
+					array_push($this->frontController['messages'], 'Restore file not found');
+					$this->loadTemplate = true;
+				}
+			}else{
+				$this->log('error', null, __LINE__, 'Missing timestamp action');
+				array_push($this->frontController['messages'], 'Missing timestamp action');
+				$this->loadTemplate = true;
+			}
+		} else {
+			$this->log('error', null, __LINE__, 'History is not enabled');
+			array_push($this->frontController['messages'], "This feature is not enabled.");
+			$this->loadTemplate = true;
+		}
+
+		$this->logIndent--;
+	}
+
+
+	// -----------------------------------------------------------------------------
+	// Action: index
+	// -----------------------------------------------------------------------------
+	private function actionIndex(){
 		$this->log('log', $this->logIndent, __LINE__,'actionIndex');
 		$this->logIndent++;
 
-		//...
+		$this->frontController['localIndexDir'] = 
+			preg_replace(
+				'/\/\/$/', 
+				'/', 
+				str_replace(
+					'\\',
+					'/',
+					dirname(__FILE__) . '\\' . $this->config['pagesDir'] . '\\' . implode('\\', $this->frontController['virtualFolders'])
+				) . '/'
+			)
+		;
+		$this->log('debug', $this->logIndent, __LINE__,'$this->frontController[\'localIndexDir\'] = '.var_export($this->frontController['localIndexDir'], true));
+
+		$this->frontController['localIndexDirExists'] = file_exists( $this->frontController['localIndexDir'] );
+		$this->log('debug', $this->logIndent, __LINE__,'$this->frontController[\'localIndexDirExists\'] = '.var_export($this->frontController['localIndexDirExists'], true));
+
+		$this->logIndent++;
+		if( $this->frontController['localIndexDirExists'] ){
+			$this->log('info', null, __LINE__, 'Local index dir exists');
+			$arrDirList = scandir( $this->frontController['localIndexDir'] , 0);
+			$this->logIndent++;
+			if( $this->frontController['isHome'] ){
+				$this->log('info', null, __LINE__, 'Home: exclude . and ..');
+				$arrDirList = array_diff( $arrDirList , array('.','..') );
+			}else{
+				$this->log('info', null, __LINE__, 'Not home: exclude . only');
+				$arrDirList = array_diff( $arrDirList , array('.') ); // remove .
+			}
+			$this->logIndent--;
+			$this->log('debug', $this->logIndent, __LINE__,'$arrDirList = '.var_export($arrDirList, true));
+			$arrFiles = array();
+			$arrFolders = array();
+
+			$this->log('info', null, __LINE__, 'Loop into items');
+
+			foreach($arrDirList as $item){
+				$this->log('debug', $this->logIndent, __LINE__,'$item = '.var_export($item, true));
+				$this->logIndent++;
+				$itemName = preg_replace(
+					'/' . $this->config['pagesSuffix'] . '$/',
+					'', 
+					$item
+				);
+				$this->log('debug', $this->logIndent, __LINE__,'$itemName = '.var_export($itemName, true));
+				
+				$itemLocal = $this->frontController['localIndexDir'] . $item;
+				$this->log('debug', $this->logIndent, __LINE__,'$itemLocal = '.var_export($itemLocal, true));
+				
+				$this->logIndent++;
+				if(is_dir($itemLocal)){
+					$this->log('info', null, __LINE__, 'Local item is folder');
+					$itemKind =  'folder';
+					$itemVirtualPage = $this->frontController['virtualAbsIndex'] . $itemName . '/?index';
+					$itemSize = -1;
+				}elseif(is_file($itemLocal)){
+					$this->log('info', null, __LINE__, 'Local item is file');
+					$itemKind =  'file';
+					if(
+						$this->config['pagesSuffix'] == '' ||
+						preg_match('/' . preg_quote($this->config['pagesSuffix']) . '$/', $item)
+					){
+						$itemVirtualPage = $this->frontController['virtualAbsIndex'] . $itemName;
+						$itemSize = filesize($itemLocal);
+					}else{
+						$itemKind = 'unknown';
+						$itemVirtualPage = 'javascript:;';
+						$itemSize = -1;
+					}
+				}else{
+					$this->log('info', null, __LINE__, 'Local item is unknown');
+					$itemKind =  'unknown';
+					$itemVirtualPage = 'javascript:;';
+					$itemSize = -1;
+				}
+				$this->logIndent--;
+				$this->log('debug', $this->logIndent, __LINE__,'$itemKind = '.var_export($itemKind, true));
+				$this->log('debug', $this->logIndent, __LINE__,'$itemVirtualPage = '.var_export($itemVirtualPage, true));
+				$this->log('debug', $this->logIndent, __LINE__,'$itemSize = '.var_export($itemSize, true));
+				
+				$this->log('info', null, __LINE__, 'Push item');
+				$arrItem = array(
+					'name'        => $itemName,
+					'kind'        => $itemKind,
+					'virtualPage' => $itemVirtualPage,
+					'lastChange'  => filemtime($itemLocal),
+					'sizeInBytes' => $itemSize,
+				);
+				$this->log('debug', $this->logIndent, __LINE__,'$arrItem = '.var_export($arrItem, true));
+
+				$this->logIndent++;
+				if($itemKind == 'folder'){
+					array_push(
+						$arrFolders , 
+						$arrItem
+					);
+				}elseif($itemKind == 'file'){
+					array_push(
+						$arrFiles , 
+						$arrItem
+					);
+				}
+				$this->logIndent--;
+
+				$this->logIndent--;
+			}
+			$this->log('info', null, __LINE__, 'Push files and folders arrays to front controller');
+			$this->log('debug', $this->logIndent, __LINE__,'$arrFolders = '.var_export($arrFolders, true));
+			$this->log('debug', $this->logIndent, __LINE__,'$arrFiles = '.var_export($arrFiles, true));
+			$this->frontController['localIndexDirContents'] = array_merge($arrFolders,$arrFiles);
+			$this->log('debug', $this->logIndent, __LINE__,'$this->frontController[\'localIndexDirContents\'] = '.var_export($this->frontController['localIndexDirContents'], true));
+			if( count($this->frontController['localIndexDirContents']) == 0 ){
+				$this->log('info', null, __LINE__, 'Folder is empty');
+				array_push($this->frontController['messages'], "Folder is empty");
+			}else{
+				$this->log('info', null, __LINE__, 'Folder is not empty');
+			}
+		}else{
+			$this->log('error', null, __LINE__, 'Index folder does not exists');
+			array_push($this->frontController['messages'], "Folder does not exist");
+		}
+		$this->logIndent--;
+		$this->loadTemplate = true;
 
 		$this->logIndent--;
 	}
@@ -654,8 +902,7 @@ class Quiki{
 
 		if( $this->config['history'] && $this->frontController['localFileExists'] ){
 			$this->log('info', null, __LINE__, 'History is enabled and local file exists');
-			$this->frontController['localHistoryDirExists'] = file_exists( $this->frontController['localHistoryDir'] );
-			if( !$this->frontController['localHistoryDirExists'] ){
+			if( !file_exists($this->frontController['localHistoryDir']) ){
 				$this->log('info', null, __LINE__, 'Create backup directory structure');
 				$arrParts = explode('/', $this->frontController['localHistoryDir']);
 				$countParts = count($arrParts);
@@ -677,7 +924,13 @@ class Quiki{
 				}
 				
 			}
-			copy($this->frontController['localFile'], $this->frontController['localHistoryFile']);
+			$this->log('info', null, __LINE__, 'Copy (with new name) local file to backup directory');
+			$localHistoryFile = $this->frontController['localHistoryDir'] . '/' . date($this->fileTimeFormat) . $this->config['pagesSuffix'];
+			$this->log('debug', $this->logIndent, __LINE__,'$localHistoryFile = '.var_export($localHistoryFile,true));
+			copy(
+				$this->frontController['localFile'],
+				$localHistoryFile
+			);
 		}elseif(!$this->config['history']){
 			$this->log('warn', null, __LINE__, 'History is not enabled.');
 		}elseif(!$this->frontController['localFileExists']){
@@ -1026,12 +1279,28 @@ class Quiki{
 			);
 		}
 		$this->logIndent--;
+
+		$this->log('info' , null , __LINE__ , 'Indentation:' );
+
+			for($i=0; $i <= $this->logIndent; $i++){
+				$this->log('log' , $i , null , '$this->log(null , ' . $i . ' , null , \'Indentation ' . $i . '\' );' );
+			}
+
+			$this->logIndent++;
+			$this->log('log' , null , null , '$this->logIndent++;' );
+			$this->logIndent++;
+			$this->log('log' , null , null , '$this->log(null , null , null , \'More indentation; must be used with null in second argument\' );' );
+			$this->log('log' , null , null , '$this->logIndent--;' );
+			$this->logIndent--;
+			$this->log('log' , null , null , '$this->log(null , null , null , \'Less indentation; must be used with null in second argument\' );' );
+
+		$this->logIndent--;
+
 		$this->log('info' , null , __LINE__ , 'Some examples of log usage:' );
 		$this->logIndent++;
-		$this->log(null , null , null , '$this->log(null , null , null , \'No parameters\' );' );
-		$this->log(null , null , null , '$this->log(\'debug\', $this->logIndent, __LINE__,\'$something = \'.var_export($something, true));' );
+		$this->log('log' , null , null , '$this->log(null , null , null , \'No parameters\' );' );
+		$this->log('log' , null , null , '$this->log(\'debug\', $this->logIndent, __LINE__,\'$something = \'.var_export($something, true));' );
 		$this->logIndent--;
-		
 
 		$this->logIndent--;
 	}
