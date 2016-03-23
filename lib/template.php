@@ -128,7 +128,7 @@ try{
 		<nav>
 			<ul>
 				<?php if($this->frontController['showActionHome']){    ?><li><a href="<?php echo( $this->frontController['virtualHome'] ); ?>">home</a></li><?php } ?>
-				<?php if($this->frontController['showActionNew']){     ?><li><a href="javascript:(function(){var n=prompt('Page name (use slashes to create folders):');if(n){document.location.href=n;}})();">new</a></li><?php } ?>
+				<?php if($this->frontController['showActionNew']){     ?><li><a href="javascript:(function(){var n=prompt('Enter new page name (you can use \u002F to create inside folders):');if(n){document.location.href=n;}})();">new</a></li><?php } ?>
 				<?php if($this->frontController['showActionIndex']){   ?><li><a href="<?php echo($this->frontController['virtualAbsIndex']); ?>?index">index</a></li><?php } ?>
 				<?php if($this->frontController['showActionHistory']){ ?><li><a href="?history">history</a></li><?php } ?>
 				<?php if($this->frontController['showActionRestore']){ ?><li><a href="?restore&amp;timestamp=<?php echo(isset($_GET['timestamp']) ? $_GET['timestamp'] : ''); ?>">restore</a></li><?php } ?>

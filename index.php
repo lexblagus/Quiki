@@ -1130,44 +1130,47 @@ class Quiki{
 		$this->logIndent++;
 
 		$showActionHome = 
-				in_array('index'   , $this->frontController['actions']) || 
-				in_array('history' , $this->frontController['actions']) || 
-				in_array('save'    , $this->frontController['actions']) || 
-				in_array('restore' , $this->frontController['actions']) || 
-				in_array('delete'  , $this->frontController['actions']) || 
-				in_array('edit'    , $this->frontController['actions']) || 
-				in_array('preview' , $this->frontController['actions']) || 
-				(!$this->frontController['isHome'] && in_array('view' , $this->frontController['actions'])) 
+			in_array('index'   , $this->frontController['actions']) || 
+			in_array('history' , $this->frontController['actions']) || 
+			in_array('save'    , $this->frontController['actions']) || 
+			in_array('restore' , $this->frontController['actions']) || 
+			in_array('delete'  , $this->frontController['actions']) || 
+			in_array('edit'    , $this->frontController['actions']) || 
+			in_array('preview' , $this->frontController['actions']) || 
+			(!$this->frontController['isHome'] && in_array('view' , $this->frontController['actions'])) 
 		;
 		$this->log('debug', $this->logIndent, __LINE__,'$showActionHome = '.var_export($showActionHome, true));
 
 		$showActionNew = 
+			!in_array('preview'   , $this->frontController['actions']) &&
+			(
 				in_array('index'   , $this->frontController['actions']) || 
 				in_array('view'    , $this->frontController['actions'])
+			)
 		;
 		$this->log('debug', $this->logIndent, __LINE__,'$showActionNew = '.var_export($showActionNew, true));
 
 		$showActionIndex = 
-				in_array('save'    ,  $this->frontController['actions']) ||
-				in_array('restore' ,  $this->frontController['actions']) ||
-				in_array('edit'    ,  $this->frontController['actions']) ||
-				in_array('preview' ,  $this->frontController['actions']) ||
-				in_array('view'    ,  $this->frontController['actions']) ||
-				in_array("history" ,  $this->frontController['actions'])
+			in_array('save'    ,  $this->frontController['actions']) ||
+			in_array('restore' ,  $this->frontController['actions']) ||
+			in_array('edit'    ,  $this->frontController['actions']) ||
+			in_array('preview' ,  $this->frontController['actions']) ||
+			in_array('view'    ,  $this->frontController['actions']) ||
+			in_array("history" ,  $this->frontController['actions'])
 		;
 		$this->log('debug', $this->logIndent, __LINE__,'$showActionIndex = '.var_export($showActionIndex, true));
 
 		$showActionHistory= 
-				in_array('edit'    , $this->frontController['actions']) || (
-					$this->config['history'] && $this->frontController['localFileExists'] &&
-					(
-						in_array('save'    , $this->frontController['actions']) ||
-						in_array('restore' , $this->frontController['actions']) ||
-						in_array('delete'  , $this->frontController['actions']) ||
-						in_array('preview' , $this->frontController['actions']) ||
-						in_array('view'    , $this->frontController['actions'])
-					)
+			in_array('edit'    , $this->frontController['actions']) || (
+				$this->config['history'] && $this->frontController['localFileExists'] &&
+				(
+					in_array('save'    , $this->frontController['actions']) ||
+					in_array('restore' , $this->frontController['actions']) ||
+					in_array('delete'  , $this->frontController['actions']) ||
+					in_array('preview' , $this->frontController['actions']) ||
+					in_array('view'    , $this->frontController['actions'])
 				)
+			)
 		;
 		$this->log('debug', $this->logIndent, __LINE__,'$showActionHistory = '.var_export($showActionHistory, true));
 
@@ -1175,27 +1178,28 @@ class Quiki{
 		$this->log('debug', $this->logIndent, __LINE__,'$showActionRestore = '.var_export($showActionRestore, true));
 
 		$showActionRaw = 
-				$this->frontController['localFileExists'] && 
-				!in_array('preview' , $this->frontController['actions']) &&
-				(
-					in_array('save'    , $this->frontController['actions']) ||
-					in_array('restore' , $this->frontController['actions']) ||
-					in_array('edit'    , $this->frontController['actions']) ||
-					in_array('view'    , $this->frontController['actions'])
-				)
+			$this->frontController['localFileExists'] && 
+			!in_array('preview' , $this->frontController['actions']) &&
+			(
+				in_array('save'    , $this->frontController['actions']) ||
+				in_array('restore' , $this->frontController['actions']) ||
+				in_array('edit'    , $this->frontController['actions']) ||
+				in_array('view'    , $this->frontController['actions'])
+			)
 		;
 		$this->log('debug', $this->logIndent, __LINE__,'$showActionRaw = '.var_export($showActionRaw, true));
 
 		$showActionDelete = 
-				$this->config['delete'] && 
-				$this->frontController['localFileExists'] && (
-					$this->frontController['localFileExists'] && 
-					(
-						in_array('history' , $this->frontController['actions']) ||
-						in_array('edit'    , $this->frontController['actions']) ||
-						in_array('view'    , $this->frontController['actions'])
-					)
+			$this->config['delete'] && 
+			!in_array('preview'   , $this->frontController['actions']) &&
+			$this->frontController['localFileExists'] && (
+				$this->frontController['localFileExists'] && 
+				(
+					in_array('history' , $this->frontController['actions']) ||
+					in_array('edit'    , $this->frontController['actions']) ||
+					in_array('view'    , $this->frontController['actions'])
 				)
+			)
 		;
 		$this->log('debug', $this->logIndent, __LINE__,'$showActionDelete = '.var_export($showActionDelete, true));
 
