@@ -43,16 +43,18 @@ class Quiki{
 	// Configuration
 	// -----------------------------------------------------------------------------
 	private $config = array(                      // default configuration. This may be overwritten by config.php
-		'title'           => 'Quiki',             // Title of the page to be shown in header and tab
-		'template'        => 'lib/template.php',  // Rendering file
-		'pagesDir'        => 'pages',             // Directory where the wiki page lives
-		'pagesSuffix'     => '.html',             // File extension
-		'historyDir'      => 'history',           // Backup folder
-		'home'            => 'Home',              // Homepage file (without extension if pagesSuffix is not empty)
-		'delete'          => 1,                   // Enable deleting files (keep backups)
-		'history'         => 1,                   // Enable history feature (backups on save)
-		'debug'           => 0,                   // Debug mode
-		'enableUserDebug' => 0                    // Enable debug by querystring, e.g.: "http://domain/?debug=1"
+		'title'             => 'Quiki',             // Title of the page to be shown in header and tab
+		'template'          => 'lib/template.php',  // Rendering file
+		'pagesDir'          => 'pages',             // Directory where the wiki page lives
+		'pagesSuffix'       => '.html',             // File extension
+		'historyDir'        => 'history',           // Backup folder
+		'home'              => 'Home',              // Homepage file (without extension if pagesSuffix is not empty)
+		'delete'            => 1,                   // Enable deleting files (keep backups)
+		'history'           => 1,                   // Enable history feature (backups on save)
+		'debug'             => 0,                   // Debug mode
+		'enableUserDebug'   => 0,                   // Enable debug by querystring, e.g.: "http://domain/?debug=1"
+		'additionalCSShref' => array(),             // Add custom CSS files to the template head
+		'additionalJSsrc'   => array()              // Add custom Javascript files to the template head
 	);
 
 
@@ -171,6 +173,7 @@ class Quiki{
 		if(0){
 			$this->log('warn', null, __LINE__, 'Show all menu itens for layout development');
 			$this->frontController['showActionHome'] = true;
+			$this->frontController['showActionNew'] = true;
 			$this->frontController['showActionIndex'] = true;
 			$this->frontController['showActionHistory'] = true;
 			$this->frontController['showActionRestore'] = true;
@@ -380,29 +383,30 @@ class Quiki{
 			'localFile'                => $localFile,
 			'localFileExists'          => $localFileExists,
 			'localHistoryDir'          => $localHistoryDir,
-			'localHistoryDirExists'    => false,                 // to be defined bellow
-			'localHistoryDirContents'  => array(),               // to be defined bellow
+			'localHistoryDirExists'    => false,
+			'localHistoryDirContents'  => array(),
 			'localHistoryFile'         => $localHistoryFile,
-			'localHistoryFileExists'   => false,                 // to be defined bellow
-			'localIndexDir'            => false,                 // to be defined bellow
-			'localIndexDirExists'      => false,                 // to be defined bellow
-			'localIndexDirContents'    => array(),               // to be defined bellow
+			'localHistoryFileExists'   => false,
+			'localIndexDir'            => false,
+			'localIndexDirExists'      => false,
+			'localIndexDirContents'    => array(),
 			'actions'                  => $arrActions,
-			'showActionHome'           => false,                 // to be defined bellow
-			'showActionIndex'          => false,                 // to be defined bellow
-			'showActionHistory'        => false,                 // to be defined bellow
-			'showActionRestore'        => false,                 // to be defined bellow
-			'showActionRaw'            => false,                 // to be defined bellow
-			'showActionDelete'         => false,                 // to be defined bellow
-			'showActionEdit'           => false,                 // to be defined bellow
-			'showActionCancel'         => false,                 // to be defined bellow
-			'showActionSave'           => false,                 // to be defined bellow
-			'showSectionMain'          => false,                 // to be defined bellow
-			'showSectionEdit'          => false,                 // to be defined bellow
-			'showSectionHistory'       => false,                 // to be defined bellow
-			'showSectionIndex'         => false,                 // to be defined bellow
+			'showActionHome'           => false,
+			'showActionNew'            => false,
+			'showActionIndex'          => false,
+			'showActionHistory'        => false,
+			'showActionRestore'        => false,
+			'showActionRaw'            => false,
+			'showActionDelete'         => false,
+			'showActionEdit'           => false,
+			'showActionCancel'         => false,
+			'showActionSave'           => false,
+			'showSectionMain'          => false,
+			'showSectionEdit'          => false,
+			'showSectionHistory'       => false,
+			'showSectionIndex'         => false,
 			'contents'                 => isset($_POST["sourcecode"]) ? $_POST["sourcecode"] : '',
-			'messages'                 => array()                // to be defined bellow
+			'messages'                 => array()
 		);
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 		$this->logIndent--;
@@ -1137,6 +1141,12 @@ class Quiki{
 		;
 		$this->log('debug', $this->logIndent, __LINE__,'$showActionHome = '.var_export($showActionHome, true));
 
+		$showActionNew = 
+				in_array('index'   , $this->frontController['actions']) || 
+				in_array('view'    , $this->frontController['actions'])
+		;
+		$this->log('debug', $this->logIndent, __LINE__,'$showActionNew = '.var_export($showActionNew, true));
+
 		$showActionIndex = 
 				in_array('save'    ,  $this->frontController['actions']) ||
 				in_array('restore' ,  $this->frontController['actions']) ||
@@ -1229,6 +1239,7 @@ class Quiki{
 		$this->log('debug', $this->logIndent, __LINE__,'$showSectionIndex = '.var_export($showSectionIndex, true));
 
 		$this->frontController['showActionHome']           = $showActionHome;
+		$this->frontController['showActionNew']            = $showActionNew;
 		$this->frontController['showActionIndex']          = $showActionIndex;
 		$this->frontController['showActionHistory']        = $showActionHistory;
 		$this->frontController['showActionRestore']        = $showActionRestore;

@@ -44,6 +44,9 @@
 	</title>
 	<link rel="stylesheet" type="text/css" href="<?php echo( $this->frontController['appBaseRoot'] ); ?>/lib/reset.css" media="all">
 	<link rel="stylesheet" type="text/css" href="<?php echo( $this->frontController['appBaseRoot'] ); ?>/lib/layout.css" media="all">
+	<?php foreach($this->config['additionalCSShref'] as $val ){ ?>
+	<link rel="stylesheet" type="text/css" href="<?php echo($val); ?>" media="all">
+	<?php } ?>
 	<script> 
 // For discussion and comments, see: http://remysharp.com/2009/01/07/html5-enabling-script/
 (function(){if(!/*@cc_on!@*/0)return;var e = "abbr,article,aside,audio,canvas,datalist,details,eventsource,figure,footer,header,hgroup,mark,menu,meter,nav,output,progress,section,time,video".split(','),i=e.length;while(i--){document.createElement(e[i])}})()
@@ -101,6 +104,9 @@ try{
 } catch(err){}
 	</script>
 	<?php } ?>
+	<?php foreach($this->config['additionalJSsrc'] as $val ){ ?>
+	<script type="text/javascript" src="<?php echo($val); ?>"></script>
+	<?php } ?>
 </head>
 <body class="_debug">
 	<header>
@@ -122,6 +128,7 @@ try{
 		<nav>
 			<ul>
 				<?php if($this->frontController['showActionHome']){    ?><li><a href="<?php echo( $this->frontController['virtualHome'] ); ?>">home</a></li><?php } ?>
+				<?php if($this->frontController['showActionNew']){     ?><li><a href="javascript:(function(){var n=prompt('Page name (use slashes to create folders):');if(n){document.location.href=n;}})();">new</a></li><?php } ?>
 				<?php if($this->frontController['showActionIndex']){   ?><li><a href="<?php echo($this->frontController['virtualAbsIndex']); ?>?index">index</a></li><?php } ?>
 				<?php if($this->frontController['showActionHistory']){ ?><li><a href="?history">history</a></li><?php } ?>
 				<?php if($this->frontController['showActionRestore']){ ?><li><a href="?restore&amp;timestamp=<?php echo(isset($_GET['timestamp']) ? $_GET['timestamp'] : ''); ?>">restore</a></li><?php } ?>
@@ -153,16 +160,16 @@ try{
 	<?php if($this->frontController['showSectionHistory']){ ?>
 	<section class="history">
 		<table class="custom">
-			<!-- thead>
+			<?php if(count($this->frontController['localHistoryDirContents'])>0){ ?>
+			<thead>
 				<tr>
-					<th class="minWidth">size</th>
-					<th class="minWidth">when</th>
-					<th class="minWidth">&nbsp;</th>
-					<th class="minWidth">&nbsp;</th>
-					<th class="minWidth">&nbsp;</th>
+					<th class="minWidth center">size</th>
+					<th class="minWidth center" colspan="2">when</th>
+					<th class="minWidth center" colspan="2">actions</th>
 					<th class="maxWidth">&nbsp;</th>
 				</tr>
-			</thead -->
+			</thead>
+			<?php } ?>
 			<tbody>
 				<?php foreach($this->frontController['localHistoryDirContents'] as $item ){ ?>
 				<tr>
@@ -182,6 +189,13 @@ try{
 	<section class="index">
 		<?php if( $this->frontController['localIndexDirExists'] ){ ?>
 		<table class="custom">
+			<thead>
+					<th class="minWidth">name</th>
+					<th class="minWidth center">size / kind</th>
+					<th class="minWidth center">modified</th>
+					<th class="minWidth center" colspan="4">actions</th>
+					<th class="maxWidth">&nbsp;</th>
+			</thead>
 			<tbody>
 				<?php foreach($this->frontController['localIndexDirContents'] as $item ){ ?>
 				<tr class="<?php echo($item['kind']); ?>">

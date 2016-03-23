@@ -118,14 +118,14 @@ html{ min-height:100%; }
 			section table.custom{ width:100%; font-family:"Lucida Console", Monaco, monospace; border-spacing: 0px; }
 				/* all cells */
 				section table.custom th,
-				section table.custom td{ padding:0.25ex 1.5em 0.25em 0.5ex; border-bottom:1px solid hsla(0,0%,0%,0.100); background-color:hsla(0,0%,0%,0.000); }
+				section table.custom td{ padding:0.25ex 1.5em 0.25em 0.5ex; background-color:hsla(0,0%,0%,0.000); }
 				section table.custom td.minWidth{ width:1em; white-space: pre; }
 				section table.custom td.maxWidth{  }
 				section table.custom td.notes{ font-family:sans-serif; font-size:75%; }
 				/* header */
-				section table.custom thead tr th{ font-size:75%; text-transform:uppercase; font-family:sans-serif; font-weight:400; text-align:left; /* background-color:hsla(0,0%,0%,0.125); */ }
+				section table.custom thead tr th{ padding:0 0.5ex 0 0.5ex; font-size:75%; text-transform:uppercase; font-family:sans-serif; font-weight:100; text-align:left; background-color:hsla(0,0%,50%,1); }
 				/* body and children */
-				section table.custom tbody tr td{ color:hsla(0, 0%, 0%, 0.5); }
+				section table.custom tbody tr td{ color:hsla(0, 0%, 0%, 0.5); border-bottom:1px solid hsla(0,0%,0%,0.100); }
 				section table.custom tbody tr.file   td{ color:hsla(0, 0%, 0%, 0.5);  }
 				section table.custom tbody tr.folder td{ /* font-weight:bold; */ }
 				section table.custom tbody tr td.tag{ font-family:sans-serif; font-size:75%; text-transform:uppercase; }
