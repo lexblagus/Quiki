@@ -128,11 +128,11 @@ try{
 		<nav>
 			<ul>
 				<?php if($this->frontController['showActionHome']){    ?><li><a href="<?php echo( $this->frontController['virtualHome'] ); ?>">home</a></li><?php } ?>
-				<?php if($this->frontController['showActionNew']){     ?><li><a href="javascript:(function(){var n=prompt('Enter new page name (you can use \u002F to create inside folders):');if(n){document.location.href=n;}})();">new</a></li><?php } ?>
+				<?php if($this->frontController['showActionNew']){     ?><li><a href="javascript:javascript:void(document.getElementById('deleteSure').style.display='none');void(document.getElementById('createPage').style.display='block');void(document.getElementById('createPageName').focus());">new</a></li><?php } ?>
 				<?php if($this->frontController['showActionIndex']){   ?><li><a href="<?php echo($this->frontController['virtualAbsIndex']); ?>?index">index</a></li><?php } ?>
 				<?php if($this->frontController['showActionHistory']){ ?><li><a href="?history">history</a></li><?php } ?>
 				<?php if($this->frontController['showActionRestore']){ ?><li><a href="?restore&amp;timestamp=<?php echo(isset($_GET['timestamp']) ? $_GET['timestamp'] : ''); ?>">restore</a></li><?php } ?>
-				<?php if($this->frontController['showActionDelete']){  ?><li><a href="javascript:if(window.confirm('Pretty sure?')){location.href='?delete'};">delete</a></li><?php } ?>
+				<?php if($this->frontController['showActionDelete']){  ?><li><a href="javascript:void(document.getElementById('createPage').style.display='none');void(document.getElementById('deleteSure').style.display='block');">delete</a></li><?php } ?>
 				<?php if($this->frontController['showActionRaw']){     ?><li><a href="?raw">raw</a></li><?php } ?>
 				<?php if($this->frontController['showActionEdit']){    ?><li><a href="?edit">edit</a></li><?php } ?>
 				<?php if($this->frontController['showActionCancel']){  ?><li><a href="<?php echo($this->frontController['virtualPath']); ?>">cancel</a></li><?php } ?>
@@ -144,6 +144,18 @@ try{
 			<?php echo(implode('<br>' , $this->frontController['messages'])); ?>
 		</div>
 		<?php } ?>
+		<div id="deleteSure" class="messages right" style="display:none;">
+			Are you pretty sure about this?
+			<a href="?delete">yes</a>
+			<a href="javascript:void(document.getElementById('deleteSure').style.display='none');">no</a>
+		</div>
+		<div id="createPage" class="messages right" style="display:none;">
+			Page name
+			<span class="tip">(you can use </span>/<span class="tip"> to create folders)</span>:
+			<span id="createPageName" contenteditable="true" onkeydown="javascript:if(event.keyCode==13){ document.location.href=document.getElementById('createPageName').innerHTML; return false; }else if( event.keyCode==27 ){ document.getElementById('createPage').style.display='none'; return false; }" ></span>
+			<a href="javascript:void(document.location.href=document.getElementById('createPageName').innerHTML);">create</a>
+			<a href="javascript:void(document.getElementById('createPage').style.display='none');">cancel</a>
+		</div>
 	</header>
 	<?php if($this->frontController['showSectionMain']){ ?>
 	<main>
