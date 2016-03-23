@@ -59,6 +59,7 @@ class Quiki{
 	// -----------------------------------------------------------------------------
 	// Working variables
 	// -----------------------------------------------------------------------------
+	public $frontController = array();
 	private $loadTemplate = false;
 	private $fileTimeFormat = 'YmdHis';
 
@@ -67,51 +68,107 @@ class Quiki{
 	// Constructor
 	// -----------------------------------------------------------------------------
 	public function __construct($userConfig = array()){
-		$this->log('log', $this->logIndent, __LINE__, '__construct');
+		$this->log('log', $this->logIndent, __LINE__, '__construct', 1);
 		$this->logIndent++;
 		
-		if(0){ // log samples
-			$this->logIndent++;
-			$this->logHR();
-
-			$this->log('fatal'    ,  0 , __LINE__ , 'This is a fatal'   );
-			$this->log('error'    ,  1 , __LINE__ , 'This is a error'   );
-			$this->log('warn'     ,  2 , __LINE__ , 'This is a warn'    );
-			$this->log('info'     ,  3 , __LINE__ , 'This is a info'    );
-			$this->log('log'      ,  4 , __LINE__ , 'This is a log'     );
-			$this->log('debug'    ,  5 , __LINE__ , 'This is a debug'   );
-			$this->log('detail'   ,  6 , __LINE__ , 'This is a detail'  );
-			$this->log('unknown'  ,  7 , __LINE__ , 'This is a unknown' );
-
-			$this->log(0          ,  0 , __LINE__ , 'This is a fatal'   );
-			$this->log(1          ,  1 , __LINE__ , 'This is a error'   );
-			$this->log(2          ,  2 , __LINE__ , 'This is a warn'    );
-			$this->log(3          ,  3 , __LINE__ , 'This is a info'    );
-			$this->log(4          ,  4 , __LINE__ , 'This is a log'     );
-			$this->log(5          ,  5 , __LINE__ , 'This is a debug'   );
-			$this->log(6          ,  6 , __LINE__ , 'This is a detail'  );
-			$this->log(7          ,  7 , __LINE__ , 'This is a unknown' );
-
-			$this->log(null , null , null , 'This is a default message withou any parameter' );
-
-			$this->logHR();
-			$this->logIndent--;
-		}
+		$this->init($userConfig);
 		
-		$this->log('info',  $this->logIndent, __LINE__,'Setup configuration');
+		$this->logIndent--;
+	}
+
+
+	// -----------------------------------------------------------------------------
+	// Init
+	// -----------------------------------------------------------------------------
+	private function init($userConfig = array()){
+		$this->log('log', $this->logIndent, __LINE__, 'init', 1);
+		$this->logIndent++;
+		
+		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+		
+		$this->log('info',  $this->logIndent, __LINE__,'Setup configuration', 1);
 		$this->config = array_merge(
 			$this->config,
 			$userConfig
 		);
-		$this->log('debug', $this->logIndent, __LINE__,'$this->config = '."\n".var_export($this->config,true));
+
+		if(
+			$this->config['enableUserDebug']==1 && 
+			isset($_GET['debug']) && 
+			$_GET['debug']==1
+		){
+			$this->log('info',  $this->logIndent, __LINE__,'Enable debug', 1);
+			$this->config['debug']=1;
+		}
+
+		$this->log('debug', $this->logIndent, __LINE__,'$this->config = '.var_export($this->config,true), 1);
+		
+		$this->logSamples();
+		
+		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 		
 		date_default_timezone_set(@date_default_timezone_get());
 		
+		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+		
+		$this->run();
+		
+		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+		
+		$this->logHR();
+		$this->log('info', $this->logIndent, __LINE__,'Final results');
+		$this->log('debug', $this->logIndent, __LINE__,'$this->config = '.var_export($this->config,true), 1);
+		$this->log('debug', $this->logIndent, __LINE__,'$this->frontController = ' . var_export($this->frontController,true));
+		$this->log('detail', $this->logIndent, __LINE__,'dirname(__FILE__) = ' . var_export(dirname(__FILE__),true));
+		$this->log('detail', $this->logIndent, __LINE__,'__FILE__ = ' . var_export(__FILE__,true));
+		$this->log('detail', $this->logIndent, __LINE__,'$_SERVER["REQUEST_URI"] = ' . var_export($_SERVER["REQUEST_URI"],true));
+		$this->log('detail', $this->logIndent, __LINE__,'$_SERVER["SCRIPT_NAME"] = ' . var_export($_SERVER["SCRIPT_NAME"],true));
+		$this->log('detail', $this->logIndent, __LINE__,'$_GET = ' . var_export($_GET,true));
+		$this->log('detail', $this->logIndent, __LINE__,'$_POST = ' . var_export($_POST,true));
+		$this->log('detail', $this->logIndent, __LINE__,'$_SERVER = ' . var_export($_SERVER,true));
+		$this->log('info', $this->logIndent, __LINE__,'Render log');
+		$this->logFlush();
+		
+		$this->logIndent--;
+	}
+
+
+	// -----------------------------------------------------------------------------
+	// Runner
+	// -----------------------------------------------------------------------------
+	private function run(){
+		$this->log('log', $this->logIndent, __LINE__, 'run');
+		$this->logIndent++;
+		
+		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+		
 		$this->getFrontController();
 
-		//...
-		
+		$this->log('info',  $this->logIndent, __LINE__,'Run actions');
+		if     ( in_array("index"   , $this->frontController['actions']) ){
+			$this->actionIndex();
+		}elseif( in_array('save'    , $this->frontController['actions']) ){
+			$this->actionSave();
+		}elseif( in_array('history' , $this->frontController['actions']) ){
+			$this->actionHistory();
+		}elseif( in_array('preview' , $this->frontController['actions']) ){
+			$this->actionPreview();
+		}elseif( in_array('restore' , $this->frontController['actions']) ){
+			$this->actionRestore();
+		}elseif( in_array('delete'  , $this->frontController['actions']) ){
+			$this->actionDelete();
+		}elseif( in_array('raw'     , $this->frontController['actions']) ){
+			$this->actionRaw();
+		}elseif( in_array('edit'    , $this->frontController['actions']) ){
+			$this->actionEdit();
+		}else{
+			$this->actionRead();
+		}
+
+		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 		$this->render();
+
 		$this->logIndent--;
 	}
 
@@ -119,70 +176,355 @@ class Quiki{
 	// -----------------------------------------------------------------------------
 	// Front controller
 	// -----------------------------------------------------------------------------
-	//	Virtual HTTP addresses
-	//	http://domain/appFolder1/appFolder2/index.php/wikiFolder1/wikiFolder2/page?action1=value1&action2=value2&action3#hash
-	//	http://domain/appFolder1/appFolder2/wikiFolder1/wikiFolder2/page?action1=value1&action2=value2&action3#hash
-	//
-	//	Local Windows filesystem
-	//	C:\webserver\website\appFolder1\appFolder2\wikiFolder1\wikiFolder2\page.extension
-	//	Local Unix-like filesystem
-	//	/directory/webserver/website/appFolder1/appFolder2/wikiFolder1/wikiFolder2/page.extension
-	// -----------------------------------------------------------------------------
-	public $frontController = array(
-		'appBaseRoot'              => null, // $strAppBaseRoot,
-		'appBaseFolder'            => null, // $strAppBaseFolder,
-		'appFolder'                => null, // $strAppFolder,
-		'appFolders'               => null, // $arrAppFolders,
-		'virtualFolder'            => null, // implode('/', $arrVirtualFolders), 
-		'virtualFolders'           => null, // $arrVirtualFolders, 
-		'virtualFoldersHref'       => null, // $arrVirtualFoldersHref,
-		'virtualPage'              => null, // $virtualPage, 
-		'virtualHome'              => null, // $virtualHome,
-		'virtualPath'              => null, // $virtualPath,
-		'virtualAbsIndex'          => null, // $virtualAbsIndex,
-		'virtualTitle'             => null, // $virtualTitle,
-		'isHome'                   => null, // $isHome,
-		'localFile'                => null, // $localFile,
-		'localFileExists'          => null, // $localFileExists,
-		'localHistoryDir'          => null, // $localHistoryDir,
-		'localHistoryDirExists'    => null, // false,
-		'localHistoryDirContents'  => null, // array(),
-		'localHistoryFile'         => null, // $localHistoryFile,
-		'localHistoryFileExists'   => null, // false,
-		'localIndexDir'            => null, // false,
-		'localIndexDirExists'      => null, // false,
-		'localIndexDirContents'    => null, // array(),
-		'actions'                  => null, // $arrActions,
-		'showActionHome'           => null, // false,
-		'showActionIndex'          => null, // false,
-		'showActionHistory'        => null, // false,
-		'showActionRestore'        => null, // false,
-		'showActionRaw'            => null, // false,
-		'showActionDelete'         => null, // false,
-		'showActionEdit'           => null, // false,
-		'showActionCancel'         => null, // false,
-		'showActionSave'           => null, // false,
-		'showSectionMain'          => null, // false,
-		'showSectionEdit'          => null, // false,
-		'showSectionHistory'       => null, // false,
-		'showSectionIndex'         => null, // false,
-		'contents'                 => null, // isset($_POST["sourcecode"]) ? $_POST["sourcecode"] : '',
-		'messages'                 => null, // array()
-	);
-
-
 	private function getFrontController(){
+		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+		//	Virtual HTTP addresses
+		//	http://domain/appFolder1/appFolder2/index.php/wikiFolder1/wikiFolder2/page?action1=value1&action2=value2&action3#hash
+		//	http://domain/appFolder1/appFolder2/wikiFolder1/wikiFolder2/page?action1=value1&action2=value2&action3#hash
+		//
+		//	Local Windows filesystem
+		//	C:\webserver\website\appFolder1\appFolder2\wikiFolder1\wikiFolder2\page.extension
+		//	Local Unix-like filesystem
+		//	/directory/webserver/website/appFolder1/appFolder2/wikiFolder1/wikiFolder2/page.extension
+		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 		$this->log('log', $this->logIndent, __LINE__,'getFrontController');
+		$this->logIndent++;
+		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+		$this->log('info', $this->logIndent, __LINE__,'Get application folder');
+		$strAppBase = 
+			str_replace(
+				str_replace( // remove dir from file
+					str_replace('\\','/',dirname(__FILE__)), // normalize Windows backslash
+					'', 
+					str_replace('\\','/',__FILE__) // normalize Windows backslash
+				),
+				'', 
+				$_SERVER["SCRIPT_NAME"]
+			)
+		;
+		if(strpos($_SERVER["REQUEST_URI"] ,$_SERVER["SCRIPT_NAME"])===0){ // url rewrite disabled("index.php/" is in the address)
+			$strAppBaseFolder = $_SERVER["SCRIPT_NAME"];
+			$strAppBaseRoot = $strAppBase;
+		}else{
+			$strAppBaseFolder = $strAppBase;
+			$strAppBaseRoot = $strAppBase;
+		}
+		$strAppFolder = 
+			preg_replace( 
+				"/^\/|\/$/", // remove / from begin and end of uri
+				"", 
+				$strAppBaseFolder
+			)
+		;
+		if($strAppFolder==''){
+			$arrAppFolders = array();
+		}else{
+			$arrAppFolders = 
+				preg_split(
+					"/\//", // split by /
+					$strAppFolder
+				)
+			;
+		}
+		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+		$this->log('info', $this->logIndent, __LINE__,'Get virtual folders');
+		$arrRequest = 
+			preg_split(
+				"/\?/", // split by ? (querystring)
+				urldecode($_SERVER['REQUEST_URI'])
+			)
+		;
+		$strTrimmedPath = 
+			preg_replace(
+				"/^\/|\/$/", // remove / from begin and end of uri
+				"", 
+				$arrRequest[0]
+			)
+		;
+		if($strTrimmedPath==''){
+			$arrVirtualFolders = array();
+		}else{
+			$arrVirtualFolders = 
+				preg_split(
+					"/\//", // strip by /
+					$strTrimmedPath
+				)
+			;
+		}
+		for ($i=0; $i < count($arrAppFolders); $i++) { 
+			if( count($arrVirtualFolders) > 0 && $arrAppFolders[$i] == $arrVirtualFolders[0] ){
+				$arrDevNull = array_shift($arrVirtualFolders); // remove an app folder from virtual path
+			}
+		}
+		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+		$this->log('info', $this->logIndent, __LINE__,'Get actions (querystrings)');
+		$arrActions = array();
+		if( count( $arrRequest ) >= 2 ){
+			$arrActionsRaw = 
+				preg_split(
+					"/\&/", // strip by &
+					$arrRequest[1]
+				)
+			;
+			foreach ($arrActionsRaw as $idx => $value) {
+				if(  !( strpos($value,'=') === false )  ){
+					// Is a key pair
+					$arrValue = explode('=', $value);
+					$arrActions[ $arrValue[0] ] = $arrValue[1];
+				}else{
+					// Is a simple value, like an action
+					array_push( $arrActions , $value);
+				}
+			}
+		}
+		$this->log('detail', $this->logIndent, __LINE__,'count($arrActions) = ' . count($arrActions));
+		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+		$this->log('info', $this->logIndent, __LINE__,'Get virtual page');
+		if( in_array("index" , $arrActions) ){ // is index
+			$isFolder = true;
+			$virtualPage = '';
+		}elseif( $strAppFolder . '/' == $arrRequest[0] ){ // is application root
+			$isFolder = true;
+			$virtualPage = $this->config['home'];
+		}elseif( preg_match('/\/$/', $arrRequest[0]) ){ // is a folder, trim page from last index
+			$isFolder = true;
+			$virtualPage = $this->config['home'];
+		}else{
+			$isFolder = false;
+			$virtualPage = array_pop($arrVirtualFolders);
+		}
+		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+		$this->log('info', $this->logIndent, __LINE__,'Get virtual references');
+		if( in_array("index" , $arrActions) ){ // is index
+			$virtualTitle = implode(' / ', $arrVirtualFolders);
+		}else{
+			$virtualTitle = implode(' / ', array_merge($arrVirtualFolders,array($virtualPage)));
+		}
+		$virtualHome = $strAppFolder=='' ? '/' : '/' . $strAppFolder . '/';
+		$virtualPath = '/' . implode('/', array_merge($arrAppFolders,$arrVirtualFolders,array($virtualPage)));
+		if( count($arrAppFolders)==0 && count($arrVirtualFolders)==0 ){
+			$virtualAbsIndex = '/';
+		}else{
+			$virtualAbsIndex = '/' . implode('/', array_merge($arrAppFolders,$arrVirtualFolders)) . '/';
+		}
+		$isHome = count($arrVirtualFolders)==0 && ($virtualPage==$this->config['home'] || $virtualPage=='');
 
+		$this->log('info', $this->logIndent, __LINE__,'Get virtual folders href');
+		$arrVirtualFoldersHref = array();
+		$strAcumulateFolders = '';
+		for ($i=0; $i < count($arrVirtualFolders); $i++) { 
+			$strAcumulateFolders .= $arrVirtualFolders[$i] . '/'; 
+			array_push(
+				$arrVirtualFoldersHref,
+				$virtualHome . $strAcumulateFolders . '?index'
+			);
+		}
+		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+		$this->log('info', $this->logIndent, __LINE__,'Get local file');
+		$localFile = 
+			implode(
+				'/',
+				array_merge(
+					array($this->config['pagesDir']),
+					$arrVirtualFolders,
+					array( $virtualPage != '' ? $virtualPage : $this->config['home'])
+				)
+			) .
+			$this->config['pagesSuffix']
+		;
+		$localFileExists = file_exists( $localFile );
+		$localHistoryDir = 
+			$this->config['historyDir'] . 
+			'/' .
+			implode('/', array_merge($arrVirtualFolders,array($virtualPage)))
+		;
+		$localHistoryFile = $localHistoryDir . '/' . date($this->fileTimeFormat) . $this->config['pagesSuffix'];
+		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+		$this->log('info', $this->logIndent, __LINE__,'Set front controller array');
+		$this->frontController = array(
+			'appBaseRoot'              => $strAppBaseRoot,
+			'appBaseFolder'            => $strAppBaseFolder,
+			'appFolder'                => $strAppFolder,
+			'appFolders'               => $arrAppFolders,
+			'virtualFolder'            => implode('/', $arrVirtualFolders), 
+			'virtualFolders'           => $arrVirtualFolders, 
+			'virtualFoldersHref'       => $arrVirtualFoldersHref,
+			'virtualPage'              => $virtualPage, 
+			'virtualHome'              => $virtualHome,
+			'virtualPath'              => $virtualPath,
+			'virtualAbsIndex'          => $virtualAbsIndex,
+			'virtualTitle'             => $virtualTitle,
+			'isHome'                   => $isHome,
+			'localFile'                => $localFile,
+			'localFileExists'          => $localFileExists,
+			'localHistoryDir'          => $localHistoryDir,
+			'localHistoryDirExists'    => false,                 // to be defined bellow
+			'localHistoryDirContents'  => array(),               // to be defined bellow
+			'localHistoryFile'         => $localHistoryFile,
+			'localHistoryFileExists'   => false,                 // to be defined bellow
+			'localIndexDir'            => false,                 // to be defined bellow
+			'localIndexDirExists'      => false,                 // to be defined bellow
+			'localIndexDirContents'    => array(),               // to be defined bellow
+			'actions'                  => $arrActions,
+			'showActionHome'           => false,                 // to be defined bellow
+			'showActionIndex'          => false,                 // to be defined bellow
+			'showActionHistory'        => false,                 // to be defined bellow
+			'showActionRestore'        => false,                 // to be defined bellow
+			'showActionRaw'            => false,                 // to be defined bellow
+			'showActionDelete'         => false,                 // to be defined bellow
+			'showActionEdit'           => false,                 // to be defined bellow
+			'showActionCancel'         => false,                 // to be defined bellow
+			'showActionSave'           => false,                 // to be defined bellow
+			'showSectionMain'          => false,                 // to be defined bellow
+			'showSectionEdit'          => false,                 // to be defined bellow
+			'showSectionHistory'       => false,                 // to be defined bellow
+			'showSectionIndex'         => false,                 // to be defined bellow
+			'contents'                 => isset($_POST["sourcecode"]) ? $_POST["sourcecode"] : '',
+			'messages'                 => array()                // to be defined bellow
+		);
+		$this->log('debug', $this->logIndent, __LINE__,'$this->frontController = ' . var_export($this->frontController,true));
+		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+		$this->logIndent--;
 	}
 
 
 	// -----------------------------------------------------------------------------
-	// Action
+	// Action: index
 	// -----------------------------------------------------------------------------
-	private function execute( $action ){
-		$this->log('log', $this->logIndent, __LINE__,'execute');
+	private function actionIndex(){
+		$this->log('log', $this->logIndent, __LINE__,'actionIndex');
+		$this->logIndent++;
+
 		//...
+
+		$this->logIndent--;
+	}
+
+
+	// -----------------------------------------------------------------------------
+	// Action: read
+	// -----------------------------------------------------------------------------
+	private function actionRead(){
+		$this->log('log', $this->logIndent, __LINE__,'actionRead');
+		$this->logIndent++;
+
+		if( $this->frontController['localFileExists'] ){ 
+			$this->log('info', null, __LINE__, 'local file exists');
+			array_push($this->frontController['actions'], "view");
+			$this->frontController['contents'] = file_get_contents(
+				$this->frontController['localFile']
+			);
+			$this->loadTemplate = true;
+		}else{
+			$this->log('info', null, __LINE__, 'Local file does not exists; redirect to editor');
+			
+			if( count($this->frontController['actions'])>0 ){
+				$redirectTo = $this->frontController['_SERVER_REQUEST_URI'] . '&edit';
+			}else{
+				$redirectTo = $this->frontController['virtualPath'] . '?edit';
+			}
+			$this->log('debug', $this->logIndent, __LINE__,'$redirectTo = ' . var_export($redirectTo,true));
+			
+			if($this->config['debug'] != 1){
+				$this->log('warn', null, __LINE__, 'Redirecting…');
+				header('Location:' . $redirectTo) ;
+			}else{
+				$this->log('warn', null, __LINE__, 'Local file does not exists; would redirect to editor if not in debug mode');
+			}
+		}
+
+		$this->logIndent--;
+	}
+
+
+	// -----------------------------------------------------------------------------
+	// Action: save
+	// -----------------------------------------------------------------------------
+	private function actionSave(){
+		$this->log('log', $this->logIndent, __LINE__,'actionSave');
+		$this->logIndent++;
+
+		//...
+
+		$this->logIndent--;
+	}
+
+
+	// -----------------------------------------------------------------------------
+	// Action: history
+	// -----------------------------------------------------------------------------
+	private function actionHistory(){
+		$this->log('log', $this->logIndent, __LINE__,'actionHistory');
+		$this->logIndent++;
+
+		//...
+
+		$this->logIndent--;
+	}
+
+
+	// -----------------------------------------------------------------------------
+	// Action: preview
+	// -----------------------------------------------------------------------------
+	private function actionPreview(){
+		$this->log('log', $this->logIndent, __LINE__,'actionPreview');
+		$this->logIndent++;
+
+		//...
+
+		$this->logIndent--;
+	}
+
+
+	// -----------------------------------------------------------------------------
+	// Action: restore
+	// -----------------------------------------------------------------------------
+	private function actionRestore(){
+		$this->log('log', $this->logIndent, __LINE__,'actionIndex');
+		$this->logIndent++;
+
+		//...
+
+		$this->logIndent--;
+	}
+
+
+	// -----------------------------------------------------------------------------
+	// Action: delete
+	// -----------------------------------------------------------------------------
+	private function actionDelete(){
+		$this->log('log', $this->logIndent, __LINE__,'actionDelete');
+		$this->logIndent++;
+
+		//...
+
+		$this->logIndent--;
+	}
+
+
+	// -----------------------------------------------------------------------------
+	// Action: raw
+	// -----------------------------------------------------------------------------
+	private function actionRaw(){
+		$this->log('log', $this->logIndent, __LINE__,'actionRaw');
+		$this->logIndent++;
+
+		//...
+
+		$this->logIndent--;
+	}
+
+
+	// -----------------------------------------------------------------------------
+	// Action: edit
+	// -----------------------------------------------------------------------------
+	private function actionEdit(){
+		$this->log('log', $this->logIndent, __LINE__,'actionEdit');
+		$this->logIndent++;
+
+		//...
+
+		$this->logIndent--;
 	}
 
 
@@ -191,8 +533,21 @@ class Quiki{
 	// -----------------------------------------------------------------------------
 	private function render(){
 		$this->log('log', $this->logIndent, __LINE__,'render');
-		$this->logFlush();
-		//...
+		$this->logIndent++;
+		$this->log('debug', $this->logIndent, __LINE__,'$this->loadTemplate = ' . var_export($this->loadTemplate,true));
+		if( $this->loadTemplate==true ){
+			$this->log('info', null, __LINE__, 'Render template file');
+			$this->log('debug', $this->logIndent, __LINE__,'$this->config[\'template\'] = ' . var_export($this->config['template'],true));
+			if( $this->config['debug']==false ){
+				include_once( $this->config['template'] );
+			}else{
+				$this->log('warn', null, __LINE__, 'Do not render template file because we are in debug mode');
+			}
+		}else{
+			$this->log('warn', null, __LINE__, 'Do not render template file');
+		}
+
+		$this->logIndent--;
 	}
 
 
@@ -209,18 +564,20 @@ class Quiki{
 		array( 'levelNumber' => 4 , 'levelName' => 'log'     , 'color' => 'hsl(  0,    0%,  0%)' ),
 		array( 'levelNumber' => 5 , 'levelName' => 'debug'   , 'color' => 'hsl(135,   75%, 33%)' ),
 		array( 'levelNumber' => 6 , 'levelName' => 'detail'  , 'color' => 'hsl(  0,    0%, 50%)' ),
-		array( 'levelNumber' => 7 , 'levelName' => 'DEFAULT' , 'color' => 'hsl(  0,    0%, 90%)' )  // default must always be the last item
+		array( 'levelNumber' => 7 , 'levelName' => 'DEFAULT' , 'color' => 'hsl(  0,    0%, 75%)' )  // default must always be the last item
 	);
-	private function log($level, $indent, $line, $message){
-		array_push(
-			$this->logData, 
-			array( 
-				'level'   => $this->getLogLevel($level), 
-				'indent'  => $indent===null ? $this->logIndent : $indent,
-				'line'    => $line, 
-				'message' => $message 
-			)
-		);
+	private function log($level, $indent, $line, $message, $force=false){
+		if($this->config['debug']==1 || $force){ // do not accumulate log data if not in debug
+			array_push(
+				$this->logData, 
+				array( 
+					'level'   => $this->getLogLevel($level), 
+					'indent'  => $indent===null ? $this->logIndent : $indent,
+					'line'    => $line, 
+					'message' => $message 
+				)
+			);
+		}
 	}
 	private function getLogLevel($level){
 		if( is_int($level) && isset($this->logLevels[$level]) ){ // by index
@@ -236,28 +593,19 @@ class Quiki{
 			return $this->logLevels[count($this->logLevels)-1]; 
 		}
 	}
-	private function logHR($level=7, $char='-'){
+	private function logHR($level=7, $char='—'){ // -, _, —, ¯, ═, =, ▄, ▀, ▌, ▐, ▒, ▓, █
 		array_push(
 			$this->logData, 
 			array( 
 				'level' => $this->getLogLevel($level), 
 				'indent' => 0,
-				'line' => -1, 
+				'line' => null, 
 				'message' => str_repeat($char, 80)
 			)
 		);
 	}
 	private function logFlush(){
-		if(
-			$this->config['debug']==1 || 
-			(
-				$this->config['enableUserDebug']==1 && 
-				isset($_GET['debug']) && 
-				$_GET['debug']==1
-			)
-		){
-			echo('<html><body><pre><code>');
-			echo('<b>Quiki debug mode</b>'."\n"."\n");
+		if($this->config['debug']==1){
 			// detect longest line number length
 			$largestLineNumberStrLen = 0;
 			foreach ($this->logData as $idx => $value) {
@@ -272,11 +620,13 @@ class Quiki{
 				;
 			}
 			// render contents
+			echo('<html><body><pre><code>');
+			echo('<b>Quiki debug mode</b>'."\n"."\n");
 			foreach ($this->logData as $idx => $value) {
 				// colorize
 				echo('<span style="color:' . $this->logData[$idx]['level']['color'] . ';">');
 				// indentation
-				$indentChar = str_repeat("&nbsp;", $largestLineNumberStrLen); // maybe "\t"
+				$indentChar = str_repeat(" ", $largestLineNumberStrLen) . " ";
 				$indent = str_repeat(
 					$indentChar,
 					$this->logData[$idx]['indent']
@@ -295,828 +645,50 @@ class Quiki{
 					)
 				);
 				// line number itself
-				$lineNumber = $this->logData[$idx]['line'] > 0 ? $this->logData[$idx]['line'] . " " : "";
+				$lineNumber = $this->logData[$idx]['line'] > 0 ? $this->logData[$idx]['line'] . " " : " ";
+				// message with lines indented
 				$message = str_replace(
 					"\n",
-					"\n" . $indent . $indentChar . str_repeat(" ", $largestLineNumberStrLen),
+					"\n" . $indent . str_repeat(" ", $largestLineNumberStrLen) . " ",
 					htmlentities(
 						$this->logData[$idx]['message']
 					)
 				);
+				// render
 				echo($indent . $lineNumberIndent . $lineNumber . $message);
 				echo('</span>'."\n");
 			}
 			echo('</pre></code></body></html>');
-			die;
 		}
+	}
+	private function logSamples(){
+		$this->log('log',  $this->logIndent, __LINE__,'logSamples', 1);
+		$this->logIndent++;
+		
+		$this->log(null , null , null , 'This is a default message without any parameter' );
+		foreach ($this->logLevels as $arrLevel) {
+			$this->log(
+				$arrLevel['levelName'],
+				null,
+				__LINE__ ,
+				'$this->log(\'' . $arrLevel['levelName'] . '\', null, __LINE__, \'' . $arrLevel['levelName'] . ' message\');'
+			);
+		}
+		foreach ($this->logLevels as $arrLevel) {
+			$this->log(
+				$arrLevel['levelNumber'],
+				null,
+				__LINE__ ,
+				'$this->log(\'' . $arrLevel['levelNumber'] . '\', null, __LINE__, \'' . $arrLevel['levelNumber'] . ' message\');'
+			);
+		}
+
+		$this->logIndent--;
 	}
 	// -----------------------------------------------------------------------------
 }
 // =============================================================================
 include_once('config.php');
-new Quiki(
+$quiki = new Quiki(
 	$arrUserOptions
 );
-die; // <!> remove at the end of refactoring
-
-
-
-
-
-// ████████████████████████████████████████████████████████████████████████████████
-if(0){ // failsafe
-
-
-
-
-//error_reporting(0); // no errors at all
-error_reporting(E_ALL|E_STRICT); // all kinds of error
-
-
-// =============================================================================
-// Define options
-include_once('config.php');
-$arrOptions = array_merge(
-	array( // default configuration. This is overwritten by config.php
-		'title'           => 'Quiki',             // Title of the page to be shown in header and tab
-		'template'        => 'lib/template.php',  // Rendering file
-		'pagesDir'        => 'pages',             // Directory where the wiki page lives
-		'pagesSuffix'     => '.html',             // File extension
-		'historyDir'      => 'history',           // Backup folder
-		'home'            => 'Home',              // Homepage file (without extension if pagesSuffix is not empty)
-		'delete'          => 1,                   // Enable deleting files (keep backups)
-		'history'         => 1,                   // Enable history feature (backups on save)
-		'debug'           => 0                    // Application debug
-	),
-	$arrUserOptions
-);
-
-
-// =============================================================================
-// Working variables
-$loadTemplate = false;
-date_default_timezone_set(@date_default_timezone_get());
-$fileTimeFormat = 'YmdHis';
-// ...
-
-
-// =============================================================================
-// Front controller logic
-//
-//	Virtual HTTP addresses
-//	http://domain/appFolder1/appFolder2/index.php/wikiFolder1/wikiFolder2/page?action1=value1&action2=value2&action3#hash
-//	http://domain/appFolder1/appFolder2/wikiFolder1/wikiFolder2/page?action1=value1&action2=value2&action3#hash
-//
-//	Local Windows filesystem
-//	C:\webserver\website\appFolder1\appFolder2\wikiFolder1\wikiFolder2\page.extension
-//	Local Unix-like filesystem
-//	/directory/webserver/website/appFolder1/appFolder2/wikiFolder1/wikiFolder2/page.extension
-//
-
-
-// Application folder
-$strAppBase = 
-	str_replace(
-		str_replace( // remove dir from file
-			str_replace('\\','/',dirname(__FILE__)), // normalize Windows backslash
-			'', 
-			str_replace('\\','/',__FILE__) // normalize Windows backslash
-		),
-		'', 
-		$_SERVER["SCRIPT_NAME"]
-	)
-;
-if(strpos($_SERVER["REQUEST_URI"] ,$_SERVER["SCRIPT_NAME"])===0){ // url rewrite disabled("index.php/" is in the address)
-	$strAppBaseFolder = $_SERVER["SCRIPT_NAME"];
-	$strAppBaseRoot = $strAppBase;
-}else{
-	$strAppBaseFolder = $strAppBase;
-	$strAppBaseRoot = $strAppBase;
-}
-$strAppFolder = 
-	preg_replace( 
-		"/^\/|\/$/", // remove / from begin and end of uri
-		"", 
-		$strAppBaseFolder
-	)
-;
-if($strAppFolder==''){
-	$arrAppFolders = array();
-}else{
-	$arrAppFolders = 
-		preg_split(
-			"/\//", // split by /
-			$strAppFolder
-		)
-	;
-}
-
-
-// Virtual folders
-$arrRequest = 
-	preg_split(
-		"/\?/", // split by ? (querystring)
-		urldecode($_SERVER['REQUEST_URI'])
-	)
-;
-$strTrimmedPath = 
-	preg_replace(
-		"/^\/|\/$/", // remove / from begin and end of uri
-		"", 
-		$arrRequest[0]
-	)
-;
-if($strTrimmedPath==''){
-	$arrVirtualFolders = array();
-}else{
-	$arrVirtualFolders = 
-		preg_split(
-			"/\//", // strip by /
-			$strTrimmedPath
-		)
-	;
-}
-for ($i=0; $i < count($arrAppFolders); $i++) { 
-	if( count($arrVirtualFolders) > 0 && $arrAppFolders[$i] == $arrVirtualFolders[0] ){
-		$arrDevNull = array_shift($arrVirtualFolders); // remove an app folder from virtual path
-	}
-}
-
-
-// Actions (querystrings)
-$arrActions = array();
-if( count( $arrRequest ) >= 2 ){
-	$arrActionsRaw = 
-		preg_split(
-			"/\&/", // strip by &
-			$arrRequest[1]
-		)
-	;
-	foreach ($arrActionsRaw as $idx => $value) {
-		if(  !( strpos($value,'=') === false )  ){
-			// Is a key pair
-			$arrValue = explode('=', $value);
-			$arrActions[ $arrValue[0] ] = $arrValue[1];
-		}else{
-			// Is a simple value, like an action
-			array_push( $arrActions , $value);
-		}
-	}
-}
-
-
-// Virtual page
-if( in_array("index" , $arrActions) ){ // is index
-	$isFolder = true;
-	$virtualPage = '';
-}elseif( $strAppFolder . '/' == $arrRequest[0] ){ // is application root
-	$isFolder = true;
-	$virtualPage = $arrOptions['home'];
-}elseif( preg_match('/\/$/', $arrRequest[0]) ){ // is a folder, trim page from last index
-	$isFolder = true;
-	$virtualPage = $arrOptions['home'];
-}else{
-	$isFolder = false;
-	$virtualPage = array_pop($arrVirtualFolders);
-}
-
-
-// Virtual references
-if( in_array("index" , $arrActions) ){ // is index
-	$virtualTitle = implode(' / ', $arrVirtualFolders);
-}else{
-	$virtualTitle = implode(' / ', array_merge($arrVirtualFolders,array($virtualPage)));
-}
-$virtualHome = $strAppFolder=='' ? '/' : '/' . $strAppFolder . '/';
-$virtualPath = '/' . implode('/', array_merge($arrAppFolders,$arrVirtualFolders,array($virtualPage)));
-if( count($arrAppFolders)==0 && count($arrVirtualFolders)==0 ){
-	$virtualAbsIndex = '/';
-}else{
-	$virtualAbsIndex = '/' . implode('/', array_merge($arrAppFolders,$arrVirtualFolders)) . '/';
-}
-$isHome = count($arrVirtualFolders)==0 && ($virtualPage==$arrOptions['home'] || $virtualPage=='');
-
-
-// Virtual folders href
-$arrVirtualFoldersHref = array();
-$strAcumulateFolders = '';
-for ($i=0; $i < count($arrVirtualFolders); $i++) { 
-	$strAcumulateFolders .= $arrVirtualFolders[$i] . '/'; 
-	array_push(
-		$arrVirtualFoldersHref,
-		$virtualHome . $strAcumulateFolders . '?index'
-	);
-}
-
-
-// Local file
-$localFile = 
-	implode(
-		'/',
-		array_merge(
-			array($arrOptions['pagesDir']),
-			$arrVirtualFolders,
-			array( $virtualPage != '' ? $virtualPage : $arrOptions['home'])
-		)
-	) .
-	$arrOptions['pagesSuffix']
-;
-$localFileExists = file_exists( $localFile );
-$localHistoryDir = 
-	$arrOptions['historyDir'] . 
-	'/' .
-	implode('/', array_merge($arrVirtualFolders,array($virtualPage)))
-;
-$localHistoryFile = $localHistoryDir . '/' . date($fileTimeFormat) . $arrOptions['pagesSuffix'];
-
-
-// Front controller declaration, to be used at template.
-$frontController = array(
-	'appBaseRoot'              => $strAppBaseRoot,
-	'appBaseFolder'            => $strAppBaseFolder,
-	'appFolder'                => $strAppFolder,
-	'appFolders'               => $arrAppFolders,
-	'virtualFolder'            => implode('/', $arrVirtualFolders), 
-	'virtualFolders'           => $arrVirtualFolders, 
-	'virtualFoldersHref'       => $arrVirtualFoldersHref,
-	'virtualPage'              => $virtualPage, 
-	'virtualHome'              => $virtualHome,
-	'virtualPath'              => $virtualPath,
-	'virtualAbsIndex'          => $virtualAbsIndex,
-	'virtualTitle'             => $virtualTitle,
-	'isHome'                   => $isHome,
-	'localFile'                => $localFile,
-	'localFileExists'          => $localFileExists,
-	'localHistoryDir'          => $localHistoryDir,
-	'localHistoryDirExists'    => false,                 // to be defined bellow
-	'localHistoryDirContents'  => array(),               // to be defined bellow
-	'localHistoryFile'         => $localHistoryFile,
-	'localHistoryFileExists'   => false,                 // to be defined bellow
-	'localIndexDir'            => false,                 // to be defined bellow
-	'localIndexDirExists'      => false,                 // to be defined bellow
-	'localIndexDirContents'    => array(),               // to be defined bellow
-	'actions'                  => $arrActions,
-	'showActionHome'           => false,                 // to be defined bellow
-	'showActionIndex'          => false,                 // to be defined bellow
-	'showActionHistory'        => false,                 // to be defined bellow
-	'showActionRestore'        => false,                 // to be defined bellow
-	'showActionRaw'            => false,                 // to be defined bellow
-	'showActionDelete'         => false,                 // to be defined bellow
-	'showActionEdit'           => false,                 // to be defined bellow
-	'showActionCancel'         => false,                 // to be defined bellow
-	'showActionSave'           => false,                 // to be defined bellow
-	'showSectionMain'          => false,                 // to be defined bellow
-	'showSectionEdit'          => false,                 // to be defined bellow
-	'showSectionHistory'       => false,                 // to be defined bellow
-	'showSectionIndex'         => false,                 // to be defined bellow
-	'contents'                 => isset($_POST["sourcecode"]) ? $_POST["sourcecode"] : '',
-	'messages'                 => array()                // to be defined bellow
-);
-
-
-// =============================================================================
-// Execute actions
-if(  in_array("index" , $frontController['actions'])  ){
-	// Retrieve directory listing
-	$frontController['localIndexDir'] = 
-		preg_replace(
-			'/\/\/$/', 
-			'/', 
-			str_replace(
-				'\\',
-				'/',
-				dirname(__FILE__) . '\\' . $arrOptions['pagesDir'] . '\\' . implode('\\', $frontController['virtualFolders'])
-			) . '/'
-		)
-	;
-	$frontController['localIndexDirExists'] = file_exists( $frontController['localIndexDir'] );
-	if( $frontController['localIndexDirExists'] ){
-		$arrDirList = scandir( $frontController['localIndexDir'] , 0);
-		if( $isHome ){
-			$arrDirList = array_diff( $arrDirList , array('.','..') ); // exclude . and ..
-		}else{
-			$arrDirList = array_diff( $arrDirList , array('.') ); // remove .
-		}
-		$arrFiles = array();
-		$arrFolders = array();
-		foreach($arrDirList as $item){
-			$itemName = preg_replace(
-				'/' . $arrOptions['pagesSuffix'] . '$/',
-				'', 
-				$item
-			);
-			
-			$itemLocal = $frontController['localIndexDir'] . $item;
-			
-			if(is_dir($itemLocal)){
-				$itemKind =  'folder';
-			}elseif(is_file($itemLocal)){
-				$itemKind =  'file';
-			}else{
-				$itemKind =  'unknown';
-			}
-			
-			if($itemKind == 'folder'){
-				$itemVirtualPage = $frontController['virtualAbsIndex'] . $itemName . '/?index';
-				$itemSize = -1;
-			}elseif($itemKind == 'file'){
-				if(
-					$arrOptions['pagesSuffix'] == '' ||
-					preg_match('/' . preg_quote($arrOptions['pagesSuffix']) . '$/', $item)
-				){
-					$itemVirtualPage = $frontController['virtualAbsIndex'] . $itemName;
-					$itemSize = filesize($itemLocal);
-				}else{
-					$itemKind = 'unknown';
-					$itemVirtualPage = 'javascript:;';
-					$itemSize = -1;
-				}
-			}else{
-				$itemVirtualPage = 'javascript:;';
-				$itemSize = -1;
-			}
-			
-			$arrItem = array(
-				'name'        => $itemName,
-				'kind'        => $itemKind,
-				'virtualPage' => $itemVirtualPage,
-				'lastChange'  => filemtime($itemLocal),
-				'sizeInBytes' => $itemSize,
-			);
-
-			if($itemKind == 'folder'){
-				array_push(
-					$arrFolders , 
-					$arrItem
-				);
-			}elseif($itemKind == 'file'){
-				array_push(
-					$arrFiles , 
-					$arrItem
-				);
-			}
-		}
-		$frontController['localIndexDirContents'] = array_merge($arrFolders,$arrFiles);
-		if( count($frontController['localIndexDirContents']) == 0 ){
-			array_push($frontController['messages'], "Folder is empty");
-		}
-	}else{
-		array_push($frontController['messages'], "Folder does not exist");
-	}
-	$loadTemplate = true;
-
-// -----------------------------------------------------------------------------
-}elseif(  in_array("save" , $frontController['actions'])  ){
-	// Save contents
-	if( $arrOptions['history'] && $frontController['localFileExists'] ){
-		$frontController['localHistoryDirExists'] = file_exists( $frontController['localHistoryDir'] );
-		if( !$frontController['localHistoryDirExists'] ){
-			$arrParts = explode('/', $frontController['localHistoryDir']);
-			$countParts = count($arrParts);
-			$currPart = '';
-			for($i=0; $i<$countParts; $i++) {
-				$currPart .= ($i > 0 ? '/' : '') . $arrParts[$i];
-				if( !file_exists($currPart) ){
-					mkdir($currPart);
-				}
-			}
-			
-		}
-		copy($frontController['localFile'], $frontController['localHistoryFile']);
-	}
-
-	if( !$frontController['localFileExists'] ){
-		$arrParts = explode('/', $frontController['localFile']);
-		$countParts = count($arrParts);
-		$currPart = '';
-		for($i=0; $i<$countParts-1; $i++) {
-			$currPart .= ($i > 0 ? '/' : '') . $arrParts[$i];
-			if( !file_exists($currPart) ){
-				mkdir($currPart);
-			}
-		}
-	}
-	
-	file_put_contents( $frontController['localFile'] , $frontController['contents']);
-	
-	$loadTemplate = false;
-	header('Location:' . $frontController['virtualPath']) ;
-
-// -----------------------------------------------------------------------------
-}elseif(  in_array("history" , $frontController['actions'])  ){
-	// Retrieve file history list
-	if( $arrOptions['history'] ){
-		$frontController['localHistoryDirExists'] = file_exists( $frontController['localHistoryDir'] );
-		if( $frontController['localHistoryDirExists'] ){
-			$arrDirList = scandir( $frontController['localHistoryDir'] , 1);
-			$arrDirList = array_diff( $arrDirList , array('.','..') ); // exclude . and ..
-			foreach($arrDirList as $item){
-				$itemLocal = $frontController['localHistoryDir'] . '/' . $item;
-				$strFilePattern = '/^(\d{14})(' . preg_quote($arrOptions['pagesSuffix']) . ')$/';
-				if( 
-					is_file($itemLocal) &&
-					preg_match($strFilePattern , $item)
-				){
-					$itemTimestamp = preg_replace($strFilePattern , '$1', $item);
-					$itemDateTime = date_create_from_format($fileTimeFormat , $itemTimestamp);
-					$itemSize = filesize($itemLocal);
-					array_push(
-						$frontController['localHistoryDirContents'],
-						array(
-							'timestamp'        => $itemTimestamp,
-							'whenBackedUp'     => $itemDateTime,
-							'sizeInBytes'      => $itemSize,
-							'internalNote'     => '&nbsp;'
-						)
-					);
-				}
-			}
-			// Discover newest item and put into notes
-			$arrTimestamps = array();
-			foreach($frontController['localHistoryDirContents'] as $idx => $arrProps){
-				array_push($arrTimestamps, $arrProps['timestamp']);
-			}
-			$arrNewest = array_keys( $arrTimestamps , max($arrTimestamps) , true );
-			foreach($arrNewest as $idxVal){
-				$frontController['localHistoryDirContents'][$idxVal]['internalNote'] = '(latest)';
-			}
-			// Discover oldest item and put into notes
-			$arrTimestamps = array();
-			foreach($frontController['localHistoryDirContents'] as $idx => $arrProps){
-				array_push($arrTimestamps, $arrProps['timestamp']);
-			}
-			$arrOldest = array_keys( $arrTimestamps , min($arrTimestamps) , true );
-			foreach($arrOldest as $idxVal){
-				$frontController['localHistoryDirContents'][$idxVal]['internalNote'] = '(first)';
-			}
-		}else{
-			array_push($frontController['messages'], 'No history.');
-		}
-	} else {
-		array_push($frontController['messages'], "This feature is not enabled.");
-	}
-	$loadTemplate = true;
-
-// -----------------------------------------------------------------------------
-}elseif(  in_array("preview" , $frontController['actions'])  ){
-	// View history file
-	if( $arrOptions['history'] ){
-		if( isset( $frontController['actions']["timestamp"] ) ){
-			$frontController['localHistoryFile']  = $localHistoryDir . '/' . $frontController['actions']['timestamp'] . $arrOptions['pagesSuffix'];
-			$frontController['localHistoryFileExists'] = file_exists( $frontController['localHistoryFile'] );
-			if( $frontController['localHistoryFileExists'] ){
-				array_push($frontController['actions'], "view");
-				$frontController['contents'] = file_get_contents(
-					$frontController['localHistoryFile']
-				);
-			}else{
-				array_push($frontController['messages'], 'Restore file not found');
-			}
-		}else{
-			array_push($frontController['messages'], 'Missing action timestamp');
-		}
-	} else {
-		array_push($frontController['messages'], "This feature is not enabled.");
-	}
-	$loadTemplate = true;
-
-// -----------------------------------------------------------------------------
-}elseif(  in_array("restore" , $frontController['actions'])  ){
-	// Restore contents from history
-	if( $arrOptions['history'] ){
-		if( isset( $frontController['actions']["timestamp"] ) ){
-			$localHistoryFileNow = $frontController['localHistoryFile'];
-			$frontController['localHistoryFile']  = $localHistoryDir . '/' . $frontController['actions']['timestamp'] . $arrOptions['pagesSuffix'];
-			$frontController['localHistoryFileExists'] = file_exists( $frontController['localHistoryFile'] );
-			if( $frontController['localHistoryFileExists'] ){
-				if( $frontController['localFileExists'] ){
-					copy($frontController['localFile'], $localHistoryFileNow); // make backup
-				}
-				// Create directory structure (if not exists already)
-				if( !$frontController['localFileExists'] ){
-					$arrParts = explode('/', $frontController['localFile']);
-					$countParts = count($arrParts);
-					$currPart = '';
-					for($i=0; $i<$countParts-1; $i++) {
-						$currPart .= ($i > 0 ? '/' : '') . $arrParts[$i];
-						if( !file_exists($currPart) ){
-							mkdir($currPart);
-						}
-					}
-				}
-				copy($frontController['localHistoryFile'] , $frontController['localFile']); // restore
-				$loadTemplate = false;
-				header('Location:' . $frontController['virtualPath']) ;
-			}else{
-				array_push($frontController['messages'], 'Restore file not found');
-				$loadTemplate = true;
-			}
-		}else{
-			array_push($frontController['messages'], 'Missing action timestamp');
-			$loadTemplate = true;
-		}
-	} else {
-		array_push($frontController['messages'], "This feature is not enabled.");
-		$loadTemplate = true;
-	}
-
-// -----------------------------------------------------------------------------
-}elseif(  in_array("delete" , $frontController['actions'])  ){
-	// erase file
-	if( $arrOptions['delete'] ){
-		if( $frontController['localFileExists'] ){
-			// make last backup
-			if( $arrOptions['history'] ){
-				$frontController['localHistoryDirExists'] = file_exists( $frontController['localHistoryDir'] );
-				if( !$frontController['localHistoryDirExists'] ){
-					$arrParts = explode('/', $frontController['localHistoryDir']);
-					$countParts = count($arrParts);
-					$currPart = '';
-					for($i=0; $i<$countParts; $i++) {
-						$currPart .= ($i > 0 ? '/' : '') . $arrParts[$i];
-						if( !file_exists($currPart) ){
-							mkdir($currPart);
-						}
-					}
-					
-				}
-				copy($frontController['localFile'], $frontController['localHistoryFile']);
-			}
-
-			// delete target file and all empty parent folders
-			$arrParts = explode('/', $frontController['localFile']);
-			$arrParts = array_reverse($arrParts);
-			$countParts = count($arrParts);
-			$currPart = '';
-			$arrLocals = array();
-			for($i=$countParts-1; $i>=0; $i--) {
-				$currPart .= ($i < $countParts-1 ? '/' : '') . $arrParts[$i];
-				array_push($arrLocals, $currPart);
-			}
-			$arrLocals = array_reverse($arrLocals);
-			$isDeleted = false;
-			foreach($arrLocals as $itemLocal){
-				if(is_file($itemLocal)){
-					try{
-						if( @unlink($itemLocal) ){
-							$isDeleted = true;
-							array_push($frontController['messages'], "File deleted.");
-						}else{
-							$isDeleted = false;
-						}
-					}catch(exception $err){
-						$isDeleted = false;
-					}
-					if(!$isDeleted){
-						array_push($frontController['messages'], 'Unable to delete file: filesystem permitions or it is in use.');
-						array_push($frontController['actions'], "view");
-						$frontController['contents'] = file_get_contents(
-							$frontController['localFile']
-						);
-						$loadTemplate = true;
-					}
-				}elseif($isDeleted && is_dir($itemLocal)){
-					$arrDirList = scandir( $itemLocal );
-					$arrDirList = array_diff( $arrDirList , array('.','..') ); // exclude . and ..
-					if( count($arrDirList) == 0 ){
-						try{
-							if( @rmdir($itemLocal) ){
-								$isDeleted = true;
-							}else{
-								$isDeleted = false;
-							}
-						}catch(exception $err){
-							$isDeleted = false;
-						}
-						if(!$isDeleted){
-							$loadTemplate = false;
-							array_push($frontController['messages'], 'Error erasing folder: ' . $itemLocal);
-						}
-					}
-				}
-			}
-			$loadTemplate = true;
-		}else{
-			array_push($frontController['messages'], "File not found. No worries.");
-			$loadTemplate = true;
-		}
-	} else {
-		array_push($frontController['messages'], "This feature is not enabled.");
-		$loadTemplate = true;
-	}
-
-
-// -----------------------------------------------------------------------------
-}elseif(  in_array("raw" , $frontController['actions'])  ){
-	// Deliver raw file
-	if( $frontController['localFileExists'] ){ 
-		array_push($frontController['actions'], "view");
-		header('Location:' . $frontController['appBaseRoot'] . '/' . $frontController['localFile']);
-		$loadTemplate = false;
-	}else{
-		// Redirect to editor
-		if( count($frontController['actions'])>0 ){
-			header('Location:' . $frontController['_SERVER_REQUEST_URI'] . '&edit') ;
-		}else{
-			header('Location:' . $frontController['virtualPath'] . '?edit') ;
-		}
-	}
-
-}elseif(  in_array("edit" , $frontController['actions'])  ){
-	// Show file editor
-	if( !$frontController['localFileExists'] ){ 
-		array_push($frontController['messages'], "File not found; will create new one on save.");
-	}
-	if($frontController['localFileExists']){
-		$frontController['contents'] = file_get_contents(
-			$frontController['localFile']
-		);
-	}
-	$loadTemplate = true;
-
-// -----------------------------------------------------------------------------
-}else{
-	// Read file (default action)
-	if( $frontController['localFileExists'] ){ 
-		array_push($frontController['actions'], "view");
-		$frontController['contents'] = file_get_contents(
-			$frontController['localFile']
-		);
-		$loadTemplate = true;
-	}else{
-		// Redirect to editor
-		if( count($frontController['actions'])>0 ){
-			header('Location:' . $frontController['_SERVER_REQUEST_URI'] . '&edit') ;
-		}else{
-			header('Location:' . $frontController['virtualPath'] . '?edit') ;
-		}
-	}
-}
-
-
-// Template control
-// =============================================================================
-$showActionHome = 
-		in_array('index'   , $frontController['actions']) || 
-		in_array('history' , $frontController['actions']) || 
-		in_array('save'    , $frontController['actions']) || 
-		in_array('restore' , $frontController['actions']) || 
-		in_array('delete'  , $frontController['actions']) || 
-		in_array('edit'    , $frontController['actions']) || 
-		in_array('preview' , $frontController['actions']) || 
-		(!$isHome && in_array('view' , $frontController['actions'])) 
-;
-$showActionIndex = 
-		in_array('save'    ,  $frontController['actions']) ||
-		in_array('restore' ,  $frontController['actions']) ||
-		in_array('edit'    ,  $frontController['actions']) ||
-		in_array('preview' ,  $frontController['actions']) ||
-		in_array('view'    ,  $frontController['actions']) ||
-		in_array("history" ,  $frontController['actions'])
-;
-$showActionHistory= 
-		in_array('edit'    , $frontController['actions']) || (
-			$arrOptions['history'] && $localFileExists &&
-			(
-				in_array('save'    , $frontController['actions']) ||
-				in_array('restore' , $frontController['actions']) ||
-				in_array('delete'  , $frontController['actions']) ||
-				in_array('preview' , $frontController['actions']) ||
-				in_array('view'    , $frontController['actions'])
-			)
-		)
-;
-$showActionRestore = in_array('preview' , $frontController['actions']);
-$showActionRaw = 
-		$localFileExists && 
-		!in_array('preview' , $frontController['actions']) &&
-		(
-			in_array('save'    , $frontController['actions']) ||
-			in_array('restore' , $frontController['actions']) ||
-			in_array('edit'    , $frontController['actions']) ||
-			in_array('view'    , $frontController['actions'])
-		)
-;
-$showActionDelete = 
-		$arrOptions['delete'] && 
-		$localFileExists && (
-			$localFileExists && 
-			(
-				in_array('history' , $frontController['actions']) ||
-				in_array('edit'    , $frontController['actions']) ||
-				in_array('view'    , $frontController['actions'])
-			)
-		)
-;
-$showActionEdit = 
-	!in_array('preview' , $frontController['actions']) &&
-	(
-		in_array('save'    , $frontController['actions']) ||
-		in_array('restore' , $frontController['actions']) ||
-		in_array('view'    , $frontController['actions'])
-	)
-;
-$showActionCancel = 
-	(
-		in_array('edit'    , $frontController['actions']) ||
-		in_array('preview' , $frontController['actions'])
-	) && 
-	$frontController['localFileExists']
-;
-$showActionSave   = in_array('edit' , $frontController['actions']);
-
-$showSectionMain    = 
-	in_array('save'    , $frontController['actions']) ||
-	in_array('restore' , $frontController['actions']) ||
-	in_array('preview' , $frontController['actions']) ||
-	in_array('view'    , $frontController['actions'])
-;
-$showSectionEdit    = in_array('edit'    , $frontController['actions']);
-$showSectionHistory = $arrOptions['history'] && in_array('history' , $frontController['actions']);
-$showSectionIndex   = in_array('index'   , $frontController['actions']);
-
-$frontController['showActionHome']           = $showActionHome;
-$frontController['showActionIndex']          = $showActionIndex;
-$frontController['showActionHistory']        = $showActionHistory;
-$frontController['showActionRestore']        = $showActionRestore;
-$frontController['showActionRaw']            = $showActionRaw;
-$frontController['showActionDelete']         = $showActionDelete;
-$frontController['showActionEdit']           = $showActionEdit;
-$frontController['showActionCancel']         = $showActionCancel;
-$frontController['showActionSave']           = $showActionSave;
-$frontController['showSectionMain']          = $showSectionMain;
-$frontController['showSectionEdit']          = $showSectionEdit;
-$frontController['showSectionHistory']       = $showSectionHistory;
-$frontController['showSectionIndex']         = $showSectionIndex;
-
-
-// =============================================================================
-// debug is on the table
-if( $arrOptions['debug']==1 ){
-	echo('<html><body><pre><code>');
-
-	//echo('$strAppFolder = ');
-	//echo(htmlentities(var_export($strAppFolder,true)));
-	//echo('<br>');
-	//echo('$arrAppFolders = ');
-	//echo(htmlentities(var_export($arrAppFolders,true)));
-	//echo('<br>');
-	//echo('$arrRequest = ');
-	//echo(htmlentities(var_export($arrRequest,true)));
-	//echo('<br>');
-	//echo('$strTrimmedPath = ');
-	//echo(htmlentities(var_export($strTrimmedPath,true)));
-	//echo('<br>');
-	//echo('$arrVirtualFolders = ');
-	//echo(htmlentities(var_export($arrVirtualFolders,true)));
-	//echo('<br>');
-	//echo('$virtualPage = ');
-	//echo(htmlentities(var_export($virtualPage,true)));
-	//echo('<br>');
-	//echo('$isFolder = ');
-	//echo(htmlentities(var_export($isFolder,true)));
-	//echo('<hr>');
-
-	echo('$arrOptions = ');
-	echo(htmlentities(var_export($arrOptions,true)));
-	echo('<hr>');
-
-	echo('$frontController = ');
-	echo(htmlentities(var_export($frontController,true)));
-	echo('<hr>');
-	
-	echo('dirname(__FILE__) = ');
-	echo(htmlentities(var_export(dirname(__FILE__),true)));
-	echo('<hr>');
-	
-	echo('__FILE__ = ');
-	echo(htmlentities(var_export(__FILE__,true)));
-	echo('<hr>');
-	
-	echo('$_SERVER["REQUEST_URI"] = ');
-	echo(htmlentities(var_export($_SERVER['REQUEST_URI'],true)));
-	echo('<br>');
-	echo('$_SERVER["SCRIPT_NAME"] = ');
-	echo(htmlentities(var_export($_SERVER['SCRIPT_NAME'],true)));
-	echo('<br>');
-	echo('$_SERVER = ');
-	echo(htmlentities(var_export($_SERVER,true)));
-
-	echo('</pre></code><hr></body></html>');
-	die;
-}
-
-
-// =============================================================================
-// Load template
-if( $loadTemplate ){
-	include_once( $arrOptions['template'] );
-}
-
-
-
-
-
-
-
-} // failsafe

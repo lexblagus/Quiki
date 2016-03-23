@@ -1,4 +1,4 @@
-<?php if( !isset($arrOptions) ){ header('Location:..') ; } /* do not render this page if called outside index.php */ ?><!DOCTYPE html>
+<?php if( !isset($this->config) ){ header('Location:..') ; } /* do not render this page if called outside index.php */ ?><!DOCTYPE html>
 <html dir="ltr" lang="en-US">
 <head>
 	<meta charset="utf-8">
@@ -36,21 +36,21 @@
 	================================================================================
 	-->
 	<title>
-		<?php echo($arrOptions['title'] . ' / ' . $frontController['virtualTitle'] ); ?>
-		<?php if(  in_array("edit" , $frontController['actions'])  ){ ?> / edit<?php } ?>
-		<?php if(  in_array("history" , $frontController['actions'])  ){ ?> / history<?php } ?>
-		<?php if(  in_array("preview" , $frontController['actions'])  ){ ?> / preview<?php } ?>
-		<?php if(  in_array("index" , $frontController['actions'])  ){ ?> / index<?php } ?>
+		<?php echo($this->config['title'] . ' / ' . $this->frontController['virtualTitle'] ); ?>
+		<?php if(  in_array("edit" , $this->frontController['actions'])  ){ ?> / edit<?php } ?>
+		<?php if(  in_array("history" , $this->frontController['actions'])  ){ ?> / history<?php } ?>
+		<?php if(  in_array("preview" , $this->frontController['actions'])  ){ ?> / preview<?php } ?>
+		<?php if(  in_array("index" , $this->frontController['actions'])  ){ ?> / index<?php } ?>
 	</title>
-	<link rel="stylesheet" type="text/css" href="<?php echo( $frontController['appBaseRoot'] ); ?>/lib/reset.css" media="all">
-	<link rel="stylesheet" type="text/css" href="<?php echo( $frontController['appBaseRoot'] ); ?>/lib/layout.css" media="all">
+	<link rel="stylesheet" type="text/css" href="<?php echo( $this->frontController['appBaseRoot'] ); ?>/lib/reset.css" media="all">
+	<link rel="stylesheet" type="text/css" href="<?php echo( $this->frontController['appBaseRoot'] ); ?>/lib/layout.css" media="all">
 	<script> 
 // For discussion and comments, see: http://remysharp.com/2009/01/07/html5-enabling-script/
 (function(){if(!/*@cc_on!@*/0)return;var e = "abbr,article,aside,audio,canvas,datalist,details,eventsource,figure,footer,header,hgroup,mark,menu,meter,nav,output,progress,section,time,video".split(','),i=e.length;while(i--){document.createElement(e[i])}})()
 	</script>
-	<?php if(  in_array("edit" , $frontController['actions'])  ){ ?>
-	<script type="text/javascript" src="<?php echo( $frontController['appBaseRoot'] ); ?>/lib/jquery-2.1.3.min.js"></script>
-	<script type="text/javascript" src="<?php echo( $frontController['appBaseRoot'] ); ?>/lib/jquery.autogrowtextarea.min.js"></script>
+	<?php if(  in_array("edit" , $this->frontController['actions'])  ){ ?>
+	<script type="text/javascript" src="<?php echo( $this->frontController['appBaseRoot'] ); ?>/lib/jquery-2.1.3.min.js"></script>
+	<script type="text/javascript" src="<?php echo( $this->frontController['appBaseRoot'] ); ?>/lib/jquery.autogrowtextarea.min.js"></script>
 	<script type="text/javascript">
 function addEvent(obj, evType, fn){
 	if (obj.addEventListener){
@@ -105,52 +105,52 @@ try{
 <body class="_debug">
 	<header>
 		<h1>
-			<span class="title"><?php echo($arrOptions['title'] . ' / '); ?></span>
+			<span class="title"><?php echo($this->config['title'] . ' / '); ?></span>
 			<span class="page">
-				<?php for($i=0; $i<count($frontController['virtualFolders']); $i++){ ?>
-					<a href="<?php echo( $frontController['virtualFoldersHref'][$i] ); ?>"><?php echo( $frontController['virtualFolders'][$i] ); ?></a> / 
+				<?php for($i=0; $i<count($this->frontController['virtualFolders']); $i++){ ?>
+					<a href="<?php echo( $this->frontController['virtualFoldersHref'][$i] ); ?>"><?php echo( $this->frontController['virtualFolders'][$i] ); ?></a> / 
 				<?php } ?>
-				<a href="<?php echo( $frontController['virtualPath'] ); ?>"><?php echo( $frontController['virtualPage'] ); ?></a>
+				<a href="<?php echo( $this->frontController['virtualPath'] ); ?>"><?php echo( $this->frontController['virtualPage'] ); ?></a>
 			</span>
-			<?php if(  in_array("edit" , $frontController['actions'])  ){ ?><span class="action"> / edit</span><?php } ?>
-			<?php if(  in_array("history" , $frontController['actions'])  ){ ?><span class="action"> / history</span><?php } ?>
-			<?php if(  in_array("preview" , $frontController['actions'])  ){ ?><span class="action"> / preview</span><?php } ?>
-			<?php if(  in_array("index" , $frontController['actions'])  ){ ?><span class="action"> index</span><?php } ?>
+			<?php if(  in_array("edit" , $this->frontController['actions'])  ){ ?><span class="action"> / edit</span><?php } ?>
+			<?php if(  in_array("history" , $this->frontController['actions'])  ){ ?><span class="action"> / history</span><?php } ?>
+			<?php if(  in_array("preview" , $this->frontController['actions'])  ){ ?><span class="action"> / preview</span><?php } ?>
+			<?php if(  in_array("index" , $this->frontController['actions'])  ){ ?><span class="action"> index</span><?php } ?>
 		</h1>
 		<nav>
 			<ul>
-				<?php if($frontController['showActionHome']){    ?><li><a href="<?php echo( $frontController['virtualHome'] ); ?>">home</a></li><?php } ?>
-				<?php if($frontController['showActionIndex']){   ?><li><a href="<?php echo($frontController['virtualAbsIndex']); ?>?index">index</a></li><?php } ?>
-				<?php if($frontController['showActionHistory']){ ?><li><a href="?history">history</a></li><?php } ?>
-				<?php if($frontController['showActionRestore']){ ?><li><a href="?restore&amp;timestamp=<?php echo(isset($_GET['timestamp']) ? $_GET['timestamp'] : ''); ?>">restore</a></li><?php } ?>
-				<?php if($frontController['showActionDelete']){  ?><li><a href="javascript:if(window.confirm('Pretty sure?')){location.href='?delete'};">delete</a></li><?php } ?>
-				<?php if($frontController['showActionRaw']){     ?><li><a href="?raw">raw</a></li><?php } ?>
-				<?php if($frontController['showActionEdit']){    ?><li><a href="?edit">edit</a></li><?php } ?>
-				<?php if($frontController['showActionCancel']){  ?><li><a href="<?php echo($frontController['virtualPath']); ?>">cancel</a></li><?php } ?>
-				<?php if($frontController['showActionSave']){    ?><li><a href="javascript:(function(){document.formEdit.submit();})();">save</a></li><?php } ?>
+				<?php if($this->frontController['showActionHome']){    ?><li><a href="<?php echo( $this->frontController['virtualHome'] ); ?>">home</a></li><?php } ?>
+				<?php if($this->frontController['showActionIndex']){   ?><li><a href="<?php echo($this->frontController['virtualAbsIndex']); ?>?index">index</a></li><?php } ?>
+				<?php if($this->frontController['showActionHistory']){ ?><li><a href="?history">history</a></li><?php } ?>
+				<?php if($this->frontController['showActionRestore']){ ?><li><a href="?restore&amp;timestamp=<?php echo(isset($_GET['timestamp']) ? $_GET['timestamp'] : ''); ?>">restore</a></li><?php } ?>
+				<?php if($this->frontController['showActionDelete']){  ?><li><a href="javascript:if(window.confirm('Pretty sure?')){location.href='?delete'};">delete</a></li><?php } ?>
+				<?php if($this->frontController['showActionRaw']){     ?><li><a href="?raw">raw</a></li><?php } ?>
+				<?php if($this->frontController['showActionEdit']){    ?><li><a href="?edit">edit</a></li><?php } ?>
+				<?php if($this->frontController['showActionCancel']){  ?><li><a href="<?php echo($this->frontController['virtualPath']); ?>">cancel</a></li><?php } ?>
+				<?php if($this->frontController['showActionSave']){    ?><li><a href="javascript:(function(){document.formEdit.submit();})();">save</a></li><?php } ?>
 			</ul>
 		</nav>
 		<div class="clear"></div>
-		<?php if( count($frontController['messages']) > 0 ){ ?>
+		<?php if( count($this->frontController['messages']) > 0 ){ ?>
 		<div id="messages" class="messages">
-			<?php echo(implode('<br>' , $frontController['messages'])); ?>
+			<?php echo(implode('<br>' , $this->frontController['messages'])); ?>
 			<!-- /* design flaw: not usefull. Erase? */ <a href="javascript:(function(){document.getElementById('messages').style.display='none';})();" class="close">dismiss</a> -->
 		</div>
 		<?php } ?>
 	</header>
-	<?php if($frontController['showSectionMain']){ ?>
+	<?php if($this->frontController['showSectionMain']){ ?>
 	<main>
-<?php echo($frontController['contents']); ?>
+<?php echo($this->frontController['contents']); ?>
 	</main>
 	<?php } ?>
-	<?php if($frontController['showSectionEdit']){ ?>
+	<?php if($this->frontController['showSectionEdit']){ ?>
 	<section class="edit">
-		<form name="formEdit" action="<?php echo($frontController['virtualPath']); ?>?save" method="post" enctype="application/x-www-form-urlencoded">
-			<textarea id="sourcecode" name="sourcecode"><?php echo(htmlentities($frontController['contents'])); ?></textarea>
+		<form name="formEdit" action="<?php echo($this->frontController['virtualPath']); ?>?save" method="post" enctype="application/x-www-form-urlencoded">
+			<textarea id="sourcecode" name="sourcecode"><?php echo(htmlentities($this->frontController['contents'])); ?></textarea>
 		</form>
 	</section>
 	<?php } ?>
-	<?php if($frontController['showSectionHistory']){ ?>
+	<?php if($this->frontController['showSectionHistory']){ ?>
 	<section class="history">
 		<table class="custom">
 			<!-- thead>
@@ -164,7 +164,7 @@ try{
 				</tr>
 			</thead -->
 			<tbody>
-				<?php foreach($frontController['localHistoryDirContents'] as $item ){ ?>
+				<?php foreach($this->frontController['localHistoryDirContents'] as $item ){ ?>
 				<tr>
 					<td class="minWidth right"><?php echo($item['sizeInBytes']); ?> bytes</td>
 					<td class="minWidth"><?php echo( $item['whenBackedUp']->format("Y-m-d H:i:s") ); ?></td>
@@ -178,12 +178,12 @@ try{
 		</table>
 	</section>
 	<?php } ?>
-	<?php if($frontController['showSectionIndex']){ ?>
+	<?php if($this->frontController['showSectionIndex']){ ?>
 	<section class="index">
-		<?php if( $frontController['localIndexDirExists'] ){ ?>
+		<?php if( $this->frontController['localIndexDirExists'] ){ ?>
 		<table class="custom">
 			<tbody>
-				<?php foreach($frontController['localIndexDirContents'] as $item ){ ?>
+				<?php foreach($this->frontController['localIndexDirContents'] as $item ){ ?>
 				<tr class="<?php echo($item['kind']); ?>">
 					<td class="minWidth"><a href="<?php echo($item['virtualPage']); ?>"><?php echo($item['name']); ?></a></td>
 					<?php if( $item['kind']=='file' ){ ?>
