@@ -1,3 +1,7 @@
+<style type="text/css">
+table tbody tr th{ text-align:left; }
+</style>
+
 <p><i>An open source very lightweight wiki engine</i></p>
 
 <h2>Features</h2>
@@ -21,6 +25,10 @@
 		<tr>
 			<th>Home</th>
 			<td>Goes to the home page configured in config.php</td>
+		</tr>
+		<tr>
+			<th>New</th>
+			<td>Asks for name and create new page</td>
 		</tr>
 		<tr>
 			<th>Index</th>
@@ -186,13 +194,28 @@
 
 <p>
 	<ul>
-		<li>Header link: <b>"Rename"</b> [page] (and backups, with conflict check)</li>
-		<li>Header link: <b>"Move"</b> [page] (and backups, with conflict check) using the index table with a link "here" (at the right cell, in the same context of "edit"/"raw"/"history" links at rightest cell)</li>
-		<li>Header links: <b>"Previous"</b>, <b>"next"</b> and <b>"edit"</b> when in history preview</li>
-		<li>Header link: <b>"Create"</b> [page] (with window.prompt or any better solution)</li>
-		<li><b>"Purge"</b> orphan history data. For a single deleted item, on red feedback message. Or for all history.</li>
-		<li>Old versions of IE do not support HSLA color mode; this is not intended to be fixed</li>
+		<li>
+			Better documenation with:
+			<ul>
+				<li>Basic usage</li>
+				<li>Debug (and user-enabled) mode</li>
+			</ul>
+		</li>
+		<li>Done: <del>Additional CSS and JS files in options</del></li>
+		<li>
+			Header
+			<ul>
+				<li><b>"Rename"</b> [page] (and backups, with conflict check)</li>
+				<li><b>"Move"</b> [page] (and backups, with conflict check) using the index table with a link "here" (at the right cell, in the same context of "edit"/"raw"/"history" links at rightest cell)</li>
+				<li><b>"Previous"</b>, <b>"next"</b> and <b>"edit"</b> when in history preview</li>
+				<li><b>"Purge"</b> orphan history data. For a single deleted item, on red feedback message. Or for all history.</li>
+				<li>Done: <del><b>"Create"</b> [page] (with window.prompt or any better solution)</del></li>
+			</ul>
+		</li>
 		<li>Maybe, someday, a <span title="what you see is what you get">WYSIWYG</span> editor</li>
+		<li>Old versions of IE do not support HSLA color mode; this is not intended to be fixed</li>
+		<li>Done: <del>A fucking <b>remake</b>, using Class</del></li>
+		<li>Done: <del>A decent <b>debug</b> with a <b>diagnostics</b> mode (because is not working properly at Freehostia and Raspberry PI)</del></li>
 		<li>Done: <del>Header link: <b>"Delete"</b> [page] (keep backups)</del></li>
 		<li>Done: <del>Rename "newest" to <b>"latest"</b> and "oldest" to <b>"first"</b> in history table (at template)</del></li>
 	</ul>
