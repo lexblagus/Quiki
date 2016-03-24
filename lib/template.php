@@ -131,7 +131,7 @@ try{
 				<?php if($this->frontController['showActionNew']){     ?><li><a href="javascript:javascript:void(document.getElementById('deleteSure').style.display='none');void(document.getElementById('createPage').style.display='block');void(document.getElementById('createPageName').focus());">new</a></li><?php } ?>
 				<?php if($this->frontController['showActionIndex']){   ?><li><a href="<?php echo($this->frontController['virtualAbsIndex']); ?>?index">index</a></li><?php } ?>
 				<?php if($this->frontController['showActionHistory']){ ?><li><a href="?history">history</a></li><?php } ?>
-				<?php if($this->frontController['showActionRestore']){ ?><li><a href="?restore&amp;timestamp=<?php echo(isset($_GET['timestamp']) ? $_GET['timestamp'] : ''); ?>">restore</a></li><?php } ?>
+				<?php if($this->frontController['showActionRestore']){ ?><li><a href="?restore&amp;timestamp=<?php echo(isset($this->frontController['actions']['timestamp']) ? $this->frontController['actions']['timestamp'] : ''); ?>">restore</a></li><?php } ?>
 				<?php if($this->frontController['showActionDelete']){  ?><li><a href="javascript:void(document.getElementById('createPage').style.display='none');void(document.getElementById('deleteSure').style.display='block');">delete</a></li><?php } ?>
 				<?php if($this->frontController['showActionRaw']){     ?><li><a href="?raw">raw</a></li><?php } ?>
 				<?php if($this->frontController['showActionEdit']){    ?><li><a href="?edit">edit</a></li><?php } ?>
