@@ -74,8 +74,28 @@ class Quiki{
 		$this->logIndent++;
 		
 		$this->init($userConfig);
+
+		$this->logHR();
+		$this->log('info',  $this->logIndent, __LINE__,'Done class instantiation.', 1);
 		
 		$this->logIndent--;
+
+		if(1){ // Diagnostics detailed informtion: get, post, server, php info and log samples
+			$this->logHR(null, '═');
+			$this->log('info', $this->logIndent, __LINE__,'Diagnostics');
+			$this->log('detail', $this->logIndent, __LINE__,'$_GET = ' . var_export($_GET,true));
+			$this->log('detail', $this->logIndent, __LINE__,'$_POST = ' . var_export($_POST,true));
+			$this->logHR();
+			$this->log('detail', $this->logIndent, __LINE__,'$_SERVER = ' . var_export($_SERVER,true));
+			$this->logHR();
+			$this->log('detail', $this->logIndent, __LINE__,'$this->phpinfo2array() = ' . var_export($this->phpinfo2array(),true));
+			$this->logHR();
+			$this->logSamples();
+			$this->logHR();
+		}
+
+		$this->log('info', $this->logIndent, __LINE__,'Render log');
+		$this->logFlush();
 	}
 
 
@@ -114,29 +134,6 @@ class Quiki{
 		$this->run();
 		
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-		
-		$this->logHR();
-		$this->log('info', $this->logIndent, __LINE__,'Final results');
-		$this->log('debug', $this->logIndent, __LINE__,'$this->config = '.var_export($this->config,true), 1);
-		$this->log('debug', $this->logIndent, __LINE__,'$this->frontController = ' . var_export($this->frontController,true));
-		$this->log('detail', $this->logIndent, __LINE__,'dirname(__FILE__) = ' . var_export(dirname(__FILE__),true));
-		$this->log('detail', $this->logIndent, __LINE__,'__FILE__ = ' . var_export(__FILE__,true));
-		$this->log('detail', $this->logIndent, __LINE__,'$_SERVER["REQUEST_URI"] = ' . var_export($_SERVER["REQUEST_URI"],true));
-		$this->log('detail', $this->logIndent, __LINE__,'$_SERVER["SCRIPT_NAME"] = ' . var_export($_SERVER["SCRIPT_NAME"],true));
-		$this->log('detail', $this->logIndent, __LINE__,'$_GET = ' . var_export($_GET,true));
-		$this->log('detail', $this->logIndent, __LINE__,'$_POST = ' . var_export($_POST,true));
-		$this->log('detail', $this->logIndent, __LINE__,'$_SERVER = ' . var_export($_SERVER,true));
-		
-		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-		
-		$this->logHR();
-		$this->logSamples();
-		
-		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-		
-		$this->logHR();
-		$this->log('info', $this->logIndent, __LINE__,'Render log');
-		$this->logFlush();
 		
 		$this->logIndent--;
 	}
@@ -184,9 +181,12 @@ class Quiki{
 			$this->frontController['showActionSave'] = true;
 		}
 
-
-
 		$this->render();
+		$this->log('info',  $this->logIndent, __LINE__,'Done engine logic');
+
+		$this->logHR();
+		$this->log('debug', $this->logIndent, __LINE__,'$this->config = '.var_export($this->config,true), 1);
+		$this->log('debug', $this->logIndent, __LINE__,'$this->frontController = ' . var_export($this->frontController,true));
 
 		$this->logIndent--;
 	}
@@ -210,6 +210,9 @@ class Quiki{
 		$this->logIndent++;
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 		$this->log('info', $this->logIndent, __LINE__,'Get application folder');
+		$this->log('debug', $this->logIndent, __LINE__,'$_SERVER["SCRIPT_NAME"] = ' . var_export($_SERVER["SCRIPT_NAME"],true));
+		$this->log('debug', $this->logIndent, __LINE__,'__FILE__ = ' . var_export(__FILE__,true));
+		$this->log('debug', $this->logIndent, __LINE__,'dirname(__FILE__) = ' . var_export(dirname(__FILE__),true));
 		$strAppBase = 
 			str_replace(
 				str_replace( // remove dir from file
@@ -247,6 +250,7 @@ class Quiki{
 		}
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 		$this->log('info', $this->logIndent, __LINE__,'Get virtual folders');
+		$this->log('debug', $this->logIndent, __LINE__,'$_SERVER["REQUEST_URI"] = ' . var_export($_SERVER["REQUEST_URI"],true));
 		$arrRequest = 
 			preg_split(
 				"/\?/", // split by ? (querystring)
@@ -296,7 +300,7 @@ class Quiki{
 				}
 			}
 		}
-		$this->log('detail', $this->logIndent, __LINE__,'count($arrActions) = ' . count($arrActions));
+		$this->log('debug', $this->logIndent, __LINE__,'count($arrActions) = ' . count($arrActions));
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 		$this->log('info', $this->logIndent, __LINE__,'Get virtual page');
 		if( in_array("index" , $arrActions) ){ // is index
@@ -836,6 +840,8 @@ class Quiki{
 		$this->log('log', $this->logIndent, __LINE__,'actionIndex');
 		$this->logIndent++;
 
+		$this->log('debug', $this->logIndent, __LINE__,'__FILE__ = ' . var_export(__FILE__,true));
+		$this->log('debug', $this->logIndent, __LINE__,'dirname(__FILE__) = ' . var_export(dirname(__FILE__),true));
 		$this->frontController['localIndexDir'] = 
 			preg_replace(
 				'/\/\/$/', 
@@ -1302,6 +1308,7 @@ class Quiki{
 		array( 'levelNumber' => 6 , 'levelName' => 'detail'  , 'color' => 'hsl(  0,    0%, 50%)' ),
 		array( 'levelNumber' => 7 , 'levelName' => 'DEFAULT' , 'color' => 'hsl(  0,    0%, 75%)' )  // default must always be the last item
 	);
+
 	private function log($level, $indent, $line, $message, $force=false){
 		if($this->config['debug']==1 || $force){ // do not accumulate log data if not in debug
 			array_push(
@@ -1315,6 +1322,7 @@ class Quiki{
 			);
 		}
 	}
+
 	private function getLogLevel($level){
 		if( is_int($level) && isset($this->logLevels[$level]) ){ // by index
 			return $this->logLevels[$level];
@@ -1329,6 +1337,7 @@ class Quiki{
 			return $this->logLevels[count($this->logLevels)-1]; 
 		}
 	}
+
 	private function logHR($level=7, $char='—'){ // -, _, —, ¯, ═, =, ▄, ▀, ▌, ▐, ▒, ▓, █
 		array_push(
 			$this->logData, 
@@ -1340,6 +1349,7 @@ class Quiki{
 			)
 		);
 	}
+
 	private function logFlush(){
 		if($this->config['debug']==1){
 			// detect longest line number length
@@ -1356,7 +1366,9 @@ class Quiki{
 				;
 			}
 			// render contents
-			echo('<html><body><hr><h1>Debug</h1><pre><code>'."\n"."\n");
+			echo('<html><body>');
+			echo('<h1 style="padding:0 0.5ex 0.25ex 0.5ex; color:hsl(45,100%,50%); background-color:hsl(0,0%,25%);">Debug</h1>');
+			echo('<pre><code>');
 			foreach ($this->logData as $idx => $value) {
 				// colorize
 				echo('<span class="debug" style="color:' . $this->logData[$idx]['level']['color'] . ';">');
@@ -1396,6 +1408,7 @@ class Quiki{
 			echo('</pre></code></body></html>');
 		}
 	}
+
 	private function logSamples(){
 		$this->log('log',  $this->logIndent, __LINE__,'logSamples', 1);
 		$this->logIndent++;
@@ -1444,6 +1457,58 @@ class Quiki{
 
 		$this->logIndent--;
 	}
+
+	private function phpinfo2array() {
+		$entitiesToUtf8 = function($input) {
+			// http://php.net/manual/en/function.html-entity-decode.php#104617
+			return preg_replace_callback("/(&#[0-9]+;)/", function($m) { return mb_convert_encoding($m[1], "UTF-8", "HTML-ENTITIES"); }, $input);
+		};
+		$plainText = function($input) use ($entitiesToUtf8) {
+			return trim(html_entity_decode($entitiesToUtf8(strip_tags($input))));
+		};
+		$titlePlainText = function($input) use ($plainText) {
+			return '# '.$plainText($input);
+		};
+		
+		ob_start();
+		phpinfo(-1);
+		
+		$phpinfo = array('phpinfo' => array());
+
+		// Strip everything after the <h1>Configuration</h1> tag (other h1's)
+		if (!preg_match('#(.*<h1[^>]*>\s*Configuration.*)<h1#s', ob_get_clean(), $matches)) {
+			return array();
+		}
+		
+		$input = $matches[1];
+		$matches = array();
+
+		if(preg_match_all(
+			'#(?:<h2.*?>(?:<a.*?>)?(.*?)(?:<\/a>)?<\/h2>)|'.
+			'(?:<tr.*?><t[hd].*?>(.*?)\s*</t[hd]>(?:<t[hd].*?>(.*?)\s*</t[hd]>(?:<t[hd].*?>(.*?)\s*</t[hd]>)?)?</tr>)#s',
+			$input, 
+			$matches, 
+			PREG_SET_ORDER
+		)) {
+			foreach ($matches as $match) {
+				$fn = strpos($match[0], '<th') === false ? $plainText : $titlePlainText;
+				if (strlen($match[1])) {
+					$phpinfo[$match[1]] = array();
+				} elseif (isset($match[3])) {
+					$keys1 = array_keys($phpinfo);
+					$phpinfo[end($keys1)][$fn($match[2])] = isset($match[4]) ? array($fn($match[3]), $fn($match[4])) : $fn($match[3]);
+				} else {
+					$keys1 = array_keys($phpinfo);
+					$phpinfo[end($keys1)][] = $fn($match[2]);
+				}
+
+			}
+		}
+		
+		return $phpinfo;
+	}
+
+
 	// -----------------------------------------------------------------------------
 }
 // =============================================================================
