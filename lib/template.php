@@ -42,6 +42,7 @@
 		<?php if(  in_array("preview" , $this->frontController['actions'])  ){ ?> / preview<?php } ?>
 		<?php if(  in_array("index" , $this->frontController['actions'])  ){ ?> / index<?php } ?>
 	</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	<link rel="stylesheet" type="text/css" href="<?php echo( $this->frontController['appBaseRoot'] ); ?>/lib/reset.css" media="all">
 	<link rel="stylesheet" type="text/css" href="<?php echo( $this->frontController['appBaseRoot'] ); ?>/lib/layout.css" media="all">
 	<?php foreach($this->config['additionalCSShref'] as $val ){ ?>

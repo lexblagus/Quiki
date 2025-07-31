@@ -1,0 +1,105 @@
+<script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin=""></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin=""></script>
+<script src="https://unpkg.com/create-react-class@15.6.0/create-react-class.js" crossorigin=""></script>
+<script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+<div id="root">loading…</div>
+<script id="react-app" type="text/babel" src="/lib/table-editor.jsx"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css" />
+<link rel="stylesheet" href="/lib/table-editor.css" />
+<script id="data" type="application/json">[
+	{
+		"meta": {
+			"id": "alpha",
+			"title": "Dynamic Table Editor"
+		},
+		"columns": [
+			{
+				"id": "a",
+				"title": "A: header",
+				"type": "header"
+			},
+			{
+				"id": "b"
+			},
+			{
+				"id": "c",
+				"title": "C: text",
+				"type": "text"
+			},
+			{
+				"id": "d",
+				"title": "D: HTML",
+				"type": "html",
+				"align": "center"
+			},
+			{
+				"id": "e",
+				"title": "E: uri",
+				"type": "uri",
+				"align": "right"
+			},
+			{
+				"id": "f",
+				"title": "F: password",
+				"type": "password",
+				"align": "right"
+			}
+		],
+		"body": [
+			{
+				"cells": {
+					"a": { "value": "A1" },
+					"b": { "value": "B1" },
+					"d": { "value": "D1" },
+					"e": { "value": "E1" },
+					"f": { "value": "F1" }
+				}
+			},
+			{
+				"cells": {
+					"b": { "value": "B2" },
+					"c": { "value": "C<br />2" },
+					"d": { "value": "<b>D<br />2</b>" },
+					"e": { "value": "EE22" },
+					"f": { "value": "F2" }
+				}
+			},
+			{
+				"cells": {
+					"a": { "value": "A3" },
+					"b": { "value": "B3" },
+					"c": { "value": "C3" },
+					"e": { "value": "EEE333" },
+					"f": { "value": "F3" }
+				}
+			},
+			{},
+			{
+				"cells": {
+					"a": { "value": "A5" },
+					"b": { "value": "B5" },
+					"c": { "value": "C5" },
+					"d": { "value": "<img width='10' height='10' src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR4nGP4z8AAAAMBAQAY/l4nAAAAAElFTkSuQmCC' />" },
+					"f": { "value": "F5" }
+				}
+			},
+			{
+				"cells": {
+					"a": { "value": "A6" },
+					"b": { "value": "B6" },
+					"c": { "value": "C6" },
+					"d": { "value": "D6" },
+					"e": { "value": "protocol:E6" }
+				}
+			}
+		]
+	},
+	{
+		"columns": [
+			{
+				"type": "text"
+			}
+		]
+	},
+	{}
+]</script>

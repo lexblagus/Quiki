@@ -57,7 +57,7 @@ html, body, iframe {
 body, table, textarea, input, select, button{ /* base typography */
 	font-family:sans-serif;
 	font-weight:400; /* normal */
-	font-size:100%;
+	font-size:1rem;
 	line-height:120%;
 	color:#000;
 }

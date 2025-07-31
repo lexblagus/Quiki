@@ -1,0 +1,43 @@
+table { font-size: 0.9em; margin: 0; padding: 0; border-spacing: 2px; empty-cells: hide; border-collapse: separate; caption-side: bottom; }
+/* simple table */             
+	table tr {}
+	table tr th,
+	table tr td { margin: 0; padding: 0; vertical-align: baseline; }
+	table tr th { background-color: hsla(0,0%,0%,0.500); color: hsla(0,0%,90%,1); font-weight: 100; text-transform: none; text-align: left; }
+		table tr th * { text-transform: none; }
+	table tr td{ background-color: hsla(0,0%,0%,0.100); }
+/* complex table */            
+	table > caption { margin: 0 2px; padding: 0.5ex; background-color: hsla(0,0%,0%,0.500); color: hsla(0,0%,90%,1); }
+	table > thead {}
+		table > thead > tr {}
+			table > thead > tr > th {}
+	table > tfoot {}
+		table > tfoot > tr {}
+		table > tfoot > tr > th {}
+	table > tbody {}
+		table > tbody > tr {}
+			tbody > tr > th {}
+			tbody > tr > td {}
+
+table[border]{             border: solid 2px hsla(0,0%,25%,1); border-spacing: 0; border-collapse: collapse; }
+	table[border] tr th{   border: solid 2px hsla(0,0%,25%,1); }
+	table[border] tr td{   border: solid 2px hsla(0,0%,25%,1); }
+	table[border]>caption{ border: solid 2px hsla(0,0%,25%,1); border-top-style: none; margin: 0; }
+/* -------------------------------------------------------------------------- */
+table { margin-bottom: 1em; }
+th, td { min-width: 1em; }
+[contentEditable]:focus {  }
+[contentEditable]:focus-visible { outline: dashed 1px hsla(0, 0%, 0%, 0.5); outline-offset: -1px; }
+th.actions { background-color: hsla(0,0%,0%,0.100); padding: 0; text-align: right; white-space: nowrap; }
+button.action { background-color: transparent; border-style: none; padding: 0 4px; cursor: pointer; }
+button.action:hover { cursor: pointer; }
+thead > tr > th { background-color: hsla(0, 0%, 0%, 0.600); }
+tbody > tr:nth-child(even) > td,
+tbody > tr:nth-child(even) > th.actions { background-color: hsla(0, 0%, 0%, 0.150); }
+tbody > tr:nth-child(even) > th { background-color: hsla(0, 0%, 0%, 0.600); }
+/* -------------------------------------------------------------------------- */
+.uppercase { text-transform: uppercase; }
+.transparent { background-color: transparent; }
+.small-title { text-transform: uppercase; }
+.cell-padding { padding: 4px 4px 1px; }
+.cells-and-actions{ display: grid; grid-template-columns: 1fr auto; align-items: baseline; column-gap: 2px; }
