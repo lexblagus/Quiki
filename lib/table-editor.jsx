@@ -258,6 +258,7 @@ const TableEditor = () => {
 									className="cell-padding small-title"
 									style={{
 										textAlign: column.align,
+										...column.style,
 									}}
 								>
 									{column.title}
@@ -275,7 +276,7 @@ const TableEditor = () => {
 									<React.Fragment key={column.id}>
 										{(() => {
 											switch (row.cells[column.id].type || column.type) {
-												case 'header': return <th>
+												case 'header': return <th style={{...column.style, ...row.cells[column.id].style}}>
 													<div
 														contentEditable
 														suppressContentEditableWarning
@@ -287,7 +288,7 @@ const TableEditor = () => {
 														}}
 													></div>
 												</th>;
-												case 'password': return <td>
+												case 'password': return <td style={{...column.style, ...row.cells[column.id].style}}>
 													<div className="cells-and-actions">
 														<div
 															contentEditable
@@ -308,7 +309,7 @@ const TableEditor = () => {
 														</div>
 													</div>
 												</td>;
-												case 'uri': return <td style={{ textAlign: column.align }}>
+												case 'uri': return <td style={{ textAlign: column.align, ...column.style, ...row.cells[column.id].style }}>
 													<div className="cells-and-actions">
 														<div>
 															<a
@@ -336,7 +337,7 @@ const TableEditor = () => {
 														</div>
 													</div>
 												</td>;
-												case 'function': return <td style={{ textAlign: column.align }}>
+												case 'function': return <td style={{ textAlign: column.align, ...column.style, ...row.cells[column.id].style }}>
 													<div
 														className="cell-padding"
 														style={{
@@ -346,7 +347,7 @@ const TableEditor = () => {
 														{window[ row.cells[column.id].value ] && window[ row.cells[column.id].value ](data, sheetIndex, column.id, rowIndex)}
 													</div>
 												</td>;
-												default: return <td>
+												default: return <td style={{...column.style, ...row.cells[column.id].style}}>
 													<div
 														contentEditable
 														suppressContentEditableWarning
