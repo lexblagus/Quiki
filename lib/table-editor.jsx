@@ -63,7 +63,8 @@ const TableEditor = () => {
 					if (!parsedData[sheetIndex].body) {
 						parsedData[sheetIndex].body = [];
 					}
-					if (sheet.body.length === 0) {
+					if (sheet.columns.length > 0 && sheet.body.length === 0) {
+						// At least one empty row at begin
 						sheet.body.push({});
 					}
 					sheet.body.forEach((row, rowIndex) => {
@@ -102,8 +103,8 @@ const TableEditor = () => {
 	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	React.useEffect(() => {
 		data && data.forEach((sheet, sheetIndex) => {
-			// At least one empty row
-			if (sheet.body.length === 0) {
+			// At least one empty row when all are deleted
+			if (sheet.columns.length > 0 && sheet.body.length === 0) {
 				handleAddRow(sheetIndex, 0);
 			}
 
@@ -113,7 +114,7 @@ const TableEditor = () => {
 					const cell = row.cells[column.id];
 					const el = refs.current[cell.id];
 					if (el && el.innerHTML !== cell.value) {
-						if (column.type === 'html') {
+						if (cell.type === 'html' || column.type === 'html') {
 							el.innerHTML = cell.value;
 						} else {
 							el.textContent = cell.value;
@@ -145,7 +146,7 @@ const TableEditor = () => {
 	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	const handleChangeCell = (sheetIndex, rowIndex, columnId) => {
 		const cellId = data[sheetIndex].body[rowIndex].cells[columnId].id;
-		const cellType = data[sheetIndex].columns.find(column => column.id === columnId).type;
+		const cellType = data[sheetIndex].body[rowIndex].cells[columnId].type || data[sheetIndex].columns.find(column => column.id === columnId).type;
 		const newText =
 			refs.current[cellId] &&
 			(cellType === 'html' ? refs.current[cellId].innerHTML : refs.current[cellId].textContent) ||
@@ -262,7 +263,9 @@ const TableEditor = () => {
 									{column.title}
 								</th>
 							)}
-							<th className="small-title" style={{ textAlign: 'center' }}>actions</th>
+							{sheet.columns.length > 0 && (
+								<th className="small-title" style={{ textAlign: 'center' }}>actions</th>
+							)}
 						</tr>
 					</thead>
 					<tbody>
@@ -271,7 +274,7 @@ const TableEditor = () => {
 								{sheet.columns.map(column =>
 									<React.Fragment key={column.id}>
 										{(() => {
-											switch (column.type) {
+											switch (row.cells[column.id].type || column.type) {
 												case 'header': return <th>
 													<div
 														contentEditable
@@ -348,43 +351,45 @@ const TableEditor = () => {
 										})()}
 									</React.Fragment>
 								)}
-								<th className="actions">
-									<button
-										title="add row above"
-										className="action"
-										onClick={() => handleAddRow(sheetIndex, rowIndex)}
-									><i className="fas fa-upload"></i></button>
-									<button
-										title="add row bellow"
-										className="action"
-										onClick={() => handleAddRow(sheetIndex, rowIndex + 1)}
-									><i className="fas fa-download"></i></button>
-									<button
-										title="move row up"
-										className="action"
-										onClick={() => handleMoveRow(sheetIndex, rowIndex, rowIndex - 1)}
-										disabled={rowIndex === 0}
-										style={{
-											visibility: rowIndex === 0 ? 'hidden' : 'visible',
-											display: sheet.body.length > 1 ? 'initial' : 'none',
-										}}
-									><i className="fas fa-arrow-up"></i></button>
-									<button
-										title="move row down"
-										className="action"
-										onClick={() => handleMoveRow(sheetIndex, rowIndex, rowIndex + 1)}
-										disabled={(rowIndex + 1) === sheet.body.length}
-										style={{
-											visibility: (rowIndex + 1) === sheet.body.length ? 'hidden' : 'visible',
-											display: sheet.body.length > 1 ? 'initial' : 'none',
-										}}
-									><i className="fas fa-arrow-down"></i></button>
-									<button
-										title="remove"
-										className="action"
-										onClick={() => handleRemoveRow(sheetIndex, rowIndex)}
-									><i className="fas fa-trash"></i></button>
-								</th>
+								{sheet.columns.length > 0 && (
+									<th className="actions">
+										<button
+											title="add row above"
+											className="action"
+											onClick={() => handleAddRow(sheetIndex, rowIndex)}
+										><i className="fas fa-upload"></i></button>
+										<button
+											title="add row bellow"
+											className="action"
+											onClick={() => handleAddRow(sheetIndex, rowIndex + 1)}
+										><i className="fas fa-download"></i></button>
+										<button
+											title="move row up"
+											className="action"
+											onClick={() => handleMoveRow(sheetIndex, rowIndex, rowIndex - 1)}
+											disabled={rowIndex === 0}
+											style={{
+												visibility: rowIndex === 0 ? 'hidden' : 'visible',
+												display: sheet.body.length > 1 ? 'initial' : 'none',
+											}}
+										><i className="fas fa-arrow-up"></i></button>
+										<button
+											title="move row down"
+											className="action"
+											onClick={() => handleMoveRow(sheetIndex, rowIndex, rowIndex + 1)}
+											disabled={(rowIndex + 1) === sheet.body.length}
+											style={{
+												visibility: (rowIndex + 1) === sheet.body.length ? 'hidden' : 'visible',
+												display: sheet.body.length > 1 ? 'initial' : 'none',
+											}}
+										><i className="fas fa-arrow-down"></i></button>
+										<button
+											title="remove"
+											className="action"
+											onClick={() => handleRemoveRow(sheetIndex, rowIndex)}
+										><i className="fas fa-trash"></i></button>
+									</th>
+								)}
 							</tr>
 						)}
 					</tbody>
