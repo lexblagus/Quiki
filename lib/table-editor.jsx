@@ -336,6 +336,16 @@ const TableEditor = () => {
 														</div>
 													</div>
 												</td>;
+												case 'function': return <td style={{ textAlign: column.align }}>
+													<div
+														className="cell-padding"
+														style={{
+															textAlign: row.cells[column.id].align || column.align,
+														}}
+													>
+														{window[ row.cells[column.id].value ] && window[ row.cells[column.id].value ](data, sheetIndex, column.id, rowIndex)}
+													</div>
+												</td>;
 												default: return <td>
 													<div
 														contentEditable

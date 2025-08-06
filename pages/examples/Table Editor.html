@@ -6,6 +6,9 @@
 <script id="react-app" type="text/babel" src="/lib/table-editor.jsx"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css" />
 <link rel="stylesheet" href="/lib/table-editor.css" />
+<script id="functions">
+	window.f = (data, sheetIndex, columnId, rowIndex) => `Scripted ${JSON.stringify([sheetIndex, columnId, rowIndex])}`;
+</script>
 <script id="data" type="application/json">[
 	{
 		"meta": {
@@ -43,6 +46,11 @@
 				"title": "F: password",
 				"type": "password",
 				"align": "right"
+			},
+			{
+				"id": "g",
+				"title": "G: function",
+				"type": "function"
 			}
 		],
 		"body": [
@@ -51,8 +59,9 @@
 					"a": { "value": "A1" },
 					"b": { "value": "B1" },
 					"d": { "value": "D1" },
-					"e": { "value": "E1" },
-					"f": { "value": "F1" }
+					"e": { "value": "E1", "align": "left" },
+					"f": { "value": "F1" },
+					"g": { "value": "f" }
 				}
 			},
 			{
@@ -61,7 +70,8 @@
 					"c": { "value": "C<br />2" },
 					"d": { "value": "<b>D<br />2</b>", "type": "header" },
 					"e": { "value": "EE22" },
-					"f": { "value": "F2" }
+					"f": { "value": "F2" },
+					"g": { "value": "f" }
 				}
 			},
 			{
@@ -70,7 +80,8 @@
 					"b": { "value": "B3" },
 					"c": { "value": "<img width='10' height='10' src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR4nGP4z8AAAAMBAQAY/l4nAAAAAElFTkSuQmCC' />", "type": "html" },
 					"e": { "value": "EEE333" },
-					"f": { "value": "F3" }
+					"f": { "value": "F3" },
+					"g": { "value": "f" }
 				}
 			},
 			{},
@@ -80,16 +91,19 @@
 					"b": { "value": "B5", "type": "uri", "align": "center" },
 					"c": { "value": "C5", "align": "center" },
 					"d": { "value": "<img width='10' height='10' src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR4nGP4z8AAAAMBAQAY/l4nAAAAAElFTkSuQmCC' />" },
-					"f": { "value": "F5" }
+					"f": { "value": "F5" },
+					"g": { "value": "f" }
 				}
 			},
 			{
 				"cells": {
 					"a": { "value": "A6" },
-					"b": { "value": "B6" },
+					"b": { "value": "f", "type": "function" },
 					"c": { "value": "C6", "type": "password" },
 					"d": { "value": "D6" },
-					"e": { "value": "protocol:E6" }
+					"e": { "value": "protocol:E6" },
+					"f": { "value": "F6", "align": "left" },
+					"g": { "value": "f" }
 				}
 			}
 		]
