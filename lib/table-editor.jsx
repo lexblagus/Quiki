@@ -283,7 +283,7 @@ const TableEditor = () => {
 														onBlur={() => handleChangeCell(sheetIndex, rowIndex, column.id)}
 														className="cell-padding"
 														style={{
-															textAlign: column.align,
+															textAlign: row.cells[column.id].align || column.align,
 														}}
 													></div>
 												</th>;
@@ -296,7 +296,7 @@ const TableEditor = () => {
 															onBlur={() => handleChangeCell(sheetIndex, rowIndex, column.id)}
 															className="cell-padding"
 															style={{
-																textAlign: column.align,
+																textAlign: row.cells[column.id].align || column.align,
 															}}
 														></div>
 														<div>
@@ -316,7 +316,8 @@ const TableEditor = () => {
 																onClick={event => { event.preventDefault(); }}
 																style={{
 																	display: 'inline-block',
-																	width: '100%'
+																	width: '100%',
+																	textAlign: row.cells[column.id].align || column.align,
 																}}
 																contentEditable
 																suppressContentEditableWarning
@@ -343,7 +344,7 @@ const TableEditor = () => {
 														onBlur={() => handleChangeCell(sheetIndex, rowIndex, column.id)}
 														className="cell-padding"
 														style={{
-															textAlign: column.align,
+															textAlign: row.cells[column.id].align || column.align,
 														}}
 													></div>
 												</td>;
