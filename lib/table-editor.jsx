@@ -42,7 +42,8 @@ const TableEditor = () => {
 	const [data, setData] = React.useState([]);
 	const [initialData, setInitialData] = React.useState([]);
 	const [dirty, setDirty] = React.useState([]);
-	const refs = React.useRef({});
+	const cellRefs = React.useRef({});
+	const columnRefs = React.useRef({});
 	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	React.useEffect(() => {
 		const dataEl = document.getElementById('data');
@@ -81,6 +82,9 @@ const TableEditor = () => {
 							if (!column.type) {
 								column.type = 'text';
 							}
+							if (!column.filter) {
+								column.filter = { enabled: false, value: '' };
+							}
 							if (!row.cells[column.id]) {
 								row.cells[column.id] = {};
 							}
@@ -108,11 +112,20 @@ const TableEditor = () => {
 				handleAddRow(sheetIndex, 0);
 			}
 
-			// set content editable values by ref
+			// set content editable values by ref (headers)
+			sheet.columns.forEach((column, columnIndex) => {
+				const headerFilterValue = column.filter.value;
+				const el = columnRefs.current[`${sheetIndex} ${column.id}`];
+				if (el && el.textContent !== headerFilterValue) {
+					el.textContent = headerFilterValue;
+				}
+			});
+
+			// set content editable values by ref (cells)
 			sheet.body.forEach((row, rowIndex) => {
 				sheet.columns.forEach((column, columnIndex) => {
 					const cell = row.cells[column.id];
-					const el = refs.current[cell.id];
+					const el = cellRefs.current[cell.id];
 					if (el && el.innerHTML !== cell.value) {
 						if (cell.type === 'html' || column.type === 'html') {
 							el.innerHTML = cell.value;
@@ -135,6 +148,67 @@ const TableEditor = () => {
 		document.getElementById('data').innerHTML = JSON.stringify(data, null, '\t');
 	}, [data]); // run when data is changed
 	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	const filterRow = (sheetIndex, row, rowIndex) => {
+		const filters = data[sheetIndex].columns.filter(
+			column =>
+				column.filter && 
+				column.filter.enabled && 
+				column.filter.value !== ''
+		);
+
+		if (filters.length === 0) { return true; }
+
+		const columnFilters = filters.reduce(
+			(acc, item) => {
+				acc[item.id] = item.filter.value;
+				return acc;
+			}, {});
+
+		const columns = data[sheetIndex].columns;
+
+		return columns.some(column => {
+			const cell = row.cells[column.id];
+			const filterValue = (columnFilters[column.id] || '').toLowerCase();
+			const keyed = column.id in columnFilters;
+
+			if(cell.type === 'function'){
+				return false
+			}
+
+			if(cell.type === 'html'){
+				const parser = new DOMParser();
+				const doc = parser.parseFromString(cell.value, "text/html");
+				const text = doc.body.textContent.toLowerCase();
+				const htmlMatches = text.search(filterValue) > -1;
+				return keyed && htmlMatches;
+			}
+
+			const matches = cell.value.toLowerCase().search(filterValue) > -1;
+			return keyed && matches;
+		})
+	};
+	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	const handleToggleFilter = (sheetIndex, columnId) => {
+		const newData = structuredClone(data);
+		const columnIndex = newData[sheetIndex].columns.findIndex(item => item.id === columnId);
+		const column = newData[sheetIndex].columns[columnIndex];
+		column.filter = {
+			enabled: !column.filter.enabled,
+			value: column.filter.value,
+		};
+		setData(newData);
+	};
+	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	const handleChangeFilter = (sheetIndex, columnId) => {
+		const newData = structuredClone(data);
+		const columnIndex = newData[sheetIndex].columns.findIndex(item => item.id === columnId);
+		const column = newData[sheetIndex].columns[columnIndex];
+		const ref = columnRefs.current[`${sheetIndex} ${column.id}`];
+		const newText = ref ? ref.textContent : '';
+		column.filter.value = newText;
+		setData(newData);
+	};
+	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	const handleGeneratePassword = (sheetIndex, rowIndex, columnId) => {
 		const cellId = data[sheetIndex].body[rowIndex].cells[columnId].id;
 		const newText = generatePassword();
@@ -148,8 +222,8 @@ const TableEditor = () => {
 		const cellId = data[sheetIndex].body[rowIndex].cells[columnId].id;
 		const cellType = data[sheetIndex].body[rowIndex].cells[columnId].type || data[sheetIndex].columns.find(column => column.id === columnId).type;
 		const newText =
-			refs.current[cellId] &&
-			(cellType === 'html' ? refs.current[cellId].innerHTML : refs.current[cellId].textContent) ||
+			cellRefs.current[cellId] &&
+			(cellType === 'html' ? cellRefs.current[cellId].innerHTML : cellRefs.current[cellId].textContent) ||
 			'';
 		const newData = [...data];
 		const sheet = newData[sheetIndex];
@@ -165,7 +239,7 @@ const TableEditor = () => {
 		emptyRow.id = uuidv4();
 		emptyRow.cells = {};
 		sheet.columns.forEach(col => {
-			emptyRow.cells[col.id] = { id: uuidv4(), value: '' };
+			emptyRow.cells[col.id] = { id: uuidv4(), value: '', filter: { enabled: false, value: '' } };
 		});
 
 		newData[sheetIndex] = {
@@ -255,22 +329,48 @@ const TableEditor = () => {
 								<th
 									key={column.id}
 									data-id={column.id}
-									className="cell-padding small-title"
-									style={{
-										textAlign: column.align,
-										...column.style,
-									}}
+									className="cell-padding"
 								>
-									{column.title}
+									<div className="cells-and-actions">
+										<div style={{
+											textAlign: column.align,
+											...column.style,
+										}}>
+											{column.title}
+										</div>
+										<div className="header-actions">
+											{column.type !== 'function' && (
+												<button
+													title="filter by contents"
+													className="header-action"
+													onClick={() => handleToggleFilter(sheetIndex, column.id)}
+												><i className="fa-solid fa-filter"></i></button>
+											)}
+										</div>
+									</div>
+									{column.filter.enabled && column.type !== 'function' && (
+										<div
+											contentEditable suppressContentEditableWarning
+											ref={el => columnRefs.current[`${sheetIndex} ${column.id}`] = el}
+											onBlur={() => handleChangeFilter(sheetIndex, column.id)}
+											onKeyUp={() => handleChangeFilter(sheetIndex, column.id)}
+											className="cell-padding filter-text"
+											style={{
+												textAlign: column.align,
+											}}
+										></div>
+									)}
 								</th>
 							)}
 							{sheet.columns.length > 0 && (
-								<th className="small-title" style={{ textAlign: 'center' }}>actions</th>
+								<th style={{ textAlign: 'center' }}>Actions</th>
 							)}
 						</tr>
 					</thead>
 					<tbody>
-						{sheet.body.map((row, rowIndex) =>
+						{sheet.body
+							.filter((row, rowIndex) => filterRow(sheetIndex, row, rowIndex))
+							.map((row, rowIndex) =>
 							<tr key={row.id} data-id={row.id}>
 								{sheet.columns.map(column =>
 									<React.Fragment key={column.id}>
@@ -278,9 +378,8 @@ const TableEditor = () => {
 											switch (row.cells[column.id].type || column.type) {
 												case 'header': return <th style={{...column.style, ...row.cells[column.id].style}}>
 													<div
-														contentEditable
-														suppressContentEditableWarning
-														ref={el => (refs.current[row.cells[column.id].id] = el)}
+														contentEditable suppressContentEditableWarning
+														ref={el => (cellRefs.current[row.cells[column.id].id] = el)}
 														onBlur={() => handleChangeCell(sheetIndex, rowIndex, column.id)}
 														className="cell-padding"
 														style={{
@@ -291,9 +390,8 @@ const TableEditor = () => {
 												case 'password': return <td style={{...column.style, ...row.cells[column.id].style}}>
 													<div className="cells-and-actions">
 														<div
-															contentEditable
-															suppressContentEditableWarning
-															ref={el => (refs.current[row.cells[column.id].id] = el)}
+															contentEditable suppressContentEditableWarning
+															ref={el => (cellRefs.current[row.cells[column.id].id] = el)}
 															onBlur={() => handleChangeCell(sheetIndex, rowIndex, column.id)}
 															className="cell-padding"
 															style={{
@@ -320,9 +418,8 @@ const TableEditor = () => {
 																	width: '100%',
 																	textAlign: row.cells[column.id].align || column.align,
 																}}
-																contentEditable
-																suppressContentEditableWarning
-																ref={el => (refs.current[row.cells[column.id].id] = el)}
+																contentEditable suppressContentEditableWarning
+																ref={el => (cellRefs.current[row.cells[column.id].id] = el)}
 																onBlur={() => handleChangeCell(sheetIndex, rowIndex, column.id)}
 																className="cell-padding"
 															></a>
@@ -349,9 +446,8 @@ const TableEditor = () => {
 												</td>;
 												default: return <td style={{...column.style, ...row.cells[column.id].style}}>
 													<div
-														contentEditable
-														suppressContentEditableWarning
-														ref={el => (refs.current[row.cells[column.id].id] = el)}
+														contentEditable suppressContentEditableWarning
+														ref={el => (cellRefs.current[row.cells[column.id].id] = el)}
 														onBlur={() => handleChangeCell(sheetIndex, rowIndex, column.id)}
 														className="cell-padding"
 														style={{
@@ -365,36 +461,40 @@ const TableEditor = () => {
 								)}
 								{sheet.columns.length > 0 && (
 									<th className="actions">
-										<button
-											title="add row above"
-											className="action"
-											onClick={() => handleAddRow(sheetIndex, rowIndex)}
-										><i className="fas fa-upload"></i></button>
-										<button
-											title="add row bellow"
-											className="action"
-											onClick={() => handleAddRow(sheetIndex, rowIndex + 1)}
-										><i className="fas fa-download"></i></button>
-										<button
-											title="move row up"
-											className="action"
-											onClick={() => handleMoveRow(sheetIndex, rowIndex, rowIndex - 1)}
-											disabled={rowIndex === 0}
-											style={{
-												visibility: rowIndex === 0 ? 'hidden' : 'visible',
-												display: sheet.body.length > 1 ? 'initial' : 'none',
-											}}
-										><i className="fas fa-arrow-up"></i></button>
-										<button
-											title="move row down"
-											className="action"
-											onClick={() => handleMoveRow(sheetIndex, rowIndex, rowIndex + 1)}
-											disabled={(rowIndex + 1) === sheet.body.length}
-											style={{
-												visibility: (rowIndex + 1) === sheet.body.length ? 'hidden' : 'visible',
-												display: sheet.body.length > 1 ? 'initial' : 'none',
-											}}
-										><i className="fas fa-arrow-down"></i></button>
+										{!sheet.columns.some(column => column.filter.enabled && column.filter.value !== '') && (
+											<React.Fragment>
+												<button
+													title="add row above"
+													className="action"
+													onClick={() => handleAddRow(sheetIndex, rowIndex)}
+												><i className="fas fa-upload"></i></button>
+												<button
+													title="add row bellow"
+													className="action"
+													onClick={() => handleAddRow(sheetIndex, rowIndex + 1)}
+												><i className="fas fa-download"></i></button>
+												<button
+													title="move row up"
+													className="action"
+													onClick={() => handleMoveRow(sheetIndex, rowIndex, rowIndex - 1)}
+													disabled={rowIndex === 0}
+													style={{
+														visibility: rowIndex === 0 ? 'hidden' : 'visible',
+														display: sheet.body.length > 1 ? 'initial' : 'none',
+													}}
+												><i className="fas fa-arrow-up"></i></button>
+												<button
+													title="move row down"
+													className="action"
+													onClick={() => handleMoveRow(sheetIndex, rowIndex, rowIndex + 1)}
+													disabled={(rowIndex + 1) === sheet.body.length}
+													style={{
+														visibility: (rowIndex + 1) === sheet.body.length ? 'hidden' : 'visible',
+														display: sheet.body.length > 1 ? 'initial' : 'none',
+													}}
+												><i className="fas fa-arrow-down"></i></button>
+											</React.Fragment>
+										)}
 										<button
 											title="remove"
 											className="action"

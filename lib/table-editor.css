@@ -3,7 +3,7 @@ table { font-size: 0.9em; margin: 0; padding: 0; border-spacing: 2px; empty-cell
 	table tr {}
 	table tr th,
 	table tr td { margin: 0; padding: 0; vertical-align: baseline; }
-	table tr th { background-color: hsla(0,0%,0%,0.500); color: hsla(0,0%,90%,1); font-weight: 100; text-transform: none; text-align: left; }
+	table tr th { background-color: hsla(0,0%,0%,0.500); color: hsla(0,0%,90%,1); font-weight: 400; text-transform: none; text-align: left; }
 		table tr th * { text-transform: none; }
 	table tr td{ background-color: hsla(0,0%,0%,0.100); }
 /* complex table */            
@@ -29,15 +29,19 @@ th, td { min-width: 1em; }
 [contentEditable]:focus {  }
 [contentEditable]:focus-visible { outline: dashed 1px hsla(0, 0%, 0%, 0.5); outline-offset: -1px; }
 th.actions { background-color: hsla(0,0%,0%,0.100); padding: 0; text-align: right; white-space: nowrap; }
-button.action { background-color: transparent; border-style: none; padding: 0 4px; cursor: pointer; }
-button.action:hover { cursor: pointer; }
 thead > tr > th { background-color: hsla(0, 0%, 0%, 0.600); }
 tbody > tr:nth-child(even) > td,
 tbody > tr:nth-child(even) > th.actions { background-color: hsla(0, 0%, 0%, 0.150); }
 tbody > tr:nth-child(even) > th { background-color: hsla(0, 0%, 0%, 0.600); }
 /* -------------------------------------------------------------------------- */
+button.header-action{ color: hsla(0,0%,90%,1); background-color: transparent; border-style: none; padding: 0; cursor: pointer; }
+button.action { background-color: transparent; border-style: none; padding: 0 4px; cursor: pointer; }
+button.action:hover { cursor: pointer; }
+/* -------------------------------------------------------------------------- */
+.header-actions{ margin-left: 4px; display: flex; column-gap: 4px; }
+.filter-text{ background-color: hsla(0,0%,100%,0.200); margin-bottom: 2px; }
 .uppercase { text-transform: uppercase; }
 .transparent { background-color: transparent; }
-.small-title { text-transform: uppercase; }
-.cell-padding { padding: 4px 4px 1px; }
+.small-title { font-size: 0.8em; text-transform: uppercase; }
+.cell-padding { padding: 4px 4px 2px; }
 .cells-and-actions{ display: grid; grid-template-columns: 1fr auto; align-items: baseline; column-gap: 2px; }
