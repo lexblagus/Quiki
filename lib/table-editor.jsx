@@ -316,10 +316,11 @@ const TableEditor = () => {
 					switch (sheet.meta.level) {
 						case 1: return <h1>{sheet.meta.title}</h1>;
 						case 2: return <h2>{sheet.meta.title}</h2>;
+						case 3: return <h3>{sheet.meta.title}</h3>;
 						case 4: return <h4>{sheet.meta.title}</h4>;
 						case 5: return <h5>{sheet.meta.title}</h5>;
 						case 6: return <h6>{sheet.meta.title}</h6>;
-						default: return <h3>{sheet.meta.title}</h3>;
+						default: return <h2>{sheet.meta.title}</h2>;
 					}
 				})()}
 				<table>
