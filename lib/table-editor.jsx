@@ -48,7 +48,7 @@ const TableEditor = () => {
 	React.useEffect(() => {
 		const dataEl = document.getElementById('data');
 		if (dataEl) {
-			const jsonText = dataEl.textContent;
+			const jsonText = dataEl.innerText;
 			try {
 				const parsedData = JSON.parse(jsonText);
 				parsedData.forEach((sheet, sheetIndex) => {
@@ -116,8 +116,8 @@ const TableEditor = () => {
 			sheet.columns.forEach((column, columnIndex) => {
 				const headerFilterValue = column.filter.value;
 				const el = columnRefs.current[`${sheetIndex} ${column.id}`];
-				if (el && el.textContent !== headerFilterValue) {
-					el.textContent = headerFilterValue;
+				if (el && el.innerText !== headerFilterValue) {
+					el.innerText = headerFilterValue;
 				}
 			});
 
@@ -130,7 +130,7 @@ const TableEditor = () => {
 						if (cell.type === 'html' || column.type === 'html') {
 							el.innerHTML = cell.value;
 						} else {
-							el.textContent = cell.value;
+							el.innerText = cell.value;
 						}
 					}
 				});
@@ -178,7 +178,7 @@ const TableEditor = () => {
 			if(cell.type === 'html'){
 				const parser = new DOMParser();
 				const doc = parser.parseFromString(cell.value, "text/html");
-				const text = doc.body.textContent.toLowerCase();
+				const text = doc.body.innerText.toLowerCase();
 				const htmlMatches = text.search(filterValue) > -1;
 				return keyed && htmlMatches;
 			}
@@ -204,7 +204,7 @@ const TableEditor = () => {
 		const columnIndex = newData[sheetIndex].columns.findIndex(item => item.id === columnId);
 		const column = newData[sheetIndex].columns[columnIndex];
 		const ref = columnRefs.current[`${sheetIndex} ${column.id}`];
-		const newText = ref ? ref.textContent : '';
+		const newText = ref ? ref.innerText : '';
 		column.filter.value = newText;
 		setData(newData);
 	};
@@ -223,7 +223,7 @@ const TableEditor = () => {
 		const cellType = data[sheetIndex].body[rowIndex].cells[columnId].type || data[sheetIndex].columns.find(column => column.id === columnId).type;
 		const newText =
 			cellRefs.current[cellId] &&
-			(cellType === 'html' ? cellRefs.current[cellId].innerHTML : cellRefs.current[cellId].textContent) ||
+			(cellType === 'html' ? cellRefs.current[cellId].innerHTML : cellRefs.current[cellId].innerText) ||
 			'';
 		const newData = [...data];
 		const sheet = newData[sheetIndex];
